@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  role           UserRole  @default(STUDENT)
+  email          String    @unique
+  hashedPassword String    @map("hashed_password")
+  sessions       Session[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  listings       Listing[]
+  reviews        Review[]
+
+  @@map("users")
+}
+
+model Listing {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String
+  location       String
+  rent           Int
+  roomType       RoomType
+  slotsAvailable Int      @map("slots_available")
+  contactInfo    String   @map("contact_info")
+  reviews        Review[]
+  images         Image[]
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  rating  Int
+  comment String
+
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id])
+  listingId Int     @map("listing_id")
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Image {
+  id  Int    @id @default(autoincrement())
+  url String
+
+  listingId Int     @map("listing_id")
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+}
+
+enum RoomType {
+  STUDIO
+  BOARDING_HOUSE
+  DORMITORY
+  BEDSPACE
+  CONDO
+  HOUSE
+}
+
+enum UserRole {
+  STUDENT
+  LANDLORD
+  ADMIN
+}
