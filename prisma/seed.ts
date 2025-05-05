@@ -1,62 +1,64 @@
 import prisma from "@/lib/prisma";
 import { RoomType, UserRole } from "@prisma/client";
+import { faker } from "@faker-js/faker";
 
-async function main() {
-  const users = {
-    landlord: {
+const imageUrl =
+  "https://luxurylux.s3.ap-southeast-2.amazonaws.com/uploads/Online-House-Rental-Sites.jpg";
+
+async function seedLandlord() {
+  return await prisma.user.create({
+    data: {
       email: "landlord@example.com",
-      hashedPassword: "hashed_password", // Use bcrypt or another method to hash passwords
+      hashedPassword: "hashed_password", // Use real hashing in prod
       role: UserRole.LANDLORD,
     },
-    student: {
-      email: "student@example.com",
-      hashedPassword: "hashed_password", // Use bcrypt or another method to hash passwords
-      role: UserRole.STUDENT,
-    },
-  };
-  const landlord = await prisma.user.create({ data: users.landlord });
-  const student = await prisma.user.create({ data: users.student });
-
-  const listingData = {
-    title: "Spacious Room for Rent",
-    description: "A nice, spacious room in the heart of Baguio.",
-    location: "Baguio City",
-    rent: 3000,
-    roomType: RoomType.STUDIO,
-    slotsAvailable: 4,
-    userId: landlord.id,
-  };
-
-  const listing = await prisma.listing.create({
-    data: listingData,
   });
+}
 
-  const imagesData = [
-    { url: "https://example.com/image1.jpg", listingId: listing.id },
-    { url: "https://example.com/image2.jpg", listingId: listing.id },
-  ];
+async function seedListings(landlordId: string) {
+  const listings = Array.from({ length: 15 }, (_, i) => ({
+    title: `Listing ${i + 1}`,
+    description: faker.lorem.paragraph(),
+    location: faker.location.city(),
+    rent:
+      faker.number.int({ min: 1000, max: 10000 }) -
+      (faker.number.int({ min: 1000, max: 10000 }) % 1000),
+    roomType: faker.helpers.arrayElement(Object.values(RoomType)),
+    slotsAvailable: faker.number.int({ min: 1, max: 10 }),
+    contactInfo: faker.phone.number(),
+    userId: landlordId,
+  }));
 
-  await prisma.image.createMany({
-    data: imagesData,
+  await prisma.listing.createMany({ data: listings });
+
+  // Fetch the listings with IDs after creation
+  return await prisma.listing.findMany({
+    where: { userId: landlordId },
+    select: { id: true },
   });
+}
 
-  const reviewData = {
-    rating: 5,
-    comment: "Great place!",
-    userId: student.id,
+async function seedImages(listings: { id: number }[]) {
+  const images = listings.map((listing) => ({
     listingId: listing.id,
-  };
+    url: imageUrl,
+  }));
 
-  await prisma.review.create({
-    data: reviewData,
-  });
+  await prisma.image.createMany({ data: images });
+}
 
-  console.log("🌱 Seeded successfully");
+async function main() {
+  const landlord = await seedLandlord();
+  const listings = await seedListings(landlord.id);
+  await seedImages(listings);
+
+  console.log("✅ Seeded landlord, listings, and images.");
 }
 
 main()
   .catch((e) => {
-    throw e;
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
