@@ -1,60 +1,69 @@
 import { PropertyWithImages } from "@/config/types";
 import Image from "next/image";
 import {
-  HomeIcon,
-  ShowerHead,
   UtensilsIcon,
   WifiIcon,
   BoltIcon,
   PawPrintIcon,
   UsersIcon,
   ClockIcon,
+  WashingMachineIcon,
+  CigaretteOffIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { Listing } from "@prisma/client";
 
-const features = () => [
+const features = (listing: Listing) => [
   {
     id: 1,
-    icon: <HomeIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Single Room",
+    icon: <UsersIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label:
+      listing.genderPolicy === "MIXED"
+        ? "Mixed Gender"
+        : listing.genderPolicy === "MALE_ONLY"
+        ? "Male Only"
+        : "Female Only",
   },
   {
     id: 2,
-    icon: <ShowerHead className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Shared CR",
+    icon: <WashingMachineIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.hasLaundry ? "Laundry Area Available" : "No Laundry Area",
   },
   {
     id: 3,
-    icon: <UtensilsIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Kitchen Available",
+    icon: <CigaretteOffIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.hasCaretaker ? "With Caretaker" : "No Caretaker",
   },
   {
     id: 4,
-    icon: <WifiIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Wi-Fi Included",
+    icon: <UtensilsIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.hasKitchen ? "Kitchen Access" : "No Kitchen Access",
   },
   {
     id: 5,
-    icon: <BoltIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Utilities Included",
+    icon: <WifiIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.hasWifi ? "Wi-Fi Available" : "No Wi-Fi",
   },
   {
     id: 6,
-    icon: <PawPrintIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Pets Allowed",
+    icon: <BoltIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.includesUtilities
+      ? "Utilities Included"
+      : "Utilities Not Included",
   },
   {
     id: 7,
     icon: <ClockIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "Curfew at 10 PM",
+    label: listing.hasCurfew ? "Has Curfew" : "No Curfew",
   },
   {
     id: 8,
-    icon: <UsersIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: "2 per room",
+    icon: <PawPrintIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    label: listing.petsAllowed ? "Pets Allowed" : "No Pets Allowed",
   },
 ];
+
 export const PropertyView = (props: PropertyWithImages) => {
   const { images, title, description, location, rent, roomType } = props;
   return (
@@ -108,7 +117,7 @@ export const PropertyView = (props: PropertyWithImages) => {
           <div className="mt-8">
             <h2 className="text-lg font-semibold mb-4">Deets</h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {features().map(({ id, icon, label }) => (
+              {features(props).map(({ id, icon, label }) => (
                 <div
                   key={id}
                   className="flex flex-col items-center rounded-lg bg-gray-100 p-4 text-center shadow-sm"

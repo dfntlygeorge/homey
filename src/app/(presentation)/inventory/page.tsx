@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { PropertyListings } from "@/components/properties/property-listings";
 import { SearchInput } from "@/components/shared/search-input";
 import { AwaitedPageProps } from "@/config/types";
@@ -23,6 +24,8 @@ export default async function InventoryPage(props: AwaitedPageProps) {
     },
     orderBy: { createdAt: "desc" },
   });
+  const session = await auth();
+  console.log(session?.user?.email);
 
   return (
     <div>

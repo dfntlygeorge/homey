@@ -7,47 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             String    @id @default(cuid())
-  role           UserRole  @default(STUDENT)
-  email          String    @unique
-  hashedPassword String    @map("hashed_password")
-  sessions       Session[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  listings       Listing[]
-  reviews        Review[]
-
-  @@map("users")
-}
-
 model Listing {
-  id             Int      @id @default(autoincrement())
-  title          String
-  description    String
-  location       String
-  rent           Int
-  roomType       RoomType
-  slotsAvailable Int      @map("slots_available")
-  contactInfo    String   @map("contact_info")
-  reviews        Review[]
-  images         Image[]
+  id                Int          @id @default(autoincrement())
+  title             String
+  description       String
+  location          String
+  rent              Int
+  roomType          RoomType     @map("room_type")
+  slotsAvailable    Int          @map("slots_available")
+  contactInfo       String       @map("contact_info")
+  reviews           Review[]
+  images            Image[]
+  genderPolicy      GenderPolicy @map("gender_policy") // enum: MALE_ONLY, FEMALE_ONLY, MIXED
+  hasLaundry        Boolean      @map("has_laundry")
+  hasCaretaker      Boolean      @map("has_caretaker")
+  hasKitchen        Boolean      @map("has_kitchen")
+  hasWifi           Boolean      @map("has_wifi")
+  includesUtilities Boolean      @map("includes_utilities")
+  hasCurfew         Boolean      @map("curfew") // e.g., "10:00 PM", or nullable if none
+  petsAllowed       Boolean      @map("pets_allowed")
 
   userId String @map("user_id")
   user   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String   @map("user_id")
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
 }
 
 model Review {
@@ -74,6 +58,53 @@ model Image {
   createdAt DateTime @default(now()) @map("created_at")
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  role UserRole @default(STUDENT)
+
+  listings Listing[]
+  reviews  Review[]
+
+  @@map("users")
+}
+
 enum RoomType {
   STUDIO
   BOARDING_HOUSE
@@ -87,4 +118,10 @@ enum UserRole {
   STUDENT
   LANDLORD
   ADMIN
+}
+
+enum GenderPolicy {
+  MALE_ONLY
+  FEMALE_ONLY
+  MIXED
 }
