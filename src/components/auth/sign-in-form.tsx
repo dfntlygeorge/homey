@@ -53,7 +53,7 @@ export const SignInForm = () => {
             <Button
               type="button"
               onClick={() => signIn("google")}
-              className="w-full font-bold uppercase"
+              className="w-full font-bold uppercase cursor-pointer"
             >
               Sign In with Google
             </Button>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { routes } from "@/config/routes";
+import { formatPrice, formatRoomType } from "@/lib/utils";
 
 interface PropertyCardProps {
   property: PropertyWithImages;
@@ -41,10 +42,14 @@ export const PropertyCard = (props: PropertyCardProps) => {
               📍 <span className="line-clamp-1">{property.location}</span>
             </li>
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">
-              💸 <span className="line-clamp-1">₱{property.rent}</span>
+              💸{" "}
+              <span className="line-clamp-1">{formatPrice(property.rent)}</span>
             </li>
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">
-              🛏️ <span className="line-clamp-1">{property.roomType}</span>
+              🛏️{" "}
+              <span className="line-clamp-1">
+                {formatRoomType(property.roomType)}
+              </span>
             </li>
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">
               👥
@@ -61,7 +66,7 @@ export const PropertyCard = (props: PropertyCardProps) => {
             variant="outline"
             size="sm"
           >
-            <Link href="#">Reserve</Link>
+            <Link href={routes.reserve(property.id)}>Reserve</Link>
           </Button>
 
           <Button

@@ -13,6 +13,8 @@ import {
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Listing } from "@prisma/client";
+import { routes } from "@/config/routes";
+import { auth } from "@/auth";
 
 const features = (listing: Listing) => [
   {
@@ -64,71 +66,88 @@ const features = (listing: Listing) => [
   },
 ];
 
-export const PropertyView = (props: PropertyWithImages) => {
-  const { images, title, description, location, rent, roomType } = props;
+export const PropertyView = async (props: PropertyWithImages) => {
+  const session = await auth();
+  const { images, title, description, location, rent, roomType, id } = props;
   return (
-    <div className="container mx-auto flex flex-col py-12 md:px-0">
-      <div className="flex flex-col md:flex-row">
-        {images.length > 0 && (
-          <div className="md:w-1/2">
-            <Image
-              src={images[0].url}
-              alt={title}
-              width={640}
-              height={480}
-              className="rounded-lg object-cover"
-            />
-          </div>
-        )}
-        <div className="mt-4 md:mt-0 md:w-1/2 md:pl-8">
-          <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
-          <p className="text-gray-600 mt-2">{location}</p>
-
-          <div className="my-4">
-            <p className="text-lg font-semibold">₱{rent}</p>
-            {/* TODO: format room type */}
-            <p className="my-2">{roomType}</p>
-          </div>
-          {description && (
-            <div className="mt-4">
-              <h2 className="text-lg font-semibold">Description</h2>
-              <p className="text-gray-700 mt-1 whitespace-pre-line">
-                {description}
-              </p>
+    <div className="relative">
+      <div className="container mx-auto flex flex-col md:px-0">
+        <div className="flex flex-col md:flex-row">
+          {images.length > 0 && (
+            <div className="md:w-1/2">
+              <Image
+                src={images[0].url}
+                alt={title}
+                width={640}
+                height={480}
+                className="rounded-lg object-cover"
+              />
             </div>
           )}
-          {/* CTAs go here */}
-          <div className="mt-6 space-y-3">
-            <Button className="w-full font-bold uppercase cursor-pointer">
-              Reserve Now
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Not sure yet?{" "}
-              <Link
-                href="/contact-owner"
-                className="underline font-medium text-primary"
-              >
-                Contact the Owner
-              </Link>
-            </p>
-          </div>
+          <div className="mt-4 md:mt-0 md:w-1/2 md:pl-8">
+            <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
+            <p className="text-gray-600 mt-2">{location}</p>
 
-          {/* Features section */}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold mb-4">Deets</h2>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {features(props).map(({ id, icon, label }) => (
-                <div
-                  key={id}
-                  className="flex flex-col items-center rounded-lg bg-gray-100 p-4 text-center shadow-sm"
+            <div className="my-4">
+              <p className="text-lg font-semibold">₱{rent}</p>
+              {/* TODO: format room type */}
+              <p className="my-2">{roomType}</p>
+            </div>
+            {description && (
+              <div className="mt-4">
+                <h2 className="text-lg font-semibold">Description</h2>
+                <p className="text-gray-700 mt-1 whitespace-pre-line">
+                  {description}
+                </p>
+              </div>
+            )}
+            {/* CTAs go here */}
+            <div className="mt-6 space-y-3">
+              <Link href={routes.reserve(id)}>
+                <Button
+                  className="w-full font-bold uppercase cursor-pointer"
+                  title={!session ? "You need to sign in to reserve" : ""}
                 >
-                  {icon}
-                  <p className="mt-2 text-sm font-medium">{label}</p>
-                </div>
-              ))}
+                  Reserve Now
+                </Button>
+              </Link>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Not sure yet?{" "}
+                <Link
+                  href="/contact-owner"
+                  className="underline font-medium text-primary"
+                >
+                  Contact the Owner
+                </Link>
+              </p>
+            </div>
+
+            {/* Features section */}
+            <div className="mt-8">
+              <h2 className="text-lg font-semibold mb-4">Deets</h2>
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {features(props).map(({ id, icon, label }) => (
+                  <div
+                    key={id}
+                    className="flex flex-col items-center rounded-lg bg-gray-100 p-4 text-center shadow-sm"
+                  >
+                    {icon}
+                    <p className="mt-2 text-sm font-medium">{label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="sticky bottom-0 bg-white p-4 shadow-md">
+        <Link
+          href="/inventory"
+          className="block w-full text-center text-sm font-medium text-primary hover:underline"
+        >
+          ← Back to Listings
+        </Link>
       </div>
     </div>
   );
