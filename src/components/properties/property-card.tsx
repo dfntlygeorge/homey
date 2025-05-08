@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { routes } from "@/config/routes";
-import { formatPrice, formatRoomType } from "@/lib/utils";
+import { formatEnumValue, formatPrice } from "@/lib/utils";
 
 interface PropertyCardProps {
   property: PropertyWithImages;
@@ -37,7 +37,7 @@ export const PropertyCard = (props: PropertyCardProps) => {
           <p className="line-clamp-2 text-xs text-muted-foreground md:text-sm xl:text-base">
             {property.description}
           </p>
-          <ul className="mt-1 grid w-full grid-cols-2 grid-rows-2 items-center justify-between text-xs text-muted-foreground md:text-sm xl:flex">
+          <ul className="mt-1 grid w-full grid-cols-2 grid-rows-2 items-center justify-between text-xs text-muted-foreground md:text-sm ">
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">
               📍 <span className="line-clamp-1">{property.location}</span>
             </li>
@@ -48,7 +48,7 @@ export const PropertyCard = (props: PropertyCardProps) => {
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">
               🛏️{" "}
               <span className="line-clamp-1">
-                {formatRoomType(property.roomType)}
+                {formatEnumValue(property.roomType)}
               </span>
             </li>
             <li className="flex items-center gap-x-1.5 font-semibold xl:flex-col">

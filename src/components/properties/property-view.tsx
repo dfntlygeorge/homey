@@ -15,6 +15,7 @@ import Link from "next/link";
 import { Listing } from "@prisma/client";
 import { routes } from "@/config/routes";
 import { auth } from "@/auth";
+import { formatEnumValue } from "@/lib/utils";
 
 const features = (listing: Listing) => [
   {
@@ -90,8 +91,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
 
             <div className="my-4">
               <p className="text-lg font-semibold">₱{rent}</p>
-              {/* TODO: format room type */}
-              <p className="my-2">{roomType}</p>
+              <p className="my-2">{formatEnumValue(roomType)}</p>
             </div>
             {description && (
               <div className="mt-4">

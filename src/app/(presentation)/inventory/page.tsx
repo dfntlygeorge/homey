@@ -1,36 +1,38 @@
-import { auth } from "@/auth";
 import { PropertyListings } from "@/components/properties/property-listings";
-import { SearchInput } from "@/components/shared/search-input";
+import { Sidebar } from "@/components/properties/sidebar";
 import { AwaitedPageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
+import { buildClassifiedFilterQuery } from "@/lib/utils";
+
+const getInventory = async (searchParams: AwaitedPageProps["searchParams"]) => {
+  return prisma.listing.findMany({
+    where: buildClassifiedFilterQuery(searchParams), // where clause to filter the records.
+    include: {
+      images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
+    },
+  });
+};
 
 export default async function InventoryPage(props: AwaitedPageProps) {
   const searchParams = await props.searchParams;
-  const q =
-    typeof searchParams?.q === "string" ? searchParams.q.toLowerCase() : "";
+  const listings = getInventory(searchParams);
 
-  const properties = prisma.listing.findMany({
-    where: q
-      ? {
-          OR: [
-            { location: { contains: q, mode: "insensitive" } },
-            { description: { contains: q, mode: "insensitive" } },
-            { title: { contains: q, mode: "insensitive" } },
-          ],
-        }
-      : {},
-    include: {
-      images: { take: 1 },
+  const minMaxResult = await prisma.listing.aggregate({
+    // aggregate() function is prisma performs aggregations like min, max, sum, avg, etc on a table.
+    _min: {
+      rent: true,
     },
-    orderBy: { createdAt: "desc" },
+    _max: {
+      rent: true,
+    },
   });
-  const session = await auth();
-  console.log(session?.user?.email);
 
   return (
-    <div>
-      <SearchInput />
-      <PropertyListings properties={properties} />
+    <div className="flex">
+      <Sidebar minMaxValues={minMaxResult} searchParams={searchParams} />
+      <div className="flex-1 p-4">
+        <PropertyListings properties={listings} />
+      </div>
     </div>
   );
 }
