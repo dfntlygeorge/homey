@@ -6,4 +6,11 @@ export const ListingFilterSchema = z.object({
   maxRent: z.string().optional(),
   roomType: z.string().optional(),
   genderPolicy: z.string().optional(),
+  curfew: z.string().optional(),
+  laundry: z.string().optional(),
+  caretaker: z.string().optional(),
+  kitchen: z.string().optional(),
+  wifi: z.string().optional(),
+  pets: z.string().optional(),
+  utilities: z.string().optional(),
 });

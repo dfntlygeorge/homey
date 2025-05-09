@@ -1,15 +1,17 @@
 import { auth } from "@/auth";
+import { AdminActionButtons } from "@/components/admin/admin-action-buttons";
+import { StatusTag } from "@/components/admin/status-tag";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
   const session = await auth();
-  console.log(session?.user?.email);
   const isAdmin = session?.user?.role === "ADMIN";
 
   if (!isAdmin) redirect("/inventory");
+
   const listings = await prisma.listing.findMany({
-    take: 5,
+    orderBy: { createdAt: "desc" }, // optional, recent first
   });
 
   return (
@@ -22,6 +24,7 @@ export default async function AdminPage() {
               <th className="px-4 py-2 font-medium">Title</th>
               <th className="px-4 py-2 font-medium">Location</th>
               <th className="px-4 py-2 font-medium">Rent</th>
+              <th className="px-4 py-2 font-medium">Status</th>
               <th className="px-4 py-2 font-medium">Action</th>
             </tr>
           </thead>
@@ -31,13 +34,11 @@ export default async function AdminPage() {
                 <td className="px-4 py-2">{listing.title}</td>
                 <td className="px-4 py-2">{listing.location}</td>
                 <td className="px-4 py-2">₱{listing.rent}</td>
-                <td className="px-4 py-2 space-x-2">
-                  <button className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm">
-                    Approve
-                  </button>
-                  <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
-                    Reject
-                  </button>
+                <td className="px-4 py-2">
+                  <StatusTag status={listing.status} />
+                </td>
+                <td className="px-4 py-2 flex space-x-2">
+                  <AdminActionButtons listing={listing} />
                 </td>
               </tr>
             ))}

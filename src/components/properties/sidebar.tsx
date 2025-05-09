@@ -7,7 +7,17 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { parseAsString, useQueryStates } from "nuqs";
 import { routes } from "@/config/routes";
-import { GenderPolicy, RoomType } from "@prisma/client";
+import {
+  CaretakerAvailability,
+  CurfewPolicy,
+  GenderPolicy,
+  KitchenAvailability,
+  LaundryAvailability,
+  PetPolicy,
+  RoomType,
+  UtilityInclusion,
+  WifiAvailability,
+} from "@prisma/client";
 import { Select } from "../ui/select";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
@@ -20,6 +30,13 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       maxRent: parseAsString.withDefault(""),
       roomType: parseAsString.withDefault(""),
       genderPolicy: parseAsString.withDefault(""),
+      curfew: parseAsString.withDefault(""),
+      laundry: parseAsString.withDefault(""),
+      caretaker: parseAsString.withDefault(""),
+      kitchen: parseAsString.withDefault(""),
+      wifi: parseAsString.withDefault(""),
+      pets: parseAsString.withDefault(""),
+      utilities: parseAsString.withDefault(""),
     },
     {
       shallow: false, // refreshes the data every time the query state changes
@@ -99,6 +116,76 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
           value={queryStates.genderPolicy || ""}
           onChange={handleChange}
           options={Object.values(GenderPolicy).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Curfew Policy"
+          name="curfew"
+          value={queryStates.curfew || ""}
+          onChange={handleChange}
+          options={Object.values(CurfewPolicy).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Laundry Area"
+          name="laundry"
+          value={queryStates.laundry || ""}
+          onChange={handleChange}
+          options={Object.values(LaundryAvailability).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Caretaker"
+          name="caretaker"
+          value={queryStates.caretaker || ""}
+          onChange={handleChange}
+          options={Object.values(CaretakerAvailability).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Kitchen Area"
+          name="kitchen"
+          value={queryStates.kitchen || ""}
+          onChange={handleChange}
+          options={Object.values(KitchenAvailability).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Wifi"
+          name="wifi"
+          value={queryStates.wifi || ""}
+          onChange={handleChange}
+          options={Object.values(WifiAvailability).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Pets"
+          name="pets"
+          value={queryStates.pets || ""}
+          onChange={handleChange}
+          options={Object.values(PetPolicy).map((value) => ({
+            label: formatEnumValue(value), // formatOdoUnit
+            value,
+          }))}
+        />
+        <Select
+          label="Utilities"
+          name="utilities"
+          value={queryStates.utilities || ""}
+          onChange={handleChange}
+          options={Object.values(UtilityInclusion).map((value) => ({
             label: formatEnumValue(value), // formatOdoUnit
             value,
           }))}

@@ -8,28 +8,28 @@ datasource db {
 }
 
 model Listing {
-  id                Int          @id @default(autoincrement())
-  title             String
-  description       String
-  location          String
-  rent              Int
-  roomType          RoomType     @map("room_type")
-  slotsAvailable    Int          @map("slots_available")
-  contactInfo       String       @map("contact_info")
-  reviews           Review[]
-  images            Image[]
-  genderPolicy      GenderPolicy @map("gender_policy") // enum: MALE_ONLY, FEMALE_ONLY, MIXED
-  hasLaundry        Boolean      @map("has_laundry")
-  hasCaretaker      Boolean      @map("has_caretaker")
-  hasKitchen        Boolean      @map("has_kitchen")
-  hasWifi           Boolean      @map("has_wifi")
-  includesUtilities Boolean      @map("includes_utilities")
-  hasCurfew         Boolean      @map("curfew") // e.g., "10:00 PM", or nullable if none
-  petsAllowed       Boolean      @map("pets_allowed")
+  id             Int                   @id @default(autoincrement())
+  title          String
+  description    String
+  location       String
+  rent           Int
+  roomType       RoomType              @map("room_type")
+  slotsAvailable Int                   @map("slots_available")
+  contactInfo    String                @map("contact_info")
+  reviews        Review[]
+  images         Image[]
+  status         ListingStatus         @default(PENDING)
+  genderPolicy   GenderPolicy          @map("gender_policy")
+  curfew         CurfewPolicy
+  laundry        LaundryAvailability
+  caretaker      CaretakerAvailability
+  kitchen        KitchenAvailability
+  wifi           WifiAvailability
+  utilities      UtilityInclusion
+  pets           PetPolicy
 
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
-
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 }
@@ -97,7 +97,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  role UserRole @default(STUDENT)
+  role UserRole?
 
   listings Listing[]
   reviews  Review[]
@@ -124,4 +124,45 @@ enum GenderPolicy {
   MALE_ONLY
   FEMALE_ONLY
   MIXED
+}
+
+enum CurfewPolicy {
+  NO_CURFEW
+  HAS_CURFEW
+}
+
+enum LaundryAvailability {
+  NOT_AVAILABLE
+  AVAILABLE
+}
+
+enum CaretakerAvailability {
+  NOT_AVAILABLE
+  AVAILABLE
+}
+
+enum KitchenAvailability {
+  NOT_AVAILABLE
+  AVAILABLE
+}
+
+enum WifiAvailability {
+  NOT_AVAILABLE
+  AVAILABLE
+}
+
+enum UtilityInclusion {
+  NOT_INCLUDED
+  INCLUDED
+}
+
+enum PetPolicy {
+  NOT_ALLOWED
+  ALLOWED
+}
+
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

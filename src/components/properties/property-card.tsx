@@ -7,11 +7,11 @@ import { Button } from "../ui/button";
 import { routes } from "@/config/routes";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
 
-interface PropertyCardProps {
+interface ListingCardProps {
   property: PropertyWithImages;
 }
 
-export const PropertyCard = (props: PropertyCardProps) => {
+export const ListingCard = (props: ListingCardProps) => {
   const { property } = props;
 
   return (

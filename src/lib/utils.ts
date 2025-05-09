@@ -31,7 +31,6 @@ export const buildClassifiedFilterQuery = (
   console.log("searchParams", searchParams);
   // Returns a Prisma.ClassifiedWhereInput object → This is a Prisma-compatible query object that can be used in prisma.classified.findMany().
   const { data } = ListingFilterSchema.safeParse(searchParams); // make sure the searchParams match the schema.
-  // TODO: add status to Listing.
   if (!data) return {};
 
   const keys = Object.keys(data); // get the keys of the data object.
@@ -40,7 +39,17 @@ export const buildClassifiedFilterQuery = (
     minRent: "rent",
     maxRent: "rent",
   };
-  const enumFilters = ["roomType", "genderPolicy"];
+  const enumFilters = [
+    "roomType",
+    "genderPolicy",
+    "curfew",
+    "laundry",
+    "caretaker",
+    "kitchen",
+    "wifi",
+    "pets",
+    "utilities",
+  ];
 
   const mapParamsToFields = keys.reduce(
     (acc, key) => {

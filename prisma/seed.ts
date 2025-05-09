@@ -1,5 +1,17 @@
 import prisma from "@/lib/prisma";
-import { RoomType, UserRole } from "@prisma/client";
+import {
+  CaretakerAvailability,
+  CurfewPolicy,
+  GenderPolicy,
+  KitchenAvailability,
+  LaundryAvailability,
+  ListingStatus,
+  PetPolicy,
+  RoomType,
+  UserRole,
+  UtilityInclusion,
+  WifiAvailability,
+} from "@prisma/client";
 import { faker } from "@faker-js/faker";
 
 const imageUrl =
@@ -17,18 +29,31 @@ async function seedListings(landlordId: string) {
     slotsAvailable: faker.number.int({ min: 1, max: 10 }),
     contactInfo: faker.phone.number(),
 
-    genderPolicy: faker.helpers.arrayElement([
-      "MALE_ONLY",
-      "FEMALE_ONLY",
-      "MIXED",
-    ]),
-    hasLaundry: faker.datatype.boolean(),
-    hasCaretaker: faker.datatype.boolean(),
-    hasKitchen: faker.datatype.boolean(),
-    hasWifi: faker.datatype.boolean(),
-    includesUtilities: faker.datatype.boolean(),
-    hasCurfew: faker.datatype.boolean(),
-    petsAllowed: faker.datatype.boolean(),
+    genderPolicy: faker.helpers.arrayElement(
+      Object.values(GenderPolicy)
+    ) as GenderPolicy,
+    status: faker.helpers.arrayElement(
+      Object.values(ListingStatus)
+    ) as ListingStatus,
+    curfew: faker.helpers.arrayElement(
+      Object.values(CurfewPolicy)
+    ) as CurfewPolicy,
+    laundry: faker.helpers.arrayElement(
+      Object.values(LaundryAvailability)
+    ) as LaundryAvailability,
+    caretaker: faker.helpers.arrayElement(
+      Object.values(CaretakerAvailability)
+    ) as CaretakerAvailability,
+    kitchen: faker.helpers.arrayElement(
+      Object.values(KitchenAvailability)
+    ) as KitchenAvailability,
+    wifi: faker.helpers.arrayElement(
+      Object.values(WifiAvailability)
+    ) as WifiAvailability,
+    utilities: faker.helpers.arrayElement(
+      Object.values(UtilityInclusion)
+    ) as UtilityInclusion,
+    pets: faker.helpers.arrayElement(Object.values(PetPolicy)) as PetPolicy,
 
     userId: landlordId,
   }));
@@ -52,17 +77,20 @@ async function seedLandlord() {
   return updatedLandlord;
 }
 async function seedImages(listings: { id: number }[]) {
-  const images = listings.map((listing) => ({
-    listingId: listing.id,
-    url: imageUrl,
-  }));
+  const images = listings.flatMap((listing) =>
+    Array.from({ length: 5 }, () => ({
+      listingId: listing.id,
+      url: imageUrl,
+    }))
+  );
 
   await prisma.image.createMany({ data: images });
 }
 
 async function main() {
-  const landlord = await seedLandlord();
-  const listings = await seedListings(landlord.id);
+  const listings = await prisma.listing.findMany({
+    select: { id: true },
+  });
   await seedImages(listings);
 
   console.log("✅ Seeded landlord, listings, and images.");

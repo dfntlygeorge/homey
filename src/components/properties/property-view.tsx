@@ -1,5 +1,4 @@
 import { PropertyWithImages } from "@/config/types";
-import Image from "next/image";
 import {
   UtensilsIcon,
   WifiIcon,
@@ -8,19 +7,31 @@ import {
   UsersIcon,
   ClockIcon,
   WashingMachineIcon,
-  CigaretteOffIcon,
+  UserCheckIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Listing } from "@prisma/client";
 import { routes } from "@/config/routes";
 import { auth } from "@/auth";
-import { formatEnumValue } from "@/lib/utils";
+import { cn, formatEnumValue } from "@/lib/utils";
+import { ListingCarousel } from "./listing-carousel";
 
 const features = (listing: Listing) => [
   {
     id: 1,
-    icon: <UsersIcon className="mx-auto h-6 w-6 text-gray-500" />,
+    icon: (
+      <UsersIcon
+        className={cn(
+          "h-6 w-6",
+          listing.genderPolicy === "MIXED"
+            ? "text-blue-500"
+            : listing.genderPolicy === "MALE_ONLY"
+            ? "text-cyan-600"
+            : "text-pink-500"
+        )}
+      />
+    ),
     label:
       listing.genderPolicy === "MIXED"
         ? "Mixed Gender"
@@ -30,40 +41,97 @@ const features = (listing: Listing) => [
   },
   {
     id: 2,
-    icon: <WashingMachineIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.hasLaundry ? "Laundry Area Available" : "No Laundry Area",
+    icon: (
+      <WashingMachineIcon
+        className={cn(
+          "h-6 w-6",
+          listing.laundry === "AVAILABLE" ? "text-green-600" : "text-gray-400"
+        )}
+      />
+    ),
+    label:
+      listing.laundry === "AVAILABLE"
+        ? "Laundry Area Available"
+        : "No Laundry Area",
   },
   {
     id: 3,
-    icon: <CigaretteOffIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.hasCaretaker ? "With Caretaker" : "No Caretaker",
+    icon: (
+      <UserCheckIcon
+        className={cn(
+          "h-6 w-6",
+          listing.caretaker === "AVAILABLE"
+            ? "text-purple-600"
+            : "text-gray-400"
+        )}
+      />
+    ),
+    label:
+      listing.caretaker === "AVAILABLE" ? "With Caretaker" : "No Caretaker",
   },
   {
     id: 4,
-    icon: <UtensilsIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.hasKitchen ? "Kitchen Access" : "No Kitchen Access",
+    icon: (
+      <UtensilsIcon
+        className={cn(
+          "h-6 w-6",
+          listing.kitchen === "AVAILABLE" ? "text-yellow-600" : "text-gray-400"
+        )}
+      />
+    ),
+    label:
+      listing.kitchen === "AVAILABLE" ? "Kitchen Access" : "No Kitchen Access",
   },
   {
     id: 5,
-    icon: <WifiIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.hasWifi ? "Wi-Fi Available" : "No Wi-Fi",
+    icon: (
+      <WifiIcon
+        className={cn(
+          "h-6 w-6",
+          listing.wifi === "AVAILABLE" ? "text-indigo-600" : "text-gray-400"
+        )}
+      />
+    ),
+    label: listing.wifi === "AVAILABLE" ? "Wi-Fi Available" : "No Wi-Fi",
   },
   {
     id: 6,
-    icon: <BoltIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.includesUtilities
-      ? "Utilities Included"
-      : "Utilities Not Included",
+    icon: (
+      <BoltIcon
+        className={cn(
+          "h-6 w-6",
+          listing.utilities === "INCLUDED" ? "text-emerald-600" : "text-red-400"
+        )}
+      />
+    ),
+    label:
+      listing.utilities === "INCLUDED"
+        ? "Utilities Included"
+        : "Utilities Not Included",
   },
   {
     id: 7,
-    icon: <ClockIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.hasCurfew ? "Has Curfew" : "No Curfew",
+    icon: (
+      <ClockIcon
+        className={cn(
+          "h-6 w-6",
+          listing.curfew === "HAS_CURFEW" ? "text-orange-600" : "text-gray-400"
+        )}
+      />
+    ),
+    label: listing.curfew === "HAS_CURFEW" ? "Has Curfew" : "No Curfew",
   },
   {
     id: 8,
-    icon: <PawPrintIcon className="mx-auto h-6 w-6 text-gray-500" />,
-    label: listing.petsAllowed ? "Pets Allowed" : "No Pets Allowed",
+    icon: (
+      <PawPrintIcon
+        className={cn(
+          "h-6 w-6",
+          listing.pets === "ALLOWED" ? "text-pink-500" : "text-gray-400"
+        )}
+      />
+    ),
+    label: listing.pets === "ALLOWED" ? "Pets Allowed" : "No Pets Allowed",
   },
 ];
 
@@ -74,17 +142,9 @@ export const PropertyView = async (props: PropertyWithImages) => {
     <div className="relative">
       <div className="container mx-auto flex flex-col md:px-0">
         <div className="flex flex-col md:flex-row">
-          {images.length > 0 && (
-            <div className="md:w-1/2">
-              <Image
-                src={images[0].url}
-                alt={title}
-                width={640}
-                height={480}
-                className="rounded-lg object-cover"
-              />
-            </div>
-          )}
+          <div className="md:w-1/2">
+            <ListingCarousel images={images} />
+          </div>
           <div className="mt-4 md:mt-0 md:w-1/2 md:pl-8">
             <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
             <p className="text-gray-600 mt-2">{location}</p>
