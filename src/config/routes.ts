@@ -1,9 +1,13 @@
+import { ListingFormStep } from "./types";
+
 export const routes = {
-  inventory: "/inventory",
+  listings: "/listings",
   home: "/",
   favourites: "/favourites",
   admin: "/admin",
   signIn: "/auth/sign-in",
-  singleProperty: (id: number) => `/inventory/${id}`,
-  reserve: (id: number) => `/inventory/${id}/reserve`,
+  singleProperty: (id: number) => `/listings/${id}`,
+  reserve: (id: number) => `/listings/${id}/reserve`,
+  createListing: (step: ListingFormStep) => `/listings/new?step=${step}`,
+  contactOwner: (listingId: number) => `/chats?listingId=${listingId}`,
 };

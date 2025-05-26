@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { AdminActionButtons } from "@/components/admin/admin-action-buttons";
 import { StatusTag } from "@/components/admin/status-tag";
+import { routes } from "@/config/routes";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -8,7 +9,7 @@ export default async function AdminPage() {
   const session = await auth();
   const isAdmin = session?.user?.role === "ADMIN";
 
-  if (!isAdmin) redirect("/inventory");
+  if (!isAdmin) redirect(routes.listings);
 
   const listings = await prisma.listing.findMany({
     orderBy: { createdAt: "desc" }, // optional, recent first

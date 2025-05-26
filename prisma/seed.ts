@@ -78,9 +78,9 @@ async function seedLandlord() {
 }
 async function seedImages(listings: { id: number }[]) {
   const images = listings.flatMap((listing) =>
-    Array.from({ length: 5 }, () => ({
+    Array.from({ length: 5 }, (_, i) => ({
       listingId: listing.id,
-      url: imageUrl,
+      url: `${imageUrl}?${i}`,
     }))
   );
 
@@ -88,12 +88,8 @@ async function seedImages(listings: { id: number }[]) {
 }
 
 async function main() {
-  const listings = await prisma.listing.findMany({
-    select: { id: true },
-  });
+  const listings = await prisma.listing.findMany();
   await seedImages(listings);
-
-  console.log("✅ Seeded landlord, listings, and images.");
 }
 
 main()

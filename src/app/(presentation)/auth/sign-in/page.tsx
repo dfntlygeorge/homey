@@ -1,10 +1,11 @@
 import { auth } from "@/auth";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { routes } from "@/config/routes";
 import { redirect } from "next/navigation";
 
 export default async function SignInPage() {
   const session = await auth();
-  if (session) redirect("/inventory");
+  if (session) redirect(routes.listings);
   console.log(session);
 
   return (

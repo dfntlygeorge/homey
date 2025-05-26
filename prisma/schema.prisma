@@ -29,9 +29,14 @@ model Listing {
   pets           PetPolicy
 
   userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  user          User           @relation(fields: [userId], references: [id]) // owner
+  conversations Conversation[]
+
+  @@map("listings")
 }
 
 model Review {
@@ -93,16 +98,65 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
-  image         String?
+  image         String? // avatar
   accounts      Account[]
   sessions      Session[]
 
   role UserRole?
 
-  listings Listing[]
-  reviews  Review[]
+  // Relationships
+  sentMessages     Message[]                 @relation("MessageSender")
+  receivedMessages Message[]                 @relation("MessageReceiver")
+  conversations    ConversationParticipant[]
+  listings         Listing[]
+  reviews          Review[]
 
   @@map("users")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  listingId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  listing      Listing                   @relation(fields: [listingId], references: [id])
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String   @id @default(cuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+
+  // Relationships
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  content        String
+  senderId       String
+  receiverId     String
+  conversationId String
+  createdAt      DateTime @default(now())
+  isRead         Boolean  @default(false)
+
+  // Relationships
+  sender       User         @relation("MessageSender", fields: [senderId], references: [id])
+  receiver     User         @relation("MessageReceiver", fields: [receiverId], references: [id])
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@map("messages")
 }
 
 enum RoomType {

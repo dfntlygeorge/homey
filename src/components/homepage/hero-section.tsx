@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { routes } from "@/config/routes";
 import Link from "next/link";
 
 export const HeroSection = () => {
@@ -26,7 +27,7 @@ export const HeroSection = () => {
 
         {/* CTA Buttons */}
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/inventory">
+          <Link href={routes.listings}>
             <Button
               size="lg"
               className="bg-primary text-white hover:bg-primary/90 cursor-pointer"

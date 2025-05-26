@@ -174,11 +174,8 @@ export const PropertyView = async (props: PropertyWithImages) => {
 
               <p className="text-center text-sm text-muted-foreground">
                 Not sure yet?{" "}
-                <Link
-                  href="/contact-owner"
-                  className="underline font-medium text-primary"
-                >
-                  Contact the Owner
+                <Link href={routes.contactOwner(id)} className="underline">
+                  Contact Owner
                 </Link>
               </p>
             </div>
@@ -203,7 +200,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
       </div>
       <div className="sticky bottom-0 bg-white p-4 shadow-md">
         <Link
-          href="/inventory"
+          href={routes.listings}
           className="block w-full text-center text-sm font-medium text-primary hover:underline"
         >
           ← Back to Listings

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { routes } from "./config/routes";
 
 export async function middleware(req: NextRequest) {
   const session = await auth();
@@ -7,7 +8,7 @@ export async function middleware(req: NextRequest) {
   const userRole = session?.user?.role;
 
   const isReservePage =
-    pathname.startsWith("/inventory/") && pathname.includes("/reserve");
+    pathname.startsWith("/listings/") && pathname.includes("/reserve");
   const isOnboardingPage = pathname === "/onboarding";
   const isAdmin = userRole === "ADMIN";
 
@@ -20,15 +21,14 @@ export async function middleware(req: NextRequest) {
   if (session && !userRole && !isOnboardingPage) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }
-
-  if (!isAdmin && pathname !== "/inventory") {
-    console.log("Redirecting to inventory");
-    return NextResponse.redirect(new URL("/inventory", req.url));
+  if (!isAdmin && pathname.startsWith(routes.admin)) {
+    console.log("Redirecting non-admin to listings");
+    return NextResponse.redirect(new URL("/listings", req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/inventory/:path*", "/admin"],
+  matcher: ["/listings/:path*", "/admin"],
 };

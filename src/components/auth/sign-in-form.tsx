@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { routes } from "@/config/routes";
 
 export const SignInForm = () => {
   const { data: session, status } = useSession();
@@ -13,7 +14,7 @@ export const SignInForm = () => {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/inventory"); // or routes.challenge
+      router.push(routes.listings); // or routes.challenge
     }
   }, [status, router]);
 

@@ -4,7 +4,7 @@ import { AwaitedPageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { buildClassifiedFilterQuery } from "@/lib/utils";
 
-const getInventory = async (searchParams: AwaitedPageProps["searchParams"]) => {
+const getListings = async (searchParams: AwaitedPageProps["searchParams"]) => {
   return prisma.listing.findMany({
     where: buildClassifiedFilterQuery(searchParams), // where clause to filter the records.
     include: {
@@ -13,9 +13,9 @@ const getInventory = async (searchParams: AwaitedPageProps["searchParams"]) => {
   });
 };
 
-export default async function InventoryPage(props: AwaitedPageProps) {
+export default async function ListingsPage(props: AwaitedPageProps) {
   const searchParams = await props.searchParams;
-  const listings = getInventory(searchParams);
+  const listings = getListings(searchParams);
 
   const minMaxResult = await prisma.listing.aggregate({
     // aggregate() function is prisma performs aggregations like min, max, sum, avg, etc on a table.

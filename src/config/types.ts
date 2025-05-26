@@ -34,3 +34,17 @@ export interface SidebarProps extends AwaitedPageProps {
     };
   }>;
 }
+
+export enum ListingFormStep {
+  WELCOME = 1,
+  BASIC_INFO = 2,
+  LOCATION_CONTACT = 3,
+  HOUSE_RULES = 4,
+  UPLOAD_PHOTOS = 5,
+  REVIEW_SUBMIT = 6,
+}
+
+export type PrevState = {
+  success: boolean;
+  message: string;
+};

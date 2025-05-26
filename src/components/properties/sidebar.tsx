@@ -50,7 +50,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   }, [searchParams]);
 
   const clearFilters = () => {
-    const url = new URL(routes.inventory, process.env.NEXT_PUBLIC_APP_URL); // construct the absolute URL for the inventory page
+    const url = new URL(routes.listings, process.env.NEXT_PUBLIC_APP_URL); // construct the absolute URL for the listings page
     window.location.replace(url.toString()); // redirects the user to the new URL.
     setFilterCount(0);
   };
