@@ -31,6 +31,7 @@ export const LocationContact = (props: AwaitedPageProps) => {
     defaultValues: {
       location: "",
       contact: "",
+      facebookProfile: "",
     },
   });
 
@@ -69,6 +70,10 @@ export const LocationContact = (props: AwaitedPageProps) => {
 
       url.searchParams.set("location", encodeURIComponent(data.location));
       url.searchParams.set("contact", encodeURIComponent(data.contact));
+      url.searchParams.set(
+        "facebookProfile",
+        encodeURIComponent(data.facebookProfile)
+      );
 
       router.push(url.toString());
     });
@@ -101,6 +106,22 @@ export const LocationContact = (props: AwaitedPageProps) => {
               <FormLabel htmlFor="contact">Contact</FormLabel>
               <FormControl>
                 <Input placeholder="Ex. Phone Number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="facebookProfile"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="facebookProfile">Facebook Link</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Ex. https://facebook.com/george"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

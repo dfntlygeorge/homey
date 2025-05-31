@@ -16,6 +16,12 @@ import { routes } from "@/config/routes";
 import { auth } from "@/auth";
 import { cn, formatEnumValue } from "@/lib/utils";
 import { ListingCarousel } from "./listing-carousel";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 const features = (listing: Listing) => [
   {
@@ -137,7 +143,17 @@ const features = (listing: Listing) => [
 
 export const PropertyView = async (props: PropertyWithImages) => {
   const session = await auth();
-  const { images, title, description, location, rent, roomType, id } = props;
+  const {
+    images,
+    title,
+    description,
+    location,
+    rent,
+    roomType,
+    id,
+    facebookProfile,
+    contactInfo,
+  } = props;
   return (
     <div className="relative">
       <div className="container mx-auto flex flex-col md:px-0">
@@ -172,11 +188,33 @@ export const PropertyView = async (props: PropertyWithImages) => {
                 </Button>
               </Link>
 
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-sm text-muted-foreground ">
                 Not sure yet?{" "}
-                <Link href={routes.contactOwner(id)} className="underline">
-                  Contact Owner
-                </Link>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Link
+                        href={facebookProfile ?? ""}
+                        className="underline text-black"
+                      >
+                        Contact Owner
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {facebookProfile ? (
+                        <p>
+                          You&apos;ll be redirected to the owner&apos;s Facebook
+                          profile
+                        </p>
+                      ) : (
+                        <p>
+                          Contact number: {contactInfo}{" "}
+                          {facebookProfile ?? "tite"}
+                        </p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </p>
             </div>
 

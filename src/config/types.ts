@@ -48,3 +48,7 @@ export type PrevState = {
   success: boolean;
   message: string;
 };
+
+export interface Favourites {
+  ids: number[];
+}

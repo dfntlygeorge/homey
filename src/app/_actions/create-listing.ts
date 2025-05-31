@@ -46,6 +46,7 @@ export const createListingAction = async (formData: FormData) => {
       wifi: formData.get("wifi") as WifiAvailability,
       laundry: formData.get("laundry") as LaundryAvailability,
       utilities: formData.get("utilities") as UtilityInclusion,
+      facebookProfile: formData.get("facebookProfile") as string,
     };
 
     // Validate required fields
@@ -65,6 +66,7 @@ export const createListingAction = async (formData: FormData) => {
       "wifi",
       "laundry",
       "utilities",
+      "facebookProfile",
     ];
 
     for (const field of requiredFields) {

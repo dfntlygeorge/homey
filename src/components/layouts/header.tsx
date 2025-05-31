@@ -6,9 +6,14 @@ import { Button } from "../ui/button";
 import { HeartIcon, HouseIcon, MenuIcon } from "lucide-react";
 import { auth } from "@/auth";
 import SignButton from "./sign";
+import { getSourceId } from "@/lib/source-id";
+import { Favourites } from "@/config/types";
+import { redis } from "@/lib/redis-store";
 
 export const PublicHeader = async () => {
   const session = await auth();
+  const sourceId = await getSourceId();
+  const favourites = await redis.get<Favourites>(sourceId ?? "");
   return (
     <header className="flex h-16 items-center justify-between gap-x-6 bg-transparent pl-4 pr-4 md:pr-8">
       <div className="flex flex-1 items-center">
@@ -46,7 +51,7 @@ export const PublicHeader = async () => {
             <HeartIcon className="text-primary h-6 w-6 group-hover:fill-white group-hover:text-white" />
           </div>
           <div className="group-hover:bg-primary absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white">
-            <span className="text-xs">0</span>
+            <span className="text-xs">{favourites?.ids.length}</span>
           </div>
         </Link>
       </Button>

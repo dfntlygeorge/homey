@@ -1,7 +1,9 @@
 import { PropertyListings } from "@/components/properties/property-listings";
 import { Sidebar } from "@/components/properties/sidebar";
-import { AwaitedPageProps } from "@/config/types";
+import { AwaitedPageProps, Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";
+import { redis } from "@/lib/redis-store";
+import { getSourceId } from "@/lib/source-id";
 import { buildClassifiedFilterQuery } from "@/lib/utils";
 
 const getListings = async (searchParams: AwaitedPageProps["searchParams"]) => {
@@ -26,12 +28,19 @@ export default async function ListingsPage(props: AwaitedPageProps) {
       rent: true,
     },
   });
+  const sourceId = await getSourceId();
+  //   get the favourites from redis.
+  const favourites = await redis.get<Favourites>(sourceId ?? "");
+  console.log(favourites);
 
   return (
     <div className="flex">
       <Sidebar minMaxValues={minMaxResult} searchParams={searchParams} />
       <div className="flex-1 p-4">
-        <PropertyListings properties={listings} />
+        <PropertyListings
+          properties={listings}
+          favourites={favourites ? favourites.ids : []}
+        />
       </div>
     </div>
   );
