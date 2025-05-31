@@ -55,6 +55,9 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
   const wifi = decodeURIComponent(searchParams?.wifi as string) || "";
   const laundry = decodeURIComponent(searchParams?.laundry as string) || "";
   const utilities = decodeURIComponent(searchParams?.utilities as string) || "";
+  const facebookProfile = decodeURIComponent(
+    (searchParams?.facebookProfile as string) || ""
+  );
 
   // Helper function to render feature badges
   const FeatureBadge = ({ value, label }: { value: string; label: string }) => (
@@ -87,6 +90,7 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
         formData.append("wifi", wifi);
         formData.append("laundry", laundry);
         formData.append("utilities", utilities);
+        formData.append("facebookProfile", facebookProfile);
 
         // Add all photos to FormData
         photos.forEach((photo) => {
@@ -221,6 +225,12 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
         {/* Sidebar - Right Side (1 col) */}
         <div className="space-y-6">
           {/* Contact Info */}
+          <section className="bg-gray-50 p-5 rounded-lg">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Facebook Profile
+            </h2>
+            <p className="text-gray-700">{facebookProfile}</p>
+          </section>
           <section className="bg-gray-50 p-5 rounded-lg">
             <h2 className="text-lg font-semibold text-gray-800 mb-3">
               Contact Information

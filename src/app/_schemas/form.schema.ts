@@ -59,6 +59,21 @@ export const LocationContactSchema = z.object({
     })
     .min(3, { message: "Contact must be at least 3 characters long" })
     .max(50, { message: "Contact must be at most 50 characters long" }),
+  facebookProfile: z
+    .string({
+      message: "Facebook Profile is required",
+    })
+    .min(3, { message: "Facebook Profile must be at least 3 characters long" })
+    .max(50, { message: "Facebook Profile must be at most 50 characters long" })
+    .refine(
+      (value) =>
+        value.startsWith("https://www.facebook.com/") ||
+        value.startsWith("https://www.m.me/"),
+      {
+        message:
+          "Facebook Profile must start with https://www.facebook.com/ or https://www.m.me/",
+      }
+    ),
 });
 export type LocationContactType = z.infer<typeof LocationContactSchema>;
 
