@@ -3,6 +3,8 @@ import { AwaitedPageProps } from "@/config/types";
 import { Prisma } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Province, CityMunicipality, Barangay } from "@/config/types";
+import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -96,3 +98,48 @@ export const buildClassifiedFilterQuery = (
     ...mapParamsToFields,
   };
 };
+
+// Helper function to find province ID by province code
+export const findProvinceIdByCode = (
+  provinces: Province[],
+  provinceCode: string
+): number | null => {
+  const province = provinces.find((p) => p.code === provinceCode);
+  return province ? province.id : null;
+};
+
+// Helper function to find city ID by city code
+export const findCityIdByCode = (
+  cities: CityMunicipality[],
+  cityCode: string
+): number | null => {
+  const city = cities.find((c) => c.code === cityCode);
+  return city ? city.id : null;
+};
+
+// Helper function to filter cities by province
+export const filterCitiesByProvince = (
+  cities: CityMunicipality[],
+  provinceId: number
+): CityMunicipality[] => {
+  return cities.filter((city) => city.province_id === provinceId);
+};
+
+// Helper function to filter barangays by city
+export const filterBarangaysByCity = (
+  barangays: Barangay[],
+  cityId: number
+): Barangay[] => {
+  return barangays.filter(
+    (barangay) => barangay.city_municipality_id === cityId
+  );
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounceFunc<T extends (...args: any) => any>(
+  func: T, // The function to debounce, can be any function that takes any arguments
+  wait: number, // How long to wait before calling the function
+  opts: { immediate: boolean } // Whether to run immediately or after delay
+) {
+  return debounce(func, wait, opts); // Returns the debounced function
+}

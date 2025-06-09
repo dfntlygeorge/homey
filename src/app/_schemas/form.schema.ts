@@ -47,12 +47,7 @@ export const BasicInfoSchema = z.object({
 export type BasicInfoType = z.infer<typeof BasicInfoSchema>;
 
 export const LocationContactSchema = z.object({
-  location: z
-    .string({
-      message: "Location is required",
-    })
-    .min(3, { message: "Location must be at least 3 characters long" })
-    .max(50, { message: "Location must be at most 50 characters long" }),
+  address: z.string().min(1, "Please select a complete address"),
   contact: z
     .string({
       message: "Contact is required",

@@ -12,6 +12,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   className?: string;
   selectClassName?: string;
   noDefault?: boolean;
+  placeholder?: string;
 }
 
 export const Select = (props: SelectProps) => {
@@ -23,6 +24,7 @@ export const Select = (props: SelectProps) => {
     className,
     selectClassName,
     noDefault = true,
+    placeholder,
     ...rest
   } = props;
 
@@ -39,7 +41,9 @@ export const Select = (props: SelectProps) => {
           )}
           {...rest}
         >
-          {noDefault && <option value="">Select</option>}
+          {noDefault && (
+            <option value={placeholder}>{placeholder ?? "Select"}</option>
+          )}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

@@ -51,7 +51,7 @@ export const PublicHeader = async () => {
             <HeartIcon className="text-primary h-6 w-6 group-hover:fill-white group-hover:text-white" />
           </div>
           <div className="group-hover:bg-primary absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white">
-            <span className="text-xs">{favourites?.ids.length}</span>
+            <span className="text-xs">{favourites?.ids.length ?? 0}</span>
           </div>
         </Link>
       </Button>

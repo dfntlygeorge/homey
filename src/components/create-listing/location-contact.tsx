@@ -4,7 +4,7 @@ import { routes } from "@/config/routes";
 import { AwaitedPageProps, ListingFormStep } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useCallback, useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   Form,
@@ -21,15 +21,18 @@ import {
   LocationContactSchema,
   LocationContactType,
 } from "@/app/_schemas/form.schema";
+import { LocationPicker } from "./location-picker";
+import { Label } from "../ui/label";
+import { AddressAutocomplete } from "./address-autocomplete";
 
 export const LocationContact = (props: AwaitedPageProps) => {
   const { searchParams } = props;
 
   const form = useForm<LocationContactType>({
     resolver: zodResolver(LocationContactSchema),
-    mode: "onTouched",
+    mode: "onBlur",
     defaultValues: {
-      location: "",
+      address: "",
       contact: "",
       facebookProfile: "",
     },
@@ -38,6 +41,17 @@ export const LocationContact = (props: AwaitedPageProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isPrevPending, startPrevTransition] = useTransition();
+
+  // Callback to handle address changes from LocationPicker
+  const handleAddressChange = useCallback(
+    (address: string) => {
+      form.setValue("address", address, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
+    [form]
+  );
 
   const prevStep = () => {
     startPrevTransition(async () => {
@@ -68,7 +82,7 @@ export const LocationContact = (props: AwaitedPageProps) => {
 
       url.searchParams.set("step", ListingFormStep.HOUSE_RULES.toString()); // Next step
 
-      url.searchParams.set("location", encodeURIComponent(data.location));
+      url.searchParams.set("address", encodeURIComponent(data.address));
       url.searchParams.set("contact", encodeURIComponent(data.contact));
       url.searchParams.set(
         "facebookProfile",
@@ -87,17 +101,33 @@ export const LocationContact = (props: AwaitedPageProps) => {
       >
         <FormField
           control={form.control}
-          name="location"
+          name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="location">Location</FormLabel>
+              <FormLabel htmlFor="address">Complete Address</FormLabel>
               <FormControl>
-                <Input placeholder="Ex. City, State" {...field} />
+                <AddressAutocomplete
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder="Start typing your address for suggestions..."
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <div>
+          <Label className="block text-sm font-medium text-gray-700 mb-2">
+            Or Use Your Current Location
+          </Label>
+          <LocationPicker
+            onAddressChange={handleAddressChange}
+            defaultAddress={form.getValues("address")}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="contact"
@@ -111,6 +141,7 @@ export const LocationContact = (props: AwaitedPageProps) => {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="facebookProfile"
