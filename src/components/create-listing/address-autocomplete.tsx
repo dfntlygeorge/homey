@@ -79,6 +79,8 @@ export const AddressAutocomplete = ({
           text: feature.text,
         })) || [];
 
+      console.log(formattedSuggestions);
+
       setSuggestions(formattedSuggestions);
       setShowSuggestions(true);
       setActiveSuggestionIndex(-1);

@@ -25,6 +25,12 @@ import { LocationPicker } from "./location-picker";
 import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
 
+export interface LocationDetails {
+  address: string;
+  longitude: number;
+  latitude: number;
+}
+
 export const LocationContact = (props: AwaitedPageProps) => {
   const { searchParams } = props;
 
@@ -35,6 +41,8 @@ export const LocationContact = (props: AwaitedPageProps) => {
       address: "",
       contact: "",
       facebookProfile: "",
+      longitude: undefined,
+      latitude: undefined,
     },
   });
 
@@ -44,11 +52,13 @@ export const LocationContact = (props: AwaitedPageProps) => {
 
   // Callback to handle address changes from LocationPicker
   const handleAddressChange = useCallback(
-    (address: string) => {
+    ({ address, longitude, latitude }: LocationDetails) => {
       form.setValue("address", address, {
         shouldValidate: true,
         shouldDirty: true,
       });
+      form.setValue("longitude", longitude);
+      form.setValue("latitude", latitude);
     },
     [form]
   );
@@ -83,6 +93,8 @@ export const LocationContact = (props: AwaitedPageProps) => {
       url.searchParams.set("step", ListingFormStep.HOUSE_RULES.toString()); // Next step
 
       url.searchParams.set("address", encodeURIComponent(data.address));
+      url.searchParams.set("longitude", encodeURIComponent(data.longitude));
+      url.searchParams.set("latitude", encodeURIComponent(data.latitude));
       url.searchParams.set("contact", encodeURIComponent(data.contact));
       url.searchParams.set(
         "facebookProfile",

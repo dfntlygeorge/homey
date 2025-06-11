@@ -91,7 +91,7 @@ export const ListingCard = (props: ListingCardProps) => {
                 <div className="flex items-start gap-x-1.5">
                   <MapPin className="mt-[1px] h-4 w-4 md:mt-[2px] text-muted-foreground" />
                   <span className="font-medium line-clamp-1">
-                    {property.location}
+                    {property.address}
                   </span>
                 </div>
 

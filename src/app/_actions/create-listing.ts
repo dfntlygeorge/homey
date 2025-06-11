@@ -36,7 +36,9 @@ export const createListingAction = async (formData: FormData) => {
       roomType: formData.get("roomType") as RoomType,
       rent: Number(formData.get("rent")),
       slotsAvailable: Number(formData.get("slotsAvailable")),
-      location: formData.get("location") as string,
+      address: formData.get("address") as string,
+      longitude: Number(formData.get("longitude")),
+      latitude: Number(formData.get("latitude")),
       contactInfo: formData.get("contact") as string,
       genderPolicy: formData.get("genderPolicy") as GenderPolicy,
       curfew: formData.get("curfew") as CurfewPolicy,
@@ -56,7 +58,7 @@ export const createListingAction = async (formData: FormData) => {
       "roomType",
       "rent",
       "slotsAvailable",
-      "location",
+      "address",
       "contactInfo",
       "genderPolicy",
       "curfew",
@@ -67,6 +69,8 @@ export const createListingAction = async (formData: FormData) => {
       "laundry",
       "utilities",
       "facebookProfile",
+      "longitude",
+      "latitude",
     ];
 
     for (const field of requiredFields) {

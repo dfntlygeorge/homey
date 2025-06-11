@@ -44,7 +44,11 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
   const slotsAvailable = Number(
     decodeURIComponent(searchParams?.slotsAvailable as string)
   );
-  const location = decodeURIComponent(searchParams?.location as string) || "";
+  const address = decodeURIComponent(searchParams?.address as string) || "";
+  const latitude = Number(decodeURIComponent(searchParams?.latitude as string));
+  const longitude = Number(
+    decodeURIComponent(searchParams?.longitude as string)
+  );
   const contact = decodeURIComponent(searchParams?.contact as string) || "";
   const genderPolicy =
     decodeURIComponent(searchParams?.genderPolicy as string) || "";
@@ -80,7 +84,9 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
         formData.append("roomType", roomType);
         formData.append("rent", rent.toString());
         formData.append("slotsAvailable", slotsAvailable.toString());
-        formData.append("location", location);
+        formData.append("address", address);
+        formData.append("longitude", longitude.toString());
+        formData.append("latitude", latitude.toString());
         formData.append("contact", contact);
         formData.append("genderPolicy", genderPolicy);
         formData.append("curfew", curfew);
@@ -164,7 +170,7 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
                   size={20}
                   className="text-gray-500 mt-1 mr-2 flex-shrink-0"
                 />
-                <p className="text-gray-700">{location}</p>
+                <p className="text-gray-700">{address}</p>
               </div>
 
               <div className="bg-white p-4 rounded-lg mt-4">

@@ -147,7 +147,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
     images,
     title,
     description,
-    location,
+    address,
     rent,
     roomType,
     id,
@@ -163,7 +163,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
           </div>
           <div className="mt-4 md:mt-0 md:w-1/2 md:pl-8">
             <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
-            <p className="text-gray-600 mt-2">{location}</p>
+            <p className="text-gray-600 mt-2">{address}</p>
 
             <div className="my-4">
               <p className="text-lg font-semibold">₱{rent}</p>

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import { LocationDetails } from "./location-contact";
 
 interface LocationPickerProps {
-  onAddressChange: (address: string) => void;
+  onAddressChange: (props: LocationDetails) => void;
   defaultAddress?: string;
 }
 
@@ -31,7 +32,7 @@ export const LocationPicker = ({
         try {
           const { latitude, longitude } = position.coords;
           const address = await reverseGeocode(latitude, longitude);
-          onAddressChange(address);
+          onAddressChange({ address, latitude, longitude });
         } catch (err) {
           setError("Failed to get address from coordinates.");
           console.error("Geocoding error:", err);
