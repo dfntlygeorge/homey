@@ -24,6 +24,7 @@ import {
 import { LocationPicker } from "./location-picker";
 import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
+import { ListingMinimap } from "../shared/minimap";
 
 export interface LocationDetails {
   address: string;
@@ -137,6 +138,11 @@ export const LocationContact = (props: AwaitedPageProps) => {
           <LocationPicker
             onAddressChange={handleAddressChange}
             defaultAddress={form.getValues("address")}
+          />
+          <ListingMinimap
+            address={form.watch("address")}
+            latitude={form.watch("latitude")}
+            longitude={form.watch("longitude")}
           />
         </div>
 

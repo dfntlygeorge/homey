@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { ListingMinimap } from "../shared/minimap";
 
 const features = (listing: Listing) => [
   {
@@ -153,6 +154,8 @@ export const PropertyView = async (props: PropertyWithImages) => {
     id,
     facebookProfile,
     contactInfo,
+    longitude,
+    latitude,
   } = props;
   return (
     <div className="relative">
@@ -160,6 +163,12 @@ export const PropertyView = async (props: PropertyWithImages) => {
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/2">
             <ListingCarousel images={images} />
+            <ListingMinimap
+              address={address}
+              longitude={longitude}
+              latitude={latitude}
+              showExpandButton={true}
+            />
           </div>
           <div className="mt-4 md:mt-0 md:w-1/2 md:pl-8">
             <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
@@ -236,6 +245,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
           </div>
         </div>
       </div>
+
       <div className="sticky bottom-0 bg-white p-4 shadow-md">
         <Link
           href={routes.listings}

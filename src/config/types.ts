@@ -1,5 +1,4 @@
 import { Prisma } from "@prisma/client";
-import { ChangeEvent } from "react";
 
 export type PropertyWithImages = Prisma.ListingGetPayload<{
   include: {
