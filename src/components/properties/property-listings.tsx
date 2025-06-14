@@ -1,16 +1,17 @@
 "use client";
 
-import { PropertyWithImages } from "@/config/types";
+import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
 import { use } from "react";
 import { ListingCard } from "./listing-card";
 
 interface PropertyListProps {
   properties: Promise<PropertyWithImages[]>;
   favourites: number[];
+  searchParams: AwaitedPageProps["searchParams"];
 }
 
 export const PropertyListings = (props: PropertyListProps) => {
-  const { properties, favourites } = props;
+  const { properties, favourites, searchParams } = props;
   const listings = use(properties);
 
   return (
@@ -21,6 +22,7 @@ export const PropertyListings = (props: PropertyListProps) => {
             key={property.id}
             property={property}
             favourites={favourites}
+            searchParams={searchParams}
           />
         );
       })}

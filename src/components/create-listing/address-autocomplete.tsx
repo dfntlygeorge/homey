@@ -2,61 +2,84 @@
 
 import { useState, useEffect, useRef, ChangeEvent } from "react";
 import { Input } from "../ui/input";
-import { Loader2, MapPin } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2, MapPin, Building2 } from "lucide-react";
+import { cn, generateSessionToken } from "@/lib/utils";
 import { api } from "@/lib/api-client";
 
 interface AddressSuggestion {
-  id: string;
-  place_name: string;
-  text: string;
+  mapbox_id: string;
+  name: string;
+  name_preferred?: string;
+  feature_type: string;
+  address?: string;
+  full_address?: string;
+  place_formatted?: string;
+  poi_category?: string[];
 }
 
-interface MapboxResponse {
-  features: MapboxFeature[];
+interface SearchBoxSuggestResponse {
+  suggestions: SearchBoxSuggestion[];
+  attribution: string;
+}
+
+interface SearchBoxSuggestion {
+  name: string;
+  name_preferred?: string;
+  mapbox_id: string;
+  feature_type: string;
+  address?: string;
+  full_address?: string;
+  place_formatted?: string;
+  poi_category?: string[];
+  context?: {
+    country?: { name: string; country_code: string };
+    region?: { name: string; region_code: string };
+    place?: { name: string };
+  };
 }
 
 interface AddressAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  onSelect?: (suggestion: AddressSuggestion) => void; // New callback for when user selects
   placeholder?: string;
   className?: string;
+  includeAddresses?: boolean; // Allow filtering by feature types
+  includePois?: boolean;
 }
-type MapboxFeature = {
-  id: string;
-  place_name: string;
-  text: string;
-};
+
 /**
- * This component returns an input field with live addresses suggestions using the mapbox api. As you type, it shows a dropdown with matching addresses that you can select.
+ * Enhanced address autocomplete using Mapbox Search Box API v1
+ * Supports both addresses and POIs (businesses, landmarks, etc.)
  */
 export const AddressAutocomplete = ({
   value,
   onChange,
   onBlur,
-  placeholder = "Enter your complete address",
+  onSelect,
+  placeholder = "Enter address or search for places",
   className,
+  includeAddresses = true,
+  includePois = true,
 }: AddressAutocompleteProps) => {
-  // state management, useState trigger re-renders when changed
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]); // storage for the address suggestions
-  const [isLoading, setIsLoading] = useState(false); // show or hide the spinner
-  const [showSuggestions, setShowSuggestions] = useState(false); // show or hide the dropdown
-  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1); // for keyboard navigation
-  // useRef - storing references without triggering re-renders when changed.
-  const inputRef = useRef<HTMLInputElement>(null); // direct reference to the input element for focusing
-  const suggestionRefs = useRef<(HTMLLIElement | null)[]>([]); // Array of references for suggestions for scrolling
-  const debounceRef = useRef<NodeJS.Timeout>(null as unknown as NodeJS.Timeout); // stores the timeoutId for the debounce functionality????
-  // NOTE: use useRef when the values dont need to trigger re render when changed, we need direct dom manipulation, they need to persist between re renders.
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [sessionToken] = useState(() => generateSessionToken()); // Generate once per component instance
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const debounceRef = useRef<NodeJS.Timeout>(null as unknown as NodeJS.Timeout);
 
   const fetchSuggestions = async (query: string) => {
-    if (query.length < 3) {
+    if (query.length < 2) {
       setSuggestions([]);
       return;
     }
 
     const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-
     if (!accessToken) {
       console.error("Mapbox access token is not configured");
       return;
@@ -65,21 +88,55 @@ export const AddressAutocomplete = ({
     setIsLoading(true);
 
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-        query
-      )}.json?access_token=${accessToken}&autocomplete=true&limit=5&types=address,poi`;
+      // Build query parameters
+      const params = new URLSearchParams({
+        q: query,
+        access_token: accessToken,
+        session_token: sessionToken,
+        limit: "5",
+        language: "en",
+        country: "PH", // Focus on Philippines
+      });
 
-      const data = await api.get<MapboxResponse>(url);
-      console.log(data);
+      // Add proximity if user's location is available (optional enhancement)
+      // params.append('proximity', 'longitude,latitude');
 
-      const formattedSuggestions: AddressSuggestion[] =
-        data.features.map((feature) => ({
-          id: feature.id,
-          place_name: feature.place_name,
-          text: feature.text,
-        })) || [];
+      const url = `https://api.mapbox.com/search/searchbox/v1/suggest?${params}`;
+      const data = await api.get<SearchBoxSuggestResponse>(url);
 
-      console.log(formattedSuggestions);
+      console.log("Search Box API Response:", data);
+
+      // Filter results based on feature type preferences
+      let filteredSuggestions = data.suggestions;
+
+      if (!includeAddresses || !includePois) {
+        filteredSuggestions = data.suggestions.filter((suggestion) => {
+          const isPoi = suggestion.feature_type === "poi";
+          const isAddress = [
+            "address",
+            "place",
+            "locality",
+            "neighborhood",
+          ].includes(suggestion.feature_type);
+
+          return (includePois && isPoi) || (includeAddresses && isAddress);
+        });
+      }
+
+      const formattedSuggestions: AddressSuggestion[] = filteredSuggestions.map(
+        (suggestion) => ({
+          mapbox_id: suggestion.mapbox_id,
+          name: suggestion.name,
+          name_preferred: suggestion.name_preferred,
+          feature_type: suggestion.feature_type,
+          address: suggestion.address,
+          full_address: suggestion.full_address,
+          place_formatted: suggestion.place_formatted,
+          poi_category: suggestion.poi_category,
+        })
+      );
+
+      console.log("Formatted suggestions:", formattedSuggestions);
 
       setSuggestions(formattedSuggestions);
       setShowSuggestions(true);
@@ -97,15 +154,21 @@ export const AddressAutocomplete = ({
     onChange(inputValue);
 
     if (debounceRef.current) {
-      clearTimeout(debounceRef.current); // reset the timeout every time it input change
+      clearTimeout(debounceRef.current);
     }
     debounceRef.current = setTimeout(() => {
       fetchSuggestions(inputValue);
-    }, 800); // gets cleared if user types less than 800ms
+    }, 300); // Reduced debounce for better UX
   };
 
   const handleSuggestionClick = (suggestion: AddressSuggestion) => {
-    onChange(suggestion.place_name);
+    // Use the most descriptive name available
+    const displayName = suggestion.full_address || suggestion.name;
+    onChange(displayName);
+
+    // Notify parent component about the selection
+    onSelect?.(suggestion);
+
     setShowSuggestions(false);
     setSuggestions([]);
     setActiveSuggestionIndex(-1);
@@ -113,7 +176,7 @@ export const AddressAutocomplete = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!showSuggestions || suggestions.length === 0) return; // if no suggestions or dropdown is close do nothing
+    if (!showSuggestions || suggestions.length === 0) return;
 
     switch (e.key) {
       case "ArrowDown":
@@ -142,12 +205,11 @@ export const AddressAutocomplete = ({
   };
 
   const handleInputBlur = (e: React.FocusEvent) => {
-    // Delay hiding suggestions to allow for clicks
     setTimeout(() => {
       setShowSuggestions(false);
       setActiveSuggestionIndex(-1);
       onBlur?.();
-    }, 150);
+    }, 250);
   };
 
   const handleInputFocus = () => {
@@ -155,7 +217,31 @@ export const AddressAutocomplete = ({
       setShowSuggestions(true);
     }
   };
-  // basically scrolls the highlighted suggestion(when using keyboard nav) to view.
+
+  // Get appropriate icon for suggestion type
+  const getSuggestionIcon = (suggestion: AddressSuggestion) => {
+    if (suggestion.feature_type === "poi") {
+      // You could further customize based on poi_category
+      return <Building2 className="h-4 w-4 mt-0.5 text-blue-500 shrink-0" />;
+    }
+    return <MapPin className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />;
+  };
+
+  // Format the display text for each suggestion
+  const getDisplayText = (suggestion: AddressSuggestion) => {
+    if (suggestion.feature_type === "poi") {
+      return {
+        primary: suggestion.name_preferred || suggestion.name,
+        secondary: suggestion.address || suggestion.place_formatted || "",
+      };
+    } else {
+      return {
+        primary: suggestion.name,
+        secondary: suggestion.full_address || suggestion.place_formatted || "",
+      };
+    }
+  };
+
   useEffect(() => {
     if (
       activeSuggestionIndex >= 0 &&
@@ -167,10 +253,8 @@ export const AddressAutocomplete = ({
     }
   }, [activeSuggestionIndex]);
 
-  // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
-      // cleanup function, runs only on unmount or before re running the effect
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
       }
@@ -199,30 +283,41 @@ export const AddressAutocomplete = ({
 
       {showSuggestions && suggestions.length > 0 && (
         <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-          {suggestions.map((suggestion, index) => (
-            <li
-              key={suggestion.id}
-              ref={(el) => {
-                suggestionRefs.current[index] = el;
-              }}
-              className={cn(
-                "px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0",
-                "flex items-start gap-3",
-                activeSuggestionIndex === index && "bg-blue-50 text-blue-900"
-              )}
-              onClick={() => handleSuggestionClick(suggestion)}
-            >
-              <MapPin className="h-4 w-4 mt-0.5 text-gray-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">
-                  {suggestion.text}
+          {suggestions.map((suggestion, index) => {
+            const { primary, secondary } = getDisplayText(suggestion);
+            return (
+              <li
+                key={suggestion.mapbox_id}
+                ref={(el) => {
+                  suggestionRefs.current[index] = el;
+                }}
+                className={cn(
+                  "px-4 py-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0",
+                  "flex items-start gap-3",
+                  activeSuggestionIndex === index && "bg-blue-50 text-blue-900"
+                )}
+                onClick={() => handleSuggestionClick(suggestion)}
+              >
+                {getSuggestionIcon(suggestion)}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-900 truncate">
+                    {primary}
+                  </div>
+                  {secondary && (
+                    <div className="text-xs text-gray-500 truncate">
+                      {secondary}
+                    </div>
+                  )}
+                  {suggestion.poi_category &&
+                    suggestion.poi_category.length > 0 && (
+                      <div className="text-xs text-blue-600 mt-1">
+                        {suggestion.poi_category.join(", ")}
+                      </div>
+                    )}
                 </div>
-                <div className="text-xs text-gray-500 truncate">
-                  {suggestion.place_name}
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

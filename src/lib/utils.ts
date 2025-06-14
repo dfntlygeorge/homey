@@ -1,10 +1,11 @@
 import { ListingFilterSchema } from "@/app/_schemas/listing.schema";
-import { AwaitedPageProps } from "@/config/types";
+import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
 import { Prisma } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Province, CityMunicipality, Barangay } from "@/config/types";
 import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
+import prisma from "./prisma";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,78 +27,6 @@ export function formatEnumValue(enumValue: string): string {
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(" ");
 }
-
-export const buildClassifiedFilterQuery = (
-  searchParams: AwaitedPageProps["searchParams"] | undefined
-): Prisma.ListingWhereInput => {
-  console.log("searchParams", searchParams);
-  // Returns a Prisma.ClassifiedWhereInput object → This is a Prisma-compatible query object that can be used in prisma.classified.findMany().
-  const { data } = ListingFilterSchema.safeParse(searchParams); // make sure the searchParams match the schema.
-  if (!data) return {};
-
-  const keys = Object.keys(data); // get the keys of the data object.
-
-  const rangeFilters = {
-    minRent: "rent",
-    maxRent: "rent",
-  };
-  const enumFilters = [
-    "roomType",
-    "genderPolicy",
-    "curfew",
-    "laundry",
-    "caretaker",
-    "kitchen",
-    "wifi",
-    "pets",
-    "utilities",
-  ];
-
-  const mapParamsToFields = keys.reduce(
-    (acc, key) => {
-      const value = searchParams?.[key] as string | undefined; // get the value of the key from the searchParams.
-      if (!value) return acc; // if the value is not present, return the accumulator.
-      if (enumFilters.includes(key)) {
-        acc[key] = value;
-      } else if (key in rangeFilters) {
-        const field = rangeFilters[key as keyof typeof rangeFilters]; //  Finds the actual field name in the database.
-        acc[field] = acc[field] || {};
-
-        if (key.startsWith("min")) {
-          acc[field].gte = Number(value);
-        } else if (key.startsWith("max")) {
-          acc[field].lte = Number(value);
-        }
-      }
-
-      return acc;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    {} as { [key: string]: any }
-  );
-
-  return {
-    // conditionally add an object property only when q exists.
-    ...(searchParams?.q && {
-      OR: [
-        {
-          title: {
-            contains: searchParams.q as string,
-            mode: "insensitive",
-          },
-        },
-        {
-          description: {
-            contains: searchParams.q as string,
-            mode: "insensitive",
-          },
-        },
-      ],
-    }),
-
-    ...mapParamsToFields,
-  };
-};
 
 // Helper function to find province ID by province code
 export const findProvinceIdByCode = (
@@ -143,3 +72,178 @@ export function debounceFunc<T extends (...args: any) => any>(
 ) {
   return debounce(func, wait, opts); // Returns the debounced function
 }
+
+export function generateSessionToken(): string {
+  return "xxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+export const buildClassifiedFilterQuery = (
+  searchParams: AwaitedPageProps["searchParams"] | undefined
+): Prisma.ListingWhereInput => {
+  console.log("searchParams", searchParams);
+  // Returns a Prisma.ClassifiedWhereInput object → This is a Prisma-compatible query object that can be used in prisma.classified.findMany().
+  const { data } = ListingFilterSchema.safeParse(searchParams); // make sure the searchParams match the schema.
+  if (!data) return {};
+
+  const keys = Object.keys(data); // get the keys of the data object.
+
+  const rangeFilters = {
+    minRent: "rent",
+    maxRent: "rent",
+  };
+  const enumFilters = [
+    "roomType",
+    "genderPolicy",
+    "curfew",
+    "laundry",
+    "caretaker",
+    "kitchen",
+    "wifi",
+    "pets",
+    "utilities",
+  ];
+
+  // Extract geo parameters
+
+  const mapParamsToFields = keys.reduce(
+    (acc, key) => {
+      const value = searchParams?.[key] as string | undefined; // get the value of the key from the searchParams.
+      if (!value) return acc; // if the value is not present, return the accumulator.
+      // Skip geo parameters as they're handled separately
+      if (["latitude", "longitude", "radius", "address"].includes(key)) {
+        return acc;
+      }
+      if (enumFilters.includes(key)) {
+        acc[key] = value;
+      } else if (key in rangeFilters) {
+        const field = rangeFilters[key as keyof typeof rangeFilters]; //  Finds the actual field name in the database.
+        acc[field] = acc[field] || {};
+
+        if (key.startsWith("min")) {
+          acc[field].gte = Number(value);
+        } else if (key.startsWith("max")) {
+          acc[field].lte = Number(value);
+        }
+      }
+
+      return acc;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    {} as { [key: string]: any }
+  );
+
+  return {
+    // conditionally add an object property only when q exists.
+    ...(searchParams?.q && {
+      OR: [
+        {
+          title: {
+            contains: searchParams.q as string,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: searchParams.q as string,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+
+    ...mapParamsToFields,
+  };
+};
+// Utility function to calculate distance between two geographic points using Haversine formula
+export const getDistanceBetweenPoints = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371; // Earth's radius in kilometers
+
+  // Convert latitude and longitude from degrees to radians
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const lat1Rad = toRadians(lat1);
+  const lat2Rad = toRadians(lat2);
+
+  // Haversine formula
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1Rad) *
+      Math.cos(lat2Rad) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  // Distance in kilometers
+  return R * c;
+};
+
+// Helper function to convert degrees to radians
+const toRadians = (degrees: number): number => {
+  return degrees * (Math.PI / 180);
+};
+
+// Separate function to filter listings by distance after fetching from database
+export const filterListingsByDistance = (
+  listings: PropertyWithImages[],
+  centerLat: number,
+  centerLon: number,
+  radiusKm: number
+): PropertyWithImages[] => {
+  return listings.filter((listing) => {
+    const distance = getDistanceBetweenPoints(
+      centerLat,
+      centerLon,
+      listing.latitude,
+      listing.longitude
+    );
+    return distance <= radiusKm;
+  });
+};
+
+// Usage example in your API route or page component:
+export const getFilteredListings = async (
+  searchParams: AwaitedPageProps["searchParams"] | undefined
+) => {
+  // Get the base query (without geo filtering)
+  const baseQuery = buildClassifiedFilterQuery(searchParams);
+
+  // Extract geo parameters
+  const latitude = searchParams?.latitude
+    ? parseFloat(searchParams.latitude as string)
+    : null;
+  const longitude = searchParams?.longitude
+    ? parseFloat(searchParams.longitude as string)
+    : null;
+  const radius = searchParams?.radius
+    ? parseFloat(searchParams.radius as string)
+    : null;
+
+  // Fetch listings from database with base filters
+  const listings = await prisma.listing.findMany({
+    where: baseQuery,
+    // Include other options like orderBy, select, etc.
+    include: {
+      images: {
+        take: 1,
+      },
+    },
+  });
+
+  // If geo parameters are provided, filter by distance
+  if (latitude !== null && longitude !== null && radius !== null) {
+    return filterListingsByDistance(listings, latitude, longitude, radius);
+  }
+
+  return listings;
+};

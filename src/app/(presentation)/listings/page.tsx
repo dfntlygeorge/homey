@@ -4,20 +4,20 @@ import { AwaitedPageProps, Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";
 import { getSourceId } from "@/lib/source-id";
-import { buildClassifiedFilterQuery } from "@/lib/utils";
+import { getFilteredListings } from "@/lib/utils";
 
-const getListings = async (searchParams: AwaitedPageProps["searchParams"]) => {
-  return prisma.listing.findMany({
-    where: buildClassifiedFilterQuery(searchParams), // where clause to filter the records.
-    include: {
-      images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
-    },
-  });
-};
+// const getListings = async (searchParams: AwaitedPageProps["searchParams"]) => {
+//   return prisma.listing.findMany({
+//     where: buildClassifiedFilterQuery(searchParams), // where clause to filter the records.
+//     include: {
+//       images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
+//     },
+//   });
+// };
 
 export default async function ListingsPage(props: AwaitedPageProps) {
   const searchParams = await props.searchParams;
-  const listings = getListings(searchParams);
+  const listings = getFilteredListings(searchParams);
 
   const minMaxResult = await prisma.listing.aggregate({
     // aggregate() function is prisma performs aggregations like min, max, sum, avg, etc on a table.
@@ -31,7 +31,6 @@ export default async function ListingsPage(props: AwaitedPageProps) {
   const sourceId = await getSourceId();
   //   get the favourites from redis.
   const favourites = await redis.get<Favourites>(sourceId ?? "");
-  console.log(favourites);
 
   return (
     <div className="flex">
@@ -40,6 +39,7 @@ export default async function ListingsPage(props: AwaitedPageProps) {
         <PropertyListings
           properties={listings}
           favourites={favourites ? favourites.ids : []}
+          searchParams={searchParams}
         />
       </div>
     </div>

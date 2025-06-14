@@ -1,11 +1,15 @@
 "use client";
 
-import { PropertyWithImages } from "@/config/types";
+import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button"; // Assuming this is your ShadCN UI Button or similar
 import { routes } from "@/config/routes";
-import { formatEnumValue, formatPrice } from "@/lib/utils";
+import {
+  formatEnumValue,
+  formatPrice,
+  getDistanceBetweenPoints,
+} from "@/lib/utils";
 import { MapPin, BadgeDollarSign, Bed, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -15,10 +19,11 @@ import { FavouriteButton } from "./favourite-button";
 interface ListingCardProps {
   property: PropertyWithImages;
   favourites: number[];
+  searchParams: AwaitedPageProps["searchParams"];
 }
 
 export const ListingCard = (props: ListingCardProps) => {
-  const { property, favourites } = props;
+  const { property, favourites, searchParams } = props;
   // gets us the current pathname
   const pathname = usePathname();
 
@@ -27,6 +32,16 @@ export const ListingCard = (props: ListingCardProps) => {
   );
 
   const [isVisible, setIsVisible] = useState(true);
+  const centerLat = Number(searchParams?.latitude);
+  const centerLon = Number(searchParams?.longitude);
+
+  const distance = getDistanceBetweenPoints(
+    centerLat,
+    centerLon,
+    property.latitude,
+    property.longitude
+  );
+
   // hides non-favourite cards on the favourites page
   useEffect(() => {
     if (!isFavourite && pathname === routes.favourites) setIsVisible(false);
@@ -142,6 +157,7 @@ export const ListingCard = (props: ListingCardProps) => {
               </div>
             </div>
           </div>
+          {distance && <p>{distance.toFixed(1)}km away</p>}
         </motion.div>
       )}
     </AnimatePresence>

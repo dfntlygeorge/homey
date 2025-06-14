@@ -1,4 +1,5 @@
 "use client";
+
 import { cn, formatEnumValue } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
 import { RangeFilters } from "./range-filters";
@@ -19,6 +20,7 @@ import {
   WifiAvailability,
 } from "@prisma/client";
 import { Select } from "../ui/select";
+import { ProximityFilter } from "./proximity-filter";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   const router = useRouter();
@@ -37,6 +39,10 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       wifi: parseAsString.withDefault(""),
       pets: parseAsString.withDefault(""),
       utilities: parseAsString.withDefault(""),
+      latitude: parseAsString.withDefault(""),
+      longitude: parseAsString.withDefault(""),
+      radius: parseAsString.withDefault(""),
+      address: parseAsString.withDefault(""),
     },
     {
       shallow: false, // refreshes the data every time the query state changes
@@ -61,6 +67,21 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
     const { name, value } = e.target;
     setQueryStates({ [name]: value || null }); // Updates URL to ?make=1
     router.refresh(); // Refreshes the page to reflect the new filters.
+  };
+
+  const handleLocationChange = (params: {
+    latitude?: string;
+    longitude?: string;
+    radius?: string;
+    address?: string;
+  }) => {
+    setQueryStates({
+      latitude: params.latitude || null,
+      longitude: params.longitude || null,
+      radius: params.radius || null,
+      address: params.address || null,
+    });
+    router.refresh();
   };
   return (
     <div className="border-muted hidden w-[21.5rem] border-r py-4 lg:block">
@@ -90,6 +111,11 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
         />
       </div>
       <div className="space-y-2 p-4">
+        {/* Add Proximity Filter */}
+        <ProximityFilter
+          searchParams={searchParams}
+          onLocationChange={handleLocationChange}
+        />
         <RangeFilters
           label="Price"
           minName="minRent"
