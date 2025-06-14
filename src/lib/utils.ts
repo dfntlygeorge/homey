@@ -6,6 +6,8 @@ import { twMerge } from "tailwind-merge";
 import { Province, CityMunicipality, Barangay } from "@/config/types";
 import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
 import prisma from "./prisma";
+import { LISTINGS_PER_PAGE } from "@/config/constants";
+import { PageSchema } from "@/app/_schemas/page";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -228,16 +230,20 @@ export const getFilteredListings = async (
   const radius = searchParams?.radius
     ? parseFloat(searchParams.radius as string)
     : null;
+  const validPage = PageSchema.parse(searchParams?.page); // parse the page query parameter and ensures it matches the pageSchema.
+
+  const page = validPage ? validPage : 1; // if the page query parameter is not present, set it to 1.
+  const offset = (page - 1) * LISTINGS_PER_PAGE;
 
   // Fetch listings from database with base filters
   const listings = await prisma.listing.findMany({
     where: baseQuery,
     // Include other options like orderBy, select, etc.
     include: {
-      images: {
-        take: 1,
-      },
+      images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
     },
+    skip: offset, // start at the correct record (pagination)
+    take: LISTINGS_PER_PAGE, // limit the records to the page size.
   });
 
   // If geo parameters are provided, filter by distance
