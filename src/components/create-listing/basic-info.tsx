@@ -39,7 +39,7 @@ export const BasicInfo = (props: AwaitedPageProps) => {
       roomType: roomType
         ? (decodeURIComponent(roomType) as RoomType)
         : RoomType.STUDIO, // pick a sensible default
-      rent: rent ? Number(decodeURIComponent(rent)) : 0,
+      rent: rent ? Number(decodeURIComponent(rent)) : undefined,
       slotsAvailable: slotsAvailable
         ? Number(decodeURIComponent(slotsAvailable))
         : 1,

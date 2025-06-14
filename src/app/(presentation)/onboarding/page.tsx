@@ -31,7 +31,7 @@ export default function OnboardingPage() {
           variant="outline"
           className="px-6 py-4 text-lg"
         >
-          List a property I’m managing
+          List a property I&apos; managing
         </Button>
       </div>
     </section>

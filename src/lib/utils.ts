@@ -1,8 +1,13 @@
 import { ListingFilterSchema } from "@/app/_schemas/listing.schema";
-import { AwaitedPageProps } from "@/config/types";
+import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
 import { Prisma } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Province, CityMunicipality, Barangay } from "@/config/types";
+import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
+import prisma from "./prisma";
+import { LISTINGS_PER_PAGE } from "@/config/constants";
+import { PageSchema } from "@/app/_schemas/page";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,6 +28,59 @@ export function formatEnumValue(enumValue: string): string {
     .split("_")
     .map((word) => word[0].toUpperCase() + word.slice(1))
     .join(" ");
+}
+
+// Helper function to find province ID by province code
+export const findProvinceIdByCode = (
+  provinces: Province[],
+  provinceCode: string
+): number | null => {
+  const province = provinces.find((p) => p.code === provinceCode);
+  return province ? province.id : null;
+};
+
+// Helper function to find city ID by city code
+export const findCityIdByCode = (
+  cities: CityMunicipality[],
+  cityCode: string
+): number | null => {
+  const city = cities.find((c) => c.code === cityCode);
+  return city ? city.id : null;
+};
+
+// Helper function to filter cities by province
+export const filterCitiesByProvince = (
+  cities: CityMunicipality[],
+  provinceId: number
+): CityMunicipality[] => {
+  return cities.filter((city) => city.province_id === provinceId);
+};
+
+// Helper function to filter barangays by city
+export const filterBarangaysByCity = (
+  barangays: Barangay[],
+  cityId: number
+): Barangay[] => {
+  return barangays.filter(
+    (barangay) => barangay.city_municipality_id === cityId
+  );
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounceFunc<T extends (...args: any) => any>(
+  func: T, // The function to debounce, can be any function that takes any arguments
+  wait: number, // How long to wait before calling the function
+  opts: { immediate: boolean } // Whether to run immediately or after delay
+) {
+  return debounce(func, wait, opts); // Returns the debounced function
+}
+
+export function generateSessionToken(): string {
+  return "xxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 export const buildClassifiedFilterQuery = (
@@ -51,10 +109,16 @@ export const buildClassifiedFilterQuery = (
     "utilities",
   ];
 
+  // Extract geo parameters
+
   const mapParamsToFields = keys.reduce(
     (acc, key) => {
       const value = searchParams?.[key] as string | undefined; // get the value of the key from the searchParams.
       if (!value) return acc; // if the value is not present, return the accumulator.
+      // Skip geo parameters as they're handled separately
+      if (["latitude", "longitude", "radius", "address"].includes(key)) {
+        return acc;
+      }
       if (enumFilters.includes(key)) {
         acc[key] = value;
       } else if (key in rangeFilters) {
@@ -95,4 +159,97 @@ export const buildClassifiedFilterQuery = (
 
     ...mapParamsToFields,
   };
+};
+// Utility function to calculate distance between two geographic points using Haversine formula
+export const getDistanceBetweenPoints = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number => {
+  const R = 6371; // Earth's radius in kilometers
+
+  // Convert latitude and longitude from degrees to radians
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const lat1Rad = toRadians(lat1);
+  const lat2Rad = toRadians(lat2);
+
+  // Haversine formula
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1Rad) *
+      Math.cos(lat2Rad) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  // Distance in kilometers
+  return R * c;
+};
+
+// Helper function to convert degrees to radians
+const toRadians = (degrees: number): number => {
+  return degrees * (Math.PI / 180);
+};
+
+// Separate function to filter listings by distance after fetching from database
+export const filterListingsByDistance = (
+  listings: PropertyWithImages[],
+  centerLat: number,
+  centerLon: number,
+  radiusKm: number
+): PropertyWithImages[] => {
+  return listings.filter((listing) => {
+    const distance = getDistanceBetweenPoints(
+      centerLat,
+      centerLon,
+      listing.latitude,
+      listing.longitude
+    );
+    return distance <= radiusKm;
+  });
+};
+
+// Usage example in your API route or page component:
+export const getFilteredListings = async (
+  searchParams: AwaitedPageProps["searchParams"] | undefined
+) => {
+  // Get the base query (without geo filtering)
+  const baseQuery = buildClassifiedFilterQuery(searchParams);
+
+  // Extract geo parameters
+  const latitude = searchParams?.latitude
+    ? parseFloat(searchParams.latitude as string)
+    : null;
+  const longitude = searchParams?.longitude
+    ? parseFloat(searchParams.longitude as string)
+    : null;
+  const radius = searchParams?.radius
+    ? parseFloat(searchParams.radius as string)
+    : null;
+  const validPage = PageSchema.parse(searchParams?.page); // parse the page query parameter and ensures it matches the pageSchema.
+
+  const page = validPage ? validPage : 1; // if the page query parameter is not present, set it to 1.
+  const offset = (page - 1) * LISTINGS_PER_PAGE;
+
+  // Fetch listings from database with base filters
+  const listings = await prisma.listing.findMany({
+    where: baseQuery,
+    // Include other options like orderBy, select, etc.
+    include: {
+      images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
+    },
+    skip: offset, // start at the correct record (pagination)
+    take: LISTINGS_PER_PAGE, // limit the records to the page size.
+  });
+
+  // If geo parameters are provided, filter by distance
+  if (latitude !== null && longitude !== null && radius !== null) {
+    return filterListingsByDistance(listings, latitude, longitude, radius);
+  }
+
+  return listings;
 };

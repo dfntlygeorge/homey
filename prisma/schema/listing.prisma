@@ -1,0 +1,95 @@
+model Listing {
+    id              Int      @id @default(autoincrement())
+    title           String
+    description     String
+    address         String
+    longitude       Float
+    latitude        Float
+    rent            Int
+    roomType        RoomType @map("room_type")
+    slotsAvailable  Int      @map("slots_available")
+    contactInfo     String   @map("contact_info")
+    facebookProfile String?  @map("facebook_profile")
+
+    reviews      Review[]
+    images       Image[]
+    status       ListingStatus         @default(PENDING)
+    genderPolicy GenderPolicy          @map("gender_policy")
+    curfew       CurfewPolicy
+    laundry      LaundryAvailability
+    caretaker    CaretakerAvailability
+    kitchen      KitchenAvailability
+    wifi         WifiAvailability
+    utilities    UtilityInclusion
+    pets         PetPolicy
+
+    userId    String   @map("user_id")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@map("listings")
+}
+
+enum RoomType {
+    STUDIO
+    BOARDING_HOUSE
+    DORMITORY
+    BEDSPACE
+    CONDO
+    HOUSE
+}
+
+enum UserRole {
+    STUDENT
+    LANDLORD
+    ADMIN
+}
+
+enum GenderPolicy {
+    MALE_ONLY
+    FEMALE_ONLY
+    MIXED
+}
+
+enum CurfewPolicy {
+    NO_CURFEW
+    HAS_CURFEW
+}
+
+enum LaundryAvailability {
+    NOT_AVAILABLE
+    AVAILABLE
+}
+
+enum CaretakerAvailability {
+    NOT_AVAILABLE
+    AVAILABLE
+}
+
+enum KitchenAvailability {
+    NOT_AVAILABLE
+    AVAILABLE
+}
+
+enum WifiAvailability {
+    NOT_AVAILABLE
+    AVAILABLE
+}
+
+enum UtilityInclusion {
+    NOT_INCLUDED
+    INCLUDED
+}
+
+enum PetPolicy {
+    NOT_ALLOWED
+    ALLOWED
+}
+
+enum ListingStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}

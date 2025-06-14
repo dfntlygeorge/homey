@@ -16,6 +16,7 @@ import {
 } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
+import { env } from "@/env";
 
 export const createListingAction = async (formData: FormData) => {
   try {
@@ -36,7 +37,9 @@ export const createListingAction = async (formData: FormData) => {
       roomType: formData.get("roomType") as RoomType,
       rent: Number(formData.get("rent")),
       slotsAvailable: Number(formData.get("slotsAvailable")),
-      location: formData.get("location") as string,
+      address: formData.get("address") as string,
+      longitude: Number(formData.get("longitude")),
+      latitude: Number(formData.get("latitude")),
       contactInfo: formData.get("contact") as string,
       genderPolicy: formData.get("genderPolicy") as GenderPolicy,
       curfew: formData.get("curfew") as CurfewPolicy,
@@ -56,7 +59,7 @@ export const createListingAction = async (formData: FormData) => {
       "roomType",
       "rent",
       "slotsAvailable",
-      "location",
+      "address",
       "contactInfo",
       "genderPolicy",
       "curfew",
@@ -67,6 +70,8 @@ export const createListingAction = async (formData: FormData) => {
       "laundry",
       "utilities",
       "facebookProfile",
+      "longitude",
+      "latitude",
     ];
 
     for (const field of requiredFields) {
@@ -90,10 +95,10 @@ export const createListingAction = async (formData: FormData) => {
 
     // Set up S3 client for photo uploads
     const s3Client = new S3Client({
-      region: process.env.NEXT_PUBLIC_AWS_S3_REGION,
+      region: env.NEXT_PUBLIC_AWS_S3_REGION,
       credentials: {
-        accessKeyId: process.env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID ?? "",
-        secretAccessKey: process.env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY ?? "",
+        accessKeyId: env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID ?? "",
+        secretAccessKey: env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY ?? "",
       },
     });
 
@@ -106,7 +111,7 @@ export const createListingAction = async (formData: FormData) => {
         if (photo instanceof File) {
           const fileExtension = photo.name.split(".").pop();
           const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
-          const bucketName = process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+          const bucketName = env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
 
           // Convert file to buffer for S3 upload
           const arrayBuffer = await photo.arrayBuffer();
@@ -123,7 +128,7 @@ export const createListingAction = async (formData: FormData) => {
           await s3Client.send(command);
 
           // Create the S3 URL
-          const photoUrl = `https://${bucketName}.s3.${process.env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
+          const photoUrl = `https://${bucketName}.s3.${env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
           photoUrls.push(photoUrl);
 
           // Create image record in database

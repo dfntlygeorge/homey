@@ -23,3 +23,5 @@ export const navLinks = [
     label: "Create Listing",
   },
 ];
+
+export const LISTINGS_PER_PAGE = 9;

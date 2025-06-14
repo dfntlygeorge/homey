@@ -1,0 +1,9 @@
+model Image {
+    id  Int    @id @default(autoincrement())
+    url String
+
+    listingId Int     @map("listing_id")
+    listing   Listing @relation(fields: [listingId], references: [id])
+
+    createdAt DateTime @default(now()) @map("created_at")
+}

@@ -7,19 +7,10 @@ import {
   useCallback, // Optimizes functions by preventing unnecessary re-creation on re-renders
   useRef, // Stores values or DOM references without causing re-renders
 } from "react";
-import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
+
 import { SearchIcon, XIcon } from "lucide-react";
 import { Input } from "../ui/input";
-import { cn } from "@/lib/utils";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function debounceFunc<T extends (...args: any) => any>(
-  func: T, // The function to debounce, can be any function that takes any arguments
-  wait: number, // How long to wait before calling the function
-  opts: { immediate: boolean } // Whether to run immediately or after delay
-) {
-  return debounce(func, wait, opts); // Returns the debounced function
-}
+import { cn, debounceFunc } from "@/lib/utils";
 
 interface SearchInputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
