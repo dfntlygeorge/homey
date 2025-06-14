@@ -12,9 +12,7 @@ import { getFilteredListings } from "@/lib/utils";
 export default async function ListingsPage(props: AwaitedPageProps) {
   const searchParams = await props.searchParams;
   const listings = getFilteredListings(searchParams);
-  const count = await prisma.listing.count({
-    where: {},
-  });
+  const count = (await listings).length;
 
   const totalPages = Math.ceil(count / LISTINGS_PER_PAGE);
 

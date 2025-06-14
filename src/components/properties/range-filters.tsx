@@ -25,10 +25,9 @@ export const RangeFilters = (props: RangeFiltersProps) => {
     searchParams,
   } = props;
 
-  // generates an array of options for the min and max dropdowns.
   const getInitialState = () => {
     const state: FilterOptions<string, number> = [];
-    let iterator = defaultMin - (increment ?? 1); // This ensures that the first iterator += increment inside the loop starts at defaultMin
+    let iterator = defaultMin - (increment ?? 1);
 
     do {
       if (increment) {
@@ -36,12 +35,11 @@ export const RangeFilters = (props: RangeFiltersProps) => {
       } else {
         iterator++;
       }
-      // Use formatPrice directly since it handles currency formatting
       state.push({
         label: formatPrice(iterator),
         value: iterator,
       });
-    } while (iterator < defaultMax); // So it fills the state array with all possible values from defaultMin to defaultMax.
+    } while (iterator < defaultMax);
 
     return state;
   };
@@ -54,9 +52,7 @@ export const RangeFilters = (props: RangeFiltersProps) => {
     initialState.toReversed()
   );
 
-  // adjusts options based on the user selection.
   useEffect(() => {
-    // if the minName is in the searchParams, then filter the maxOptions to only include values greater than the minName.
     if (searchParams?.[minName]) {
       setMaxOptions(
         initialState.filter(
@@ -64,7 +60,6 @@ export const RangeFilters = (props: RangeFiltersProps) => {
         )
       );
     }
-    // if the maxName is in the searchParams, then filter the minOptions to only include values less than the maxName.
     if (searchParams?.[maxName]) {
       setMinOptions(
         initialState.filter(
@@ -76,20 +71,25 @@ export const RangeFilters = (props: RangeFiltersProps) => {
   }, [searchParams?.[minName], searchParams?.[maxName]]);
 
   return (
-    <RangeSelect
-      label={label}
-      minSelect={{
-        name: minName,
-        value: Number(searchParams?.[minName] || ""),
-        onChange: handleChange,
-        options: minOptions,
-      }}
-      maxSelect={{
-        name: maxName,
-        value: Number(searchParams?.[maxName] || ""),
-        onChange: handleChange,
-        options: maxOptions,
-      }}
-    />
+    <div className="space-y-3">
+      {label && (
+        <h4 className="text-sm font-medium text-foreground/90">{label}</h4>
+      )}
+      <RangeSelect
+        label=""
+        minSelect={{
+          name: minName,
+          value: Number(searchParams?.[minName] || ""),
+          onChange: handleChange,
+          options: minOptions,
+        }}
+        maxSelect={{
+          name: maxName,
+          value: Number(searchParams?.[maxName] || ""),
+          onChange: handleChange,
+          options: maxOptions,
+        }}
+      />
+    </div>
   );
 };

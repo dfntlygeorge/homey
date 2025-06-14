@@ -5,54 +5,12 @@ import { Input } from "../ui/input";
 import { Loader2, MapPin, Building2 } from "lucide-react";
 import { cn, generateSessionToken } from "@/lib/utils";
 import { api } from "@/lib/api-client";
+import {
+  AddressAutocompleteProps,
+  AddressSuggestion,
+  SearchBoxSuggestResponse,
+} from "@/app/_schemas/form.schema";
 
-interface AddressSuggestion {
-  mapbox_id: string;
-  name: string;
-  name_preferred?: string;
-  feature_type: string;
-  address?: string;
-  full_address?: string;
-  place_formatted?: string;
-  poi_category?: string[];
-}
-
-interface SearchBoxSuggestResponse {
-  suggestions: SearchBoxSuggestion[];
-  attribution: string;
-}
-
-interface SearchBoxSuggestion {
-  name: string;
-  name_preferred?: string;
-  mapbox_id: string;
-  feature_type: string;
-  address?: string;
-  full_address?: string;
-  place_formatted?: string;
-  poi_category?: string[];
-  context?: {
-    country?: { name: string; country_code: string };
-    region?: { name: string; region_code: string };
-    place?: { name: string };
-  };
-}
-
-interface AddressAutocompleteProps {
-  value: string;
-  onChange: (value: string) => void;
-  onBlur?: () => void;
-  onSelect?: (suggestion: AddressSuggestion) => void; // New callback for when user selects
-  placeholder?: string;
-  className?: string;
-  includeAddresses?: boolean; // Allow filtering by feature types
-  includePois?: boolean;
-}
-
-/**
- * Enhanced address autocomplete using Mapbox Search Box API v1
- * Supports both addresses and POIs (businesses, landmarks, etc.)
- */
 export const AddressAutocomplete = ({
   value,
   onChange,
