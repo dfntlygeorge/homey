@@ -75,7 +75,6 @@ export const ProximityFilter = (props: ProximityFilterProps) => {
       const response = await fetch(
         `https://api.mapbox.com/search/searchbox/v1/retrieve/${mapbox_id}?session_token=${generateSessionToken()}&access_token=${accessToken}`
       );
-      console.log(response);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

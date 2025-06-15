@@ -20,17 +20,14 @@ import { Loader2 } from "lucide-react";
 import {
   LocationContactSchema,
   LocationContactType,
+  LocationDetails,
 } from "@/app/_schemas/form.schema";
 import { LocationPicker } from "./location-picker";
 import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
 import { ListingMinimap } from "../shared/minimap";
-
-export interface LocationDetails {
-  address: string;
-  longitude: number;
-  latitude: number;
-}
+import { generateSessionToken } from "@/lib/utils";
+import { SearchBoxSuggestion } from "@/app/_schemas/form.schema";
 
 export const LocationContact = (props: AwaitedPageProps) => {
   const { searchParams } = props;
@@ -106,6 +103,36 @@ export const LocationContact = (props: AwaitedPageProps) => {
     });
   };
 
+  const handleAddressSelect = useCallback(
+    async (suggestion: SearchBoxSuggestion) => {
+      try {
+        const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+        const sessionToken = generateSessionToken(); // You might want to use the same token
+        const url = `https://api.mapbox.com/search/searchbox/v1/retrieve/${suggestion.mapbox_id}?access_token=${accessToken}&session_token=${sessionToken}`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.features && data.features.length > 0) {
+          const feature = data.features[0];
+          if (feature.geometry && feature.geometry.coordinates) {
+            const [longitude, latitude] = feature.geometry.coordinates;
+            // Update the form with coordinates
+            form.setValue("longitude", longitude);
+            form.setValue("latitude", latitude);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching coordinates:", error);
+      }
+    },
+    [form]
+  );
+
   return (
     <Form {...form}>
       <form
@@ -124,6 +151,7 @@ export const LocationContact = (props: AwaitedPageProps) => {
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   placeholder="Start typing your address for suggestions..."
+                  onSelect={handleAddressSelect}
                 />
               </FormControl>
               <FormMessage />

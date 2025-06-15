@@ -54,102 +54,101 @@ export const ListingCard = (props: ListingCardProps) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="relative flex flex-col overflow-hidden rounded-lg bg-white shadow-md"
+          className="relative flex flex-col overflow-hidden rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <div className="relative flex flex-col overflow-hidden rounded-lg bg-background shadow-md border border-border group h-full">
-            {" "}
-            {/* Added group for hover effects & h-full for consistent height in a grid */}
             <div className="relative aspect-[16/10] overflow-hidden">
-              {" "}
-              {/* Consider aspect-video or aspect-[16/10] for a less elongated image area than 3/2 */}
               <Link href={routes.singleProperty(property.id)} passHref>
                 <Image
-                  src={property.images?.[0]?.url || "/placeholder-property.jpg"} // Optional chaining and a fallback image
+                  src={property.images?.[0]?.url || "/placeholder-property.jpg"}
                   alt={property.title}
                   fill={true}
-                  className="rounded-t-md object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out" // Subtle zoom on hover
+                  className="rounded-t-md object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
                 />
               </Link>
+
+              {/* Distance badge - positioned over the image with better visibility */}
+              {distance && (
+                <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm text-gray-800 text-xs font-semibold px-2.5 py-1 rounded-full shadow-lg border border-white/20 z-10">
+                  {distance.toFixed(1)}km away
+                </div>
+              )}
+
               <FavouriteButton
                 setIsFavourite={setIsFavourite}
                 isFavourite={isFavourite}
                 id={property.id}
               />
             </div>
-            {/* Flex-1 will make this content area take available space, helping with card elongation */}
-            <div className="flex flex-1 flex-col p-3 md:p-4 space-y-2.5">
-              {" "}
-              {/* Adjusted padding and spacing */}
-              <div>
+
+            <div className="flex flex-1 flex-col p-4 space-y-3">
+              {/* Title and Description */}
+              <div className="space-y-2">
                 <Link
                   href={routes.singleProperty(property.id)}
                   passHref
-                  className="block" // Ensure link takes block for proper clamping
-                  title={property.title} // Show full title on hover if clamped
+                  className="block"
+                  title={property.title}
                 >
-                  <h3 className="line-clamp-1 text-sm font-semibold hover:underline text-foreground md:text-base lg:text-base">
-                    {" "}
-                    {/* Slightly adjusted lg size */}
+                  <h3 className="line-clamp-1 text-base font-semibold hover:underline text-foreground transition-colors">
                     {property.title}
                   </h3>
                 </Link>
                 <p
-                  className="line-clamp-2 text-xs text-muted-foreground mt-1 md:text-sm"
-                  title={property.description} // Show full description on hover if clamped
+                  className="line-clamp-2 text-sm text-muted-foreground leading-relaxed"
+                  title={property.description}
                 >
                   {property.description}
                 </p>
               </div>
-              {/* Revised Features Section */}
-              <div className="mt-1.5 space-y-1.5 text-xs text-muted-foreground md:text-sm">
-                {/* Location: Given more prominence and better wrapping */}
-                <div className="flex items-start gap-x-1.5">
-                  <MapPin className="mt-[1px] h-4 w-4 md:mt-[2px] text-muted-foreground" />
-                  <span className="font-medium line-clamp-1">
+
+              {/* Property Details */}
+              <div className="space-y-3">
+                {/* Location */}
+                <div className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-muted-foreground line-clamp-1 font-medium">
                     {property.address}
                   </span>
                 </div>
 
-                {/* Other features: Using flex-wrap for better responsiveness */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">
-                  <div className="flex items-center gap-x-1.5 font-medium">
-                    <BadgeDollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="line-clamp-1">
+                {/* Property Features */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm">
+                  <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
+                    <BadgeDollarSign className="h-4 w-4 text-green-600" />
+                    <span className="font-semibold text-foreground">
                       {formatPrice(property.rent)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-x-1.5 font-medium">
-                    <Bed className="h-4 w-4 text-muted-foreground" />
-                    <span className="line-clamp-1">
+                  <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
+                    <Bed className="h-4 w-4 text-blue-600" />
+                    <span className="font-medium text-foreground">
                       {formatEnumValue(property.roomType)}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-x-1.5 font-medium">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="line-clamp-1">
+                  <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
+                    <Users className="h-4 w-4 text-purple-600" />
+                    <span className="font-medium text-foreground">
                       {property.slotsAvailable}{" "}
                       {property.slotsAvailable === 1 ? "slot" : "slots"}
                     </span>
                   </div>
                 </div>
               </div>
-              {/* Buttons: mt-auto pushes them to the bottom of the card */}
-              <div className="mt-auto pt-3 flex w-full flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-x-2">
+
+              {/* Action Buttons */}
+              <div className="mt-auto pt-4 flex flex-col sm:flex-row gap-2">
                 <Button
-                  className="h-auto flex-1 py-2 text-xs md:text-sm" // Adjusted padding, base lg:text-base might be too large for buttons
+                  className="flex-1 h-9"
                   asChild
                   variant="outline"
                   size="sm"
                 >
-                  <Link href={routes.reserve(property.id)}>Reserve</Link>
+                  <Link href={routes.reserve(property.id)}>Reserve Now</Link>
                 </Button>
-                <Button
-                  className="h-auto flex-1 py-2 text-xs md:text-sm"
-                  asChild
-                  size="sm"
-                >
+                <Button className="flex-1 h-9" asChild size="sm">
                   <Link href={routes.singleProperty(property.id)}>
                     View Details
                   </Link>
@@ -157,7 +156,6 @@ export const ListingCard = (props: ListingCardProps) => {
               </div>
             </div>
           </div>
-          {distance && <p>{distance.toFixed(1)}km away</p>}
         </motion.div>
       )}
     </AnimatePresence>

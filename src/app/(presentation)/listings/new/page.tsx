@@ -1,13 +1,15 @@
 import { MultiStepFormSchema } from "@/app/_schemas/form.schema";
+import { auth } from "@/auth";
 import { BasicInfo } from "@/components/create-listing/basic-info";
 import { HouseRules } from "@/components/create-listing/house-rules";
 import { LocationContact } from "@/components/create-listing/location-contact";
 import { ReviewSubmit } from "@/components/create-listing/review-submit";
 import { UploadPhotos } from "@/components/create-listing/upload-photos";
 import { WelcomeStep } from "@/components/create-listing/welcome";
+import { routes } from "@/config/routes";
 import { ListingFormStep, PageProps } from "@/config/types";
 import { PhotosProvider } from "@/context/photo-upload";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 const MAP_STEP_TO_COMPONENT = {
   [ListingFormStep.WELCOME]: WelcomeStep,
@@ -24,6 +26,9 @@ const STEPS_REQUIRING_PHOTO_PROVIDER = new Set([
 ]);
 
 export default async function CreateListingPage(props: PageProps) {
+  const session = await auth();
+
+  if (!session) redirect(routes.signIn);
   const searchParams = await props.searchParams;
   const step = searchParams?.step;
   const { data, success, error } = MultiStepFormSchema.safeParse({

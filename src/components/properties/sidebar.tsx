@@ -21,6 +21,8 @@ import {
 } from "@prisma/client";
 import { Select } from "../ui/select";
 import { ProximityFilter } from "./proximity-filter";
+import { Filter, X } from "lucide-react";
+import { EXCLUDED_KEYS } from "@/config/constants";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   const router = useRouter();
@@ -45,19 +47,20 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       address: parseAsString.withDefault(""),
     },
     {
-      shallow: false, // refreshes the data every time the query state changes
+      shallow: false,
     }
   );
+
   useEffect(() => {
     const filterCount = Object.entries(
       searchParams as Record<string, string>
-    ).filter(([key, value]) => key !== "page" && value).length; // ignore page and empty values
+    ).filter(([key, value]) => !EXCLUDED_KEYS.includes(key) && value).length;
     setFilterCount(filterCount);
   }, [searchParams]);
 
   const clearFilters = () => {
-    const url = new URL(routes.listings, process.env.NEXT_PUBLIC_APP_URL); // construct the absolute URL for the listings page
-    window.location.replace(url.toString()); // redirects the user to the new URL.
+    const url = new URL(routes.listings, process.env.NEXT_PUBLIC_APP_URL);
+    window.location.replace(url.toString());
     setFilterCount(0);
   };
 
@@ -65,8 +68,8 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
     e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setQueryStates({ [name]: value || null }); // Updates URL to ?make=1
-    router.refresh(); // Refreshes the page to reflect the new filters.
+    setQueryStates({ [name]: value || null });
+    router.refresh();
   };
 
   const handleLocationChange = (params: {
@@ -83,139 +86,221 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
     });
     router.refresh();
   };
+
   return (
-    <div className="border-muted hidden w-[21.5rem] border-r py-4 lg:block">
-      <div>
-        <div className="flex justify-between px-4 text-lg font-semibold">
-          <span>Filters</span>
+    <div className="hidden w-[22rem] border-r border-border bg-card lg:flex lg:flex-col">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center justify-between p-6">
+          <div className="flex items-center gap-2">
+            <Filter className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">Filters</h2>
+            {filterCount > 0 && (
+              <span className="bg-primary/10 text-primary border border-primary/20 rounded-full px-2 py-0.5 text-xs font-medium">
+                {filterCount}
+              </span>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={clearFilters}
             className={cn(
-              "py-1 text-sm text-gray-500",
+              "flex items-center gap-1 text-sm font-medium transition-colors",
               !filterCount
-                ? "disabled pointer-events-none opacity-50"
-                : "cursor-pointer hover:underline"
+                ? "text-muted-foreground cursor-not-allowed opacity-50"
+                : "text-destructive hover:text-destructive/80 cursor-pointer"
             )}
             aria-disabled={!filterCount}
+            disabled={!filterCount}
           >
-            Clear all {filterCount ? `(${filterCount})` : null}
+            <X className="h-3.5 w-3.5" />
+            Clear all
           </button>
         </div>
-        <div className="mt-2" />
       </div>
-      <div className="p-4">
-        <SearchInput
-          placeholder="Search classifieds..."
-          className="focus:ring-primary w-full rounded-md border py-2 focus:ring-2 focus:outline-hidden"
-        />
-      </div>
-      <div className="space-y-2 p-4">
-        {/* Add Proximity Filter */}
-        <ProximityFilter
-          searchParams={searchParams}
-          onLocationChange={handleLocationChange}
-        />
-        <RangeFilters
-          label="Price"
-          minName="minRent"
-          maxName="maxRent"
-          defaultMin={_min.rent || 0}
-          defaultMax={_max.rent || 21474836}
-          handleChange={handleChange}
-          searchParams={searchParams}
-          increment={1000}
-        />
-        <Select
-          label="Room Type"
-          name="roomType"
-          value={queryStates.roomType || ""}
-          onChange={handleChange}
-          options={Object.values(RoomType).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Gender Policy"
-          name="genderPolicy"
-          value={queryStates.genderPolicy || ""}
-          onChange={handleChange}
-          options={Object.values(GenderPolicy).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Curfew Policy"
-          name="curfew"
-          value={queryStates.curfew || ""}
-          onChange={handleChange}
-          options={Object.values(CurfewPolicy).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Laundry Area"
-          name="laundry"
-          value={queryStates.laundry || ""}
-          onChange={handleChange}
-          options={Object.values(LaundryAvailability).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Caretaker"
-          name="caretaker"
-          value={queryStates.caretaker || ""}
-          onChange={handleChange}
-          options={Object.values(CaretakerAvailability).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Kitchen Area"
-          name="kitchen"
-          value={queryStates.kitchen || ""}
-          onChange={handleChange}
-          options={Object.values(KitchenAvailability).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Wifi"
-          name="wifi"
-          value={queryStates.wifi || ""}
-          onChange={handleChange}
-          options={Object.values(WifiAvailability).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Pets"
-          name="pets"
-          value={queryStates.pets || ""}
-          onChange={handleChange}
-          options={Object.values(PetPolicy).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
-        <Select
-          label="Utilities"
-          name="utilities"
-          value={queryStates.utilities || ""}
-          onChange={handleChange}
-          options={Object.values(UtilityInclusion).map((value) => ({
-            label: formatEnumValue(value), // formatOdoUnit
-            value,
-          }))}
-        />
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Search Section */}
+        <div className="p-6 border-b border-border">
+          <SearchInput
+            placeholder="Search properties..."
+            className="w-full rounded-lg border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+          />
+        </div>
+
+        {/* Filters Section */}
+        <div className="p-6 space-y-6">
+          {/* Location Filter */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Location & Proximity
+            </h3>
+            <div className="pl-3">
+              <ProximityFilter
+                searchParams={searchParams}
+                onLocationChange={handleLocationChange}
+              />
+            </div>
+          </div>
+
+          {/* Price Filter */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Price Range
+            </h3>
+            <div className="pl-3">
+              <RangeFilters
+                label=""
+                minName="minRent"
+                maxName="maxRent"
+                defaultMin={_min.rent || 0}
+                defaultMax={_max.rent || 21474836}
+                handleChange={handleChange}
+                searchParams={searchParams}
+                increment={1000}
+              />
+            </div>
+          </div>
+
+          {/* Property Details */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Property Details
+            </h3>
+            <div className="pl-3 space-y-4">
+              <Select
+                label="Room Type"
+                name="roomType"
+                value={queryStates.roomType || ""}
+                onChange={handleChange}
+                options={Object.values(RoomType).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="Gender Policy"
+                name="genderPolicy"
+                value={queryStates.genderPolicy || ""}
+                onChange={handleChange}
+                options={Object.values(GenderPolicy).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+            </div>
+          </div>
+
+          {/* Rules & Policies */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Rules & Policies
+            </h3>
+            <div className="pl-3 space-y-4">
+              <Select
+                label="Curfew Policy"
+                name="curfew"
+                value={queryStates.curfew || ""}
+                onChange={handleChange}
+                options={Object.values(CurfewPolicy).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="Pet Policy"
+                name="pets"
+                value={queryStates.pets || ""}
+                onChange={handleChange}
+                options={Object.values(PetPolicy).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+            </div>
+          </div>
+
+          {/* Amenities */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Amenities & Services
+            </h3>
+            <div className="pl-3 space-y-4">
+              <Select
+                label="Kitchen Availability"
+                name="kitchen"
+                value={queryStates.kitchen || ""}
+                onChange={handleChange}
+                options={Object.values(KitchenAvailability).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="Laundry Facilities"
+                name="laundry"
+                value={queryStates.laundry || ""}
+                onChange={handleChange}
+                options={Object.values(LaundryAvailability).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="WiFi Access"
+                name="wifi"
+                value={queryStates.wifi || ""}
+                onChange={handleChange}
+                options={Object.values(WifiAvailability).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="Caretaker Service"
+                name="caretaker"
+                value={queryStates.caretaker || ""}
+                onChange={handleChange}
+                options={Object.values(CaretakerAvailability).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <Select
+                label="Utilities Included"
+                name="utilities"
+                value={queryStates.utilities || ""}
+                onChange={handleChange}
+                options={Object.values(UtilityInclusion).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

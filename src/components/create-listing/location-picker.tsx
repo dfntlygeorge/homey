@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { MapPin, Loader2 } from "lucide-react";
-import { LocationDetails } from "./location-contact";
+import { LocationDetails } from "@/app/_schemas/form.schema";
+import { reverseGeocode } from "@/lib/utils";
 
 interface LocationPickerProps {
   onAddressChange: (props: LocationDetails) => void;
@@ -53,30 +54,6 @@ export const LocationPicker = ({
         maximumAge: 0,
       }
     );
-  };
-
-  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
-    const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-
-    if (!accessToken) {
-      throw new Error("Mapbox access token is not configured");
-    }
-
-    const response = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${accessToken}&types=address`
-    );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch address");
-    }
-
-    const data = await response.json();
-
-    if (data.features && data.features.length > 0) {
-      return data.features[0].place_name;
-    } else {
-      throw new Error("No address found for this location");
-    }
   };
 
   return (
