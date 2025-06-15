@@ -17,6 +17,8 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { env } from "@/env";
+import { FileSchema } from "../_schemas/form.schema";
+import { ZodError } from "zod";
 
 export const createListingAction = async (formData: FormData) => {
   try {
@@ -109,37 +111,56 @@ export const createListingAction = async (formData: FormData) => {
     if (photoEntries.length > 0) {
       for (const photo of photoEntries) {
         if (photo instanceof File) {
-          const fileExtension = photo.name.split(".").pop();
-          const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
-          const bucketName = env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+          try {
+            // ✅ Validate using FileSchema
+            FileSchema.parse(photo);
 
-          // Convert file to buffer for S3 upload
-          const arrayBuffer = await photo.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
+            const fileExtension = photo.name.split(".").pop();
+            const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
+            const bucketName = env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
 
-          // Upload to S3
-          const command = new PutObjectCommand({
-            Bucket: bucketName,
-            Key: uniqueFileName,
-            Body: buffer,
-            ContentType: photo.type,
-          });
+            // Convert file to buffer for S3 upload
+            const arrayBuffer = await photo.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
 
-          await s3Client.send(command);
+            // Upload to S3
+            const command = new PutObjectCommand({
+              Bucket: bucketName,
+              Key: uniqueFileName,
+              Body: buffer,
+              ContentType: photo.type,
+            });
 
-          // Create the S3 URL
-          const photoUrl = `https://${bucketName}.s3.${env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
-          photoUrls.push(photoUrl);
+            await s3Client.send(command);
 
-          // Create image record in database
-          await prisma.image.create({
-            data: {
-              url: photoUrl,
-              listingId: listing.id,
-            },
-          });
+            // Create the S3 URL
+            const photoUrl = `https://${bucketName}.s3.${env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
+            photoUrls.push(photoUrl);
 
-          console.log("Photo uploaded:", photoUrl);
+            // Create image record in database
+            await prisma.image.create({
+              data: {
+                url: photoUrl,
+                listingId: listing.id,
+              },
+            });
+
+            console.log("Photo uploaded:", photoUrl);
+          } catch (error) {
+            if (error instanceof ZodError) {
+              console.warn("File validation failed:", error.errors);
+              return {
+                success: false,
+                message: `Invalid photo: ${error.errors[0].message}`,
+              };
+            } else {
+              console.error("Unexpected file validation/upload error:", error);
+              return {
+                success: false,
+                message: "Something went wrong during photo upload",
+              };
+            }
+          }
         }
       }
     }

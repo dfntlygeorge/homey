@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import { LocationDetails } from "@/app/_schemas/form.schema";
 import { reverseGeocode } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface LocationPickerProps {
   onAddressChange: (props: LocationDetails) => void;
@@ -16,14 +17,12 @@ export const LocationPicker = ({
   defaultAddress,
 }: LocationPickerProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const getCurrentLocation = () => {
     setIsLoading(true);
-    setError(null);
 
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by this browser.");
+      toast.error("Geolocation is not supported by this browser.");
       setIsLoading(false);
       return;
     }
@@ -35,14 +34,14 @@ export const LocationPicker = ({
           const address = await reverseGeocode(latitude, longitude);
           onAddressChange({ address, latitude, longitude });
         } catch (err) {
-          setError("Failed to get address from coordinates.");
+          toast.error("Failed to get address from coordinates.");
           console.error("Geocoding error:", err);
         } finally {
           setIsLoading(false);
         }
       },
       (error) => {
-        setError(
+        toast.error(
           "Failed to get your location. Please enable location services."
         );
         console.error("Geolocation error:", error);
@@ -72,10 +71,6 @@ export const LocationPicker = ({
         )}
         {isLoading ? "Getting your location..." : "Use My Current Location"}
       </Button>
-
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 p-2 rounded-md">{error}</p>
-      )}
 
       {defaultAddress && (
         <p className="text-sm text-gray-600">Current: {defaultAddress}</p>

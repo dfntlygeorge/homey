@@ -27,3 +27,13 @@ export const navLinks = [
 export const LISTINGS_PER_PAGE = 9;
 
 export const EXCLUDED_KEYS = ["page", "latitude", "longitude", "address"];
+
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+export const MIN_FILE_SIZE = 1024; // 1KB minimum to avoid empty files
+export const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+] as const;

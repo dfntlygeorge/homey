@@ -111,6 +111,7 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
             description: "Your property has been published.",
           });
           // Redirect to the listings page after successful submission
+
           router.push(routes.listings);
         } else {
           toast.error("Failed to create listing", {

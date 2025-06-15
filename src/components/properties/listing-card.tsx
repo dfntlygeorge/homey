@@ -19,7 +19,7 @@ import { FavouriteButton } from "./favourite-button";
 interface ListingCardProps {
   property: PropertyWithImages;
   favourites: number[];
-  searchParams: AwaitedPageProps["searchParams"];
+  searchParams?: AwaitedPageProps["searchParams"];
 }
 
 export const ListingCard = (props: ListingCardProps) => {
@@ -103,7 +103,7 @@ export const ListingCard = (props: ListingCardProps) => {
               </div>
 
               {/* Property Details */}
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {/* Location */}
                 <div className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
@@ -139,7 +139,7 @@ export const ListingCard = (props: ListingCardProps) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-auto pt-4 flex flex-col sm:flex-row gap-2">
+              <div className="mt-auto pt-1 flex flex-col sm:flex-row gap-2">
                 <Button
                   className="flex-1 h-9"
                   asChild

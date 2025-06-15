@@ -10,17 +10,19 @@ import {
   AddressSuggestion,
   SearchBoxSuggestResponse,
 } from "@/app/_schemas/form.schema";
+import { toast } from "sonner";
 
-export const AddressAutocomplete = ({
-  value,
-  onChange,
-  onBlur,
-  onSelect,
-  placeholder = "Enter address or search for places",
-  className,
-  includeAddresses = true,
-  includePois = true,
-}: AddressAutocompleteProps) => {
+export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
+  const {
+    value,
+    onChange,
+    onBlur,
+    onSelect,
+    placeholder = "Enter address or search for places",
+    className,
+    includeAddresses = true,
+    includePois = true,
+  } = props;
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -46,7 +48,6 @@ export const AddressAutocomplete = ({
     setIsLoading(true);
 
     try {
-      // Build query parameters
       const params = new URLSearchParams({
         q: query,
         access_token: accessToken,
@@ -56,15 +57,9 @@ export const AddressAutocomplete = ({
         country: "PH", // Focus on Philippines
       });
 
-      // Add proximity if user's location is available (optional enhancement)
-      // params.append('proximity', 'longitude,latitude');
-
       const url = `https://api.mapbox.com/search/searchbox/v1/suggest?${params}`;
       const data = await api.get<SearchBoxSuggestResponse>(url);
 
-      console.log("Search Box API Response:", data);
-
-      // Filter results based on feature type preferences
       let filteredSuggestions = data.suggestions;
 
       if (!includeAddresses || !includePois) {
@@ -94,14 +89,16 @@ export const AddressAutocomplete = ({
         })
       );
 
-      console.log("Formatted suggestions:", formattedSuggestions);
-
       setSuggestions(formattedSuggestions);
       setShowSuggestions(true);
       setActiveSuggestionIndex(-1);
     } catch (error) {
       console.error("Error fetching address suggestions:", error);
       setSuggestions([]);
+      toast.error("Something went wrong", {
+        description:
+          "We couldn't load suggestions. Check your internet or try again later.",
+      });
     } finally {
       setIsLoading(false);
     }

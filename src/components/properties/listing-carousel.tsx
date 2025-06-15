@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { SwiperButtons } from "../shared/swiper-buttons";
+import { CarouselSkeleton } from "./carousel-skeleton";
 
 interface ListingCarouselProps {
   images: PrismaImage[];
@@ -25,7 +26,7 @@ const SwiperThumb = dynamic(
   () => import("swiper/react").then((mod) => mod.Swiper),
   {
     ssr: false,
-    loading: () => null,
+    loading: () => <CarouselSkeleton />,
   }
 );
 

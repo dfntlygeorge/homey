@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { AuthProvider } from "@/components/providers/session-provider";
+import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +34,8 @@ export default function RootLayout({
         <NuqsAdapter>
           <AuthProvider>{children}</AuthProvider>
         </NuqsAdapter>
+        <NextTopLoader showSpinner={false} />
+        <Toaster />
       </body>
     </html>
   );

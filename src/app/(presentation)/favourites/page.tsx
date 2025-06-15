@@ -1,8 +1,11 @@
+import { EmptyFavouritesMessage } from "@/components/properties/empty-favourites";
+import { FavouritesSkeleton } from "@/components/properties/favourites-skeleton";
 import { ListingCard } from "@/components/properties/listing-card";
 import { Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";
 import { getSourceId } from "@/lib/source-id";
+import { Suspense } from "react";
 
 export default async function FavouritesPage() {
   const sourceId = await getSourceId();
@@ -21,18 +24,11 @@ export default async function FavouritesPage() {
 
   return (
     <div className="container mx-auto min-h-[80dvh] px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Your Favourite Classifieds</h1>
+      <h1 className="mb-6 text-3xl font-bold">Your Saved Listings</h1>
       {count === 0 ? (
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <p className="text-lg text-gray-600">
-            You have not saved any classifieds yet.
-          </p>
-          <p className="text-gray-500">
-            Browse our inventory and click the heart icon to add favourites.
-          </p>
-        </div>
+        <EmptyFavouritesMessage />
       ) : (
-        <>
+        <Suspense fallback={<FavouritesSkeleton />}>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
             {listings.map((listing) => (
               <ListingCard
@@ -42,7 +38,7 @@ export default async function FavouritesPage() {
               />
             ))}
           </div>
-        </>
+        </Suspense>
       )}
     </div>
   );

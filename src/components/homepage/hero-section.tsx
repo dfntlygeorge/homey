@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
+import { ListingFormStep } from "@/config/types";
 import Link from "next/link";
 
 export const HeroSection = () => {
@@ -35,7 +36,7 @@ export const HeroSection = () => {
               Browse Listings
             </Button>
           </Link>
-          <Link href="#">
+          <Link href={routes.createListing(ListingFormStep.WELCOME)}>
             <Button
               variant="outline"
               size="lg"

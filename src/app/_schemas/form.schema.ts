@@ -11,6 +11,12 @@ import {
   LaundryAvailability,
   UtilityInclusion,
 } from "@prisma/client";
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_FILE_SIZE,
+  MIN_FILE_SIZE,
+} from "@/config/constants";
+import { formatFileSize } from "@/lib/utils";
 
 export const MultiStepFormSchema = z.object({
   step: z.nativeEnum(ListingFormStep),
@@ -92,18 +98,121 @@ export const HouseRulesSchema = z.object({
 
 export type HouseRulesType = z.infer<typeof HouseRulesSchema>;
 
+export const FileSchema = z
+  .any()
+  .refine((file) => file instanceof File, {
+    message: "Each item must be a valid file",
+  })
+  .refine((file: File) => file.size >= MIN_FILE_SIZE, {
+    message: `File is too small. Minimum size is ${formatFileSize(
+      MIN_FILE_SIZE
+    )}`,
+  })
+  .refine((file: File) => file.size <= MAX_FILE_SIZE, {
+    message: `File is too large. Maximum size is ${formatFileSize(
+      MAX_FILE_SIZE
+    )}`,
+  })
+  .refine(
+    (file: File) =>
+      ACCEPTED_IMAGE_TYPES.includes(
+        file.type as (typeof ACCEPTED_IMAGE_TYPES)[number]
+      ),
+    {
+      message: `Invalid file type. Only ${ACCEPTED_IMAGE_TYPES.join(
+        ", "
+      )} are allowed`,
+    }
+  )
+  .refine(
+    (file: File) => {
+      // Additional check for file extension to prevent MIME type spoofing
+      const extension = file.name.toLowerCase().split(".").pop();
+      const validExtensions = ["jpg", "jpeg", "png", "webp", "avif"];
+      return validExtensions.includes(extension || "");
+    },
+    {
+      message: "File extension doesn't match an allowed image format",
+    }
+  )
+  .refine(
+    (file: File) => {
+      // Check for reasonable filename length
+      return file.name.length <= 255 && file.name.length > 0;
+    },
+    {
+      message: "Filename must be between 1 and 255 characters",
+    }
+  )
+  .refine(
+    (file: File) => {
+      // Basic check to prevent executable files disguised as images
+      const dangerousExtensions = [
+        ".exe",
+        ".bat",
+        ".cmd",
+        ".com",
+        ".pif",
+        ".scr",
+        ".vbs",
+        ".js",
+      ];
+      const fileName = file.name.toLowerCase();
+      return !dangerousExtensions.some((ext) => fileName.includes(ext));
+    },
+    {
+      message: "File appears to contain executable content",
+    }
+  );
+
 export const UploadPhotosSchema = z.object({
   photos: z
-    .array(
-      z.any().refine((file) => file instanceof File, {
-        message: "Each photo must be a File",
-      })
-    )
+    .array(FileSchema)
     .min(1, { message: "Please upload at least one photo" })
-    .max(10, { message: "You can upload up to 10 photos only" }),
+    .max(10, { message: "You can upload up to 10 photos only" })
+    .refine(
+      (files: File[]) => {
+        // Check total size of all files combined
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        const maxTotalSize = 25 * 1024 * 1024; // 25MB total
+        return totalSize <= maxTotalSize;
+      },
+      {
+        message: `Total file size cannot exceed ${formatFileSize(
+          25 * 1024 * 1024
+        )}`,
+      }
+    )
+    .refine(
+      (files: File[]) => {
+        // Check for duplicate filenames
+        const filenames = files.map((file) => file.name.toLowerCase());
+        return filenames.length === new Set(filenames).size;
+      },
+      {
+        message: "Duplicate filenames are not allowed",
+      }
+    )
+    .refine(
+      (files: File[]) => {
+        // Check for suspiciously similar file sizes (potential duplicates)
+        const sizes = files.map((file) => file.size);
+        const sizeCounts = sizes.reduce((acc, size) => {
+          acc[size] = (acc[size] || 0) + 1;
+          return acc;
+        }, {} as Record<number, number>);
+
+        // Allow up to 2 files with the same size (could be legitimate)
+        return !Object.values(sizeCounts).some((count) => count > 2);
+      },
+      {
+        message: "Too many files with identical sizes detected",
+      }
+    ),
 });
 
 export type UploadPhotosType = z.infer<typeof UploadPhotosSchema>;
+export type FileInput = z.infer<typeof FileSchema>;
 
 export const CreateListingSchema = BasicInfoSchema.merge(
   LocationContactSchema.merge(HouseRulesSchema).merge(UploadPhotosSchema)

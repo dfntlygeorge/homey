@@ -9,6 +9,7 @@ import { routes } from "@/config/routes";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  FileSchema,
   UploadPhotosSchema,
   UploadPhotosType,
 } from "@/app/_schemas/form.schema";
@@ -23,6 +24,7 @@ import {
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { z } from "zod";
 
 export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
   const { photos, addPhoto, removePhoto } = usePhotos();
@@ -38,10 +40,27 @@ export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      Array.from(e.target.files).forEach(addPhoto);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    const files = Array.from(e.target.files);
+
+    for (const file of files) {
+      try {
+        await FileSchema.parseAsync(file);
+        addPhoto(file); // ✅ only add if valid
+      } catch (err) {
+        const errorMessage =
+          err instanceof z.ZodError ? err.errors[0]?.message : "Invalid file";
+        form.setError("photos", {
+          type: "manual",
+          message: errorMessage,
+        });
+      }
     }
+
+    // Reset the file input to allow uploading the same file again if needed
+    e.target.value = "";
   };
 
   const prevStep = () => {

@@ -1,3 +1,5 @@
+import { DialogFilters } from "@/components/properties/dialog-filters";
+import { ListingsSkeleton } from "@/components/properties/listings-skeleton";
 import { PropertyListings } from "@/components/properties/property-listings";
 import { Sidebar } from "@/components/properties/sidebar";
 import { CustomPagination } from "@/components/shared/custom-pagination";
@@ -8,6 +10,7 @@ import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";
 import { getSourceId } from "@/lib/source-id";
 import { getFilteredListings } from "@/lib/utils";
+import { Suspense } from "react";
 
 export default async function ListingsPage(props: AwaitedPageProps) {
   const searchParams = await props.searchParams;
@@ -33,18 +36,16 @@ export default async function ListingsPage(props: AwaitedPageProps) {
     <div className="flex">
       <Sidebar minMaxValues={minMaxResult} searchParams={searchParams} />
       <div className="flex-1 p-4">
-        {/* NOTE: removed lg:flex-row since we don't have a sidebar yet. */}
         <div className="-mt-1 flex flex-col items-center justify-between space-y-2 pb-4">
           <div className="flex w-full items-center justify-between">
             <h2 className="min-w-fit text-sm font-semibold md:text-base lg:text-xl">
               We have found {count} {count <= 1 ? "listing" : "listings"}...
             </h2>
-            {/* TODO: Add DialogFilters once implemented */}
-            {/* <DialogFilters
-          minMaxValues={minMaxResult}
-          searchParams={searchParams}
-          count={count}
-        /> */}
+            <DialogFilters
+              minMaxValues={minMaxResult}
+              searchParams={searchParams}
+              count={count}
+            />
           </div>
           <CustomPagination
             baseUrl={routes.listings}
@@ -60,13 +61,13 @@ export default async function ListingsPage(props: AwaitedPageProps) {
         </div>
 
         {/* TODO: Add skeleton loading fallback when Suspense is used */}
-        {/* <Suspense fallback={<InventorySkeleton />}> */}
-        <PropertyListings
-          properties={listings}
-          favourites={favourites ? favourites.ids : []}
-          searchParams={searchParams}
-        />
-        {/* </Suspense> */}
+        <Suspense fallback={<ListingsSkeleton />}>
+          <PropertyListings
+            properties={listings}
+            favourites={favourites ? favourites.ids : []}
+            searchParams={searchParams}
+          />
+        </Suspense>
 
         <CustomPagination
           baseUrl={routes.listings}
