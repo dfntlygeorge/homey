@@ -9,7 +9,7 @@ import { AwaitedPageProps, Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";
 import { getSourceId } from "@/lib/source-id";
-import { getFilteredListings } from "@/lib/utils";
+import { getFilteredListings } from "@/lib/listing-filter";
 import { Suspense } from "react";
 
 export default async function ListingsPage(props: AwaitedPageProps) {

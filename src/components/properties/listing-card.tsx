@@ -5,16 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button"; // Assuming this is your ShadCN UI Button or similar
 import { routes } from "@/config/routes";
-import {
-  formatEnumValue,
-  formatPrice,
-  getDistanceBetweenPoints,
-} from "@/lib/utils";
+import { getDistanceBetweenPoints } from "@/lib/proximity-filter";
 import { MapPin, BadgeDollarSign, Bed, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { FavouriteButton } from "./favourite-button";
+import { formatEnumValue, formatPrice } from "@/lib/utils";
 
 interface ListingCardProps {
   property: PropertyWithImages;

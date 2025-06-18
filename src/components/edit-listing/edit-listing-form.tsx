@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { toast } from "sonner";
 import { Input } from "../ui/input";
-import { generateSessionToken, getChangedFields } from "@/lib/utils";
+import { generateSessionToken } from "@/lib/utils";
 import { FormFieldGroup } from "./form-field-groups";
 import { FormInput } from "./form-input";
 import { FormTextarea } from "./form-textarea";
@@ -45,6 +45,7 @@ import { env } from "@/env";
 import { EnumCheckboxField } from "./checkbox-yeah";
 import { usePhotos } from "@/context/edit-listing/images-context";
 import { ZodError } from "zod";
+import { getChangedFields } from "@/lib/forms";
 
 export const EditListingForm = ({
   listing,

@@ -10,7 +10,7 @@ import {
   filterCitiesByProvince,
   findCityIdByCode,
   filterBarangaysByCity,
-} from "@/lib/utils";
+} from "@/lib/cascade-dropdown";
 import { Input } from "../ui/input";
 
 interface AddressFilterProps {
