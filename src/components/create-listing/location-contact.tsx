@@ -26,7 +26,10 @@ import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
 import { ListingMinimap } from "../shared/minimap";
 import { generateSessionToken } from "@/lib/utils";
-import { SearchBoxSuggestion, LocationDetails } from "@/config/types";
+import {
+  SearchBoxSuggestion,
+  LocationDetails,
+} from "@/config/types/autocomplete-address.type";
 
 export const LocationContact = (props: AwaitedPageProps) => {
   const { searchParams } = props;

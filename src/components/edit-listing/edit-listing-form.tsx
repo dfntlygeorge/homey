@@ -5,7 +5,7 @@ import {
   UpdateListingType,
 } from "@/app/_schemas/form.schema";
 import { FileSchema } from "@/app/_schemas/file.schema";
-import { SearchBoxSuggestion } from "@/config/types";
+import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
 
 import { PropertyWithImages } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";

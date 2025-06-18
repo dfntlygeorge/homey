@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { MapPin, Loader2 } from "lucide-react";
-import { LocationDetails } from "@/app/_schemas/form.schema";
+import { LocationDetails } from "@/config/types/autocomplete-address.type";
 import { reverseGeocode } from "@/lib/utils";
 import { toast } from "sonner";
 

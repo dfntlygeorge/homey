@@ -9,7 +9,7 @@ import {
   AddressAutocompleteProps,
   AddressSuggestion,
   SearchBoxSuggestResponse,
-} from "@/config/types";
+} from "@/config/types/autocomplete-address.type";
 import { toast } from "sonner";
 
 export const AddressAutocomplete = (props: AddressAutocompleteProps) => {

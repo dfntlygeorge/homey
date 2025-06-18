@@ -1,4 +1,8 @@
-import { Province, CityMunicipality, Barangay } from "@/config/types";
+import {
+  Province,
+  CityMunicipality,
+  Barangay,
+} from "@/config/types/cascade-dropdown.type";
 
 // Helper function to find province ID by province code
 export function findProvinceIdByCode(

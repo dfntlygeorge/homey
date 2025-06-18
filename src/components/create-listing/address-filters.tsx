@@ -4,7 +4,12 @@ import { FilterOptions } from "@/config/types";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
 import { NativeSelect } from "../ui/native-select";
-import { Region, Province, CityMunicipality, Barangay } from "@/config/types";
+import {
+  Region,
+  Province,
+  CityMunicipality,
+  Barangay,
+} from "@/config/types/cascade-dropdown.type";
 import {
   findProvinceIdByCode,
   filterCitiesByProvince,
