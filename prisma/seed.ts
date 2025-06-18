@@ -27,7 +27,7 @@ async function seedListings(landlordId: string) {
       (faker.number.int({ min: 1000, max: 10000 }) % 1000),
     roomType: faker.helpers.arrayElement(Object.values(RoomType)),
     slotsAvailable: faker.number.int({ min: 1, max: 10 }),
-    contactInfo: faker.phone.number(),
+    contact: faker.phone.number(),
 
     genderPolicy: faker.helpers.arrayElement(
       Object.values(GenderPolicy)

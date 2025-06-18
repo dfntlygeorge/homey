@@ -8,8 +8,8 @@ model Listing {
     rent            Int
     roomType        RoomType @map("room_type")
     slotsAvailable  Int      @map("slots_available")
-    contactInfo     String   @map("contact_info")
-    facebookProfile String?  @map("facebook_profile")
+    contact         String   @map("contact")
+    facebookProfile String   @map("facebook_profile")
 
     reviews      Review[]
     images       Image[]

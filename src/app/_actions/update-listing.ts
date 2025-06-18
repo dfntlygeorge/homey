@@ -47,7 +47,7 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
     const updates = result.data;
 
-    const { contact, photos, ...rest } = updates;
+    const { photos, ...rest } = updates;
 
     await prisma.listing.update({
       where: {
@@ -55,7 +55,6 @@ export const updateListingAction = async (props: UpdateListingProps) => {
       },
       data: {
         ...rest,
-        contactInfo: updates.contact, // 🔁 overwrite with the correct field
       },
     });
 

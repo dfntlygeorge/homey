@@ -156,7 +156,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
     roomType,
     id,
     facebookProfile,
-    contactInfo,
+    contact,
     longitude,
     latitude,
   } = props;
@@ -278,7 +278,7 @@ export const PropertyView = async (props: PropertyWithImages) => {
                             </p>
                           ) : (
                             <p>
-                              Contact number: {contactInfo}{" "}
+                              Contact number: {contact}{" "}
                               {facebookProfile ?? "tite"}
                             </p>
                           )}
