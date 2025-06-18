@@ -3,7 +3,7 @@
 import { FilterOptions } from "@/config/types";
 import { api } from "@/lib/api-client";
 import { useEffect, useState, useCallback } from "react";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { Region, Province, CityMunicipality, Barangay } from "@/config/types";
 import {
   findProvinceIdByCode,
@@ -319,7 +319,7 @@ export const AddressFilter = ({
 
   return (
     <div className="space-y-4">
-      <Select
+      <NativeSelect
         label="Region"
         name="region"
         value={selectedRegionCode}
@@ -329,7 +329,7 @@ export const AddressFilter = ({
         placeholder={loading.regions ? "Loading regions..." : "Select a region"}
       />
 
-      <Select
+      <NativeSelect
         label="Province"
         name="province"
         value={selectedProvinceCode}
@@ -345,7 +345,7 @@ export const AddressFilter = ({
         }
       />
 
-      <Select
+      <NativeSelect
         label="City/Municipality"
         name="city"
         value={selectedCityCode}
@@ -361,7 +361,7 @@ export const AddressFilter = ({
         }
       />
 
-      <Select
+      <NativeSelect
         label="Barangay"
         name="barangay"
         value={selectedBarangayCode}

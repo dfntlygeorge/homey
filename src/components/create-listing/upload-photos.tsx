@@ -1,6 +1,6 @@
 "use client";
 
-import { usePhotos } from "@/context/photo-upload";
+import { usePhotos } from "@/context/create-listing/images-context";
 import { Input } from "../ui/input";
 import { useRouter } from "next/navigation";
 import { useEffect, useTransition } from "react";

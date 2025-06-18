@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MapPin, X } from "lucide-react";
 import { cn, generateSessionToken } from "@/lib/utils";
 import { AddressAutocomplete } from "../create-listing/address-autocomplete";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { AwaitedPageProps } from "@/config/types";
 import { ListingMinimap } from "../shared/minimap";
 
@@ -226,7 +226,7 @@ export const ProximityFilter = (props: ProximityFilterProps) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Search Radius
                   </label>
-                  <Select
+                  <NativeSelect
                     name="radius"
                     value={selectedRadius as string}
                     onChange={(e) => setSelectedRadius(e.target.value)}

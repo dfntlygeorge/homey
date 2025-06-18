@@ -19,7 +19,7 @@ import {
   UtilityInclusion,
   WifiAvailability,
 } from "@prisma/client";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { ProximityFilter } from "./proximity-filter";
 import { Filter, X } from "lucide-react";
 import { EXCLUDED_KEYS } from "@/config/constants";
@@ -173,7 +173,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
               Property Details
             </h3>
             <div className="pl-3 space-y-4">
-              <Select
+              <NativeSelect
                 label="Room Type"
                 name="roomType"
                 value={queryStates.roomType || ""}
@@ -185,7 +185,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="Gender Policy"
                 name="genderPolicy"
                 value={queryStates.genderPolicy || ""}
@@ -206,7 +206,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
               Rules & Policies
             </h3>
             <div className="pl-3 space-y-4">
-              <Select
+              <NativeSelect
                 label="Curfew Policy"
                 name="curfew"
                 value={queryStates.curfew || ""}
@@ -218,7 +218,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="Pet Policy"
                 name="pets"
                 value={queryStates.pets || ""}
@@ -239,7 +239,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
               Amenities & Services
             </h3>
             <div className="pl-3 space-y-4">
-              <Select
+              <NativeSelect
                 label="Kitchen Availability"
                 name="kitchen"
                 value={queryStates.kitchen || ""}
@@ -251,7 +251,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="Laundry Facilities"
                 name="laundry"
                 value={queryStates.laundry || ""}
@@ -263,7 +263,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="WiFi Access"
                 name="wifi"
                 value={queryStates.wifi || ""}
@@ -275,7 +275,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="Caretaker Service"
                 name="caretaker"
                 value={queryStates.caretaker || ""}
@@ -287,7 +287,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
                 className="space-y-2"
               />
 
-              <Select
+              <NativeSelect
                 label="Utilities Included"
                 name="utilities"
                 value={queryStates.utilities || ""}

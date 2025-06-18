@@ -19,7 +19,7 @@ import { Textarea } from "../ui/textarea";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { routes } from "@/config/routes";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { BasicInfoSchema, BasicInfoType } from "@/app/_schemas/form.schema";
 
 export const BasicInfo = (props: AwaitedPageProps) => {
@@ -130,7 +130,7 @@ export const BasicInfo = (props: AwaitedPageProps) => {
             <FormItem>
               <FormLabel htmlFor="roomType">Room Type</FormLabel>
               <FormControl>
-                <Select
+                <NativeSelect
                   options={Object.values(RoomType).map((roomType) => ({
                     value: roomType,
                     label: roomType,

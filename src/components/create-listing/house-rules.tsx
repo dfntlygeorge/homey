@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { formatEnumValue } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
@@ -135,7 +135,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="genderPolicy">Gender Policy</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(GenderPolicy).map(
                       (genderPolicy) => ({
                         value: genderPolicy,
@@ -157,7 +157,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="curfew">Curfew Policy</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(CurfewPolicy).map((curfew) => ({
                       value: curfew,
                       label: formatEnumValue(curfew),
@@ -179,7 +179,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
                   Caretaker Availability
                 </FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(CaretakerAvailability).map(
                       (caretaker) => ({
                         value: caretaker,
@@ -201,7 +201,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="pets">Pet Policy</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(PetPolicy).map((pets) => ({
                       value: pets,
                       label: formatEnumValue(pets),
@@ -221,7 +221,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="kitchen">Kitchen Availability</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(KitchenAvailability).map(
                       (kitchen) => ({
                         value: kitchen,
@@ -243,7 +243,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="wifi">Wi-Fi Availability</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(WifiAvailability).map((wifi) => ({
                       value: wifi,
                       label: formatEnumValue(wifi),
@@ -263,7 +263,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="laundry">Laundry Availability</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(LaundryAvailability).map(
                       (laundry) => ({
                         value: laundry,
@@ -285,7 +285,7 @@ export const HouseRules = (props: AwaitedPageProps) => {
               <FormItem>
                 <FormLabel htmlFor="utilities">Utilities Inclusion</FormLabel>
                 <FormControl>
-                  <Select
+                  <NativeSelect
                     options={Object.values(UtilityInclusion).map(
                       (utilities) => ({
                         value: utilities,

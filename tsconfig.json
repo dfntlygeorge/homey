@@ -24,6 +24,13 @@
       "@/env": ["./env.mjs"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/components/edit-listing",
+    "src/context/edit-listing"
+  ],
   "exclude": ["node_modules"]
 }

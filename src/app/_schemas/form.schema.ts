@@ -220,6 +220,9 @@ export const CreateListingSchema = BasicInfoSchema.merge(
 
 export type CreateListingType = z.infer<typeof CreateListingSchema>;
 
+export const UpdateListingSchema = CreateListingSchema.partial();
+export type UpdateListingType = z.infer<typeof UpdateListingSchema>;
+
 export interface AddressSuggestion {
   mapbox_id: string;
   name: string;
@@ -253,7 +256,7 @@ export interface SearchBoxSuggestion {
 }
 
 export interface AddressAutocompleteProps {
-  value: string;
+  value: string | undefined;
   onChange: (value: string) => void;
   onBlur?: () => void;
   onSelect?: (suggestion: AddressSuggestion) => void; // New callback for when user selects

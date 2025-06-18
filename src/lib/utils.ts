@@ -288,3 +288,81 @@ export const formatFileSize = (bytes: number): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
+
+// Helper function to compare File objects
+function filesAreEqual(file1: File, file2: File): boolean {
+  return (
+    file1.name === file2.name &&
+    file1.size === file2.size &&
+    file1.type === file2.type &&
+    file1.lastModified === file2.lastModified
+  );
+}
+
+// Helper function to compare arrays that might contain Files
+function arraysAreEqual(arr1: unknown[], arr2: unknown[]): boolean {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < arr1.length; i++) {
+    const item1 = arr1[i];
+    const item2 = arr2[i];
+
+    // Special handling for File objects
+    if (item1 instanceof File && item2 instanceof File) {
+      if (!filesAreEqual(item1, item2)) {
+        return false;
+      }
+    }
+    // For other types, use JSON comparison (works for objects, primitives)
+    else if (JSON.stringify(item1) !== JSON.stringify(item2)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function getChangedFields<T extends Record<string, unknown>>(
+  original: T,
+  updated: T
+): Partial<T> {
+  const changed: Partial<T> = {};
+
+  for (const key in updated) {
+    const originalValue = original[key];
+    const updatedValue = updated[key];
+
+    if (Array.isArray(updatedValue) && Array.isArray(originalValue)) {
+      // Use our improved array comparison that handles Files
+      if (!arraysAreEqual(originalValue, updatedValue)) {
+        changed[key] = updatedValue;
+      }
+    } else if (updatedValue !== originalValue) {
+      changed[key] = updatedValue;
+    }
+  }
+
+  return changed;
+}
+
+// Example usage with File arrays:
+/*
+const file1 = new File(['content'], 'image1.jpg', { type: 'image/jpeg' });
+const file2 = new File(['content'], 'image2.jpg', { type: 'image/jpeg' });
+
+const original = { 
+  name: "John", 
+  images: [file1] 
+};
+
+const updated = { 
+  name: "John", 
+  images: [file1, file2]  // Added a new file
+};
+
+// This will correctly detect that images array changed
+const result = getChangedFields(original, updated);
+// Result: { images: [file1, file2] }
+*/

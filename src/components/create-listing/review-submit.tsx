@@ -1,7 +1,7 @@
 "use client";
 
 import { AwaitedPageProps, ListingFormStep } from "@/config/types";
-import { usePhotos } from "@/context/photo-upload";
+import { usePhotos } from "@/context/create-listing/images-context";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import {

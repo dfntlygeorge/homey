@@ -10,4 +10,6 @@ export const routes = {
   reserve: (id: number) => `/listings/${id}/reserve`,
   createListing: (step: ListingFormStep) => `/listings/new?step=${step}`,
   contactOwner: (listingId: number) => `/chats?listingId=${listingId}`,
+  manage: "/manage",
+  editListing: (listingId: number) => `/manage/${listingId}/edit`,
 };

@@ -93,8 +93,6 @@ export const createListingAction = async (formData: FormData) => {
       },
     });
 
-    console.log("Listing created:", listing);
-
     // Set up S3 client for photo uploads
     const s3Client = new S3Client({
       region: env.NEXT_PUBLIC_AWS_S3_REGION,

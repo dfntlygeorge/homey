@@ -14,7 +14,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Settings2 } from "lucide-react";
-import { Select } from "../ui/select";
+import { NativeSelect } from "../ui/native-select";
 import { cn, formatEnumValue } from "@/lib/utils";
 import {
   CaretakerAvailability,
@@ -166,7 +166,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               Property Details
             </h3>
 
-            <Select
+            <NativeSelect
               label="Room Type"
               name="roomType"
               value={queryStates.roomType || ""}
@@ -177,7 +177,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="Gender Policy"
               name="genderPolicy"
               value={queryStates.genderPolicy || ""}
@@ -195,7 +195,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               Rules & Policies
             </h3>
 
-            <Select
+            <NativeSelect
               label="Curfew Policy"
               name="curfew"
               value={queryStates.curfew || ""}
@@ -206,7 +206,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="Pet Policy"
               name="pets"
               value={queryStates.pets || ""}
@@ -224,7 +224,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               Amenities & Services
             </h3>
 
-            <Select
+            <NativeSelect
               label="Kitchen Availability"
               name="kitchen"
               value={queryStates.kitchen || ""}
@@ -235,7 +235,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="Laundry Facilities"
               name="laundry"
               value={queryStates.laundry || ""}
@@ -246,7 +246,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="WiFi Access"
               name="wifi"
               value={queryStates.wifi || ""}
@@ -257,7 +257,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="Caretaker Service"
               name="caretaker"
               value={queryStates.caretaker || ""}
@@ -268,7 +268,7 @@ export const DialogFilters = (props: DialogFiltersProps) => {
               }))}
             />
 
-            <Select
+            <NativeSelect
               label="Utilities Included"
               name="utilities"
               value={queryStates.utilities || ""}
