@@ -8,7 +8,7 @@ import { UploadPhotos } from "@/components/create-listing/upload-photos";
 import { WelcomeStep } from "@/components/create-listing/welcome";
 import { routes } from "@/config/routes";
 import { ListingFormStep, PageProps } from "@/config/types";
-import { PhotosProvider } from "@/context/create-listing/images-context";
+import { ImagesProvider } from "@/context/create-listing/images-context";
 import { notFound, redirect } from "next/navigation";
 
 const MAP_STEP_TO_COMPONENT = {
@@ -44,7 +44,7 @@ export default async function CreateListingPage(props: PageProps) {
   const component = <Component searchParams={searchParams} />;
 
   return STEPS_REQUIRING_PHOTO_PROVIDER.has(data.step) ? (
-    <PhotosProvider>{component}</PhotosProvider>
+    <ImagesProvider>{component}</ImagesProvider>
   ) : (
     component
   );

@@ -9,7 +9,7 @@ import {
 import prisma from "@/lib/prisma";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 // import { env } from "@/env";
-import { UploadedPhoto } from "@/context/edit-listing/images-context";
+import { UploadedImage } from "@/context/edit-listing/images-context";
 import { v4 as uuidv4 } from "uuid";
 import { ZodError } from "zod";
 
@@ -17,7 +17,7 @@ interface UpdateListingProps {
   listingId: number;
   formData: UpdateListingType;
   deletedImageIds: number[];
-  imagesToUpload: UploadedPhoto[];
+  imagesToUpload: UploadedImage[];
 }
 
 export const updateListingAction = async (props: UpdateListingProps) => {

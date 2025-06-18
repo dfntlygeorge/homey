@@ -43,7 +43,7 @@ import {
 import { AddressAutocomplete } from "../create-listing/address-autocomplete";
 import { env } from "@/env";
 import { EnumCheckboxField } from "./checkbox-yeah";
-import { usePhotos } from "@/context/edit-listing/images-context";
+import { useImages } from "@/context/edit-listing/images-context";
 import { ZodError } from "zod";
 import { getChangedFields } from "@/lib/forms";
 
@@ -54,8 +54,8 @@ export const EditListingForm = ({
 }) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const { addPhoto, imagesChanged, removedImageIds, getNewPhotos } =
-    usePhotos();
+  const { addImage, imagesChanged, removedImageIds, getNewImages } =
+    useImages();
 
   const {
     title,
@@ -168,7 +168,7 @@ export const EditListingForm = ({
     for (const file of files) {
       try {
         await FileSchema.parseAsync(file);
-        addPhoto(file); // ✅ only add if valid
+        addImage(file); // ✅ only add if valid
       } catch (err) {
         const errorMessage =
           err instanceof ZodError ? err.errors[0]?.message : "Invalid file";
@@ -189,7 +189,7 @@ export const EditListingForm = ({
     startTransition(async () => {
       try {
         const changedFields = getChangedFields(originalValues, data);
-        const newImages = getNewPhotos();
+        const newImages = getNewImages();
         const deletedImageIds = removedImageIds;
 
         const hasImageChanged = imagesChanged();

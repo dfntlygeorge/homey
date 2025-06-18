@@ -1,61 +1,54 @@
 "use client";
-// Using the actual shape of your Image type
-type DatabaseImage = {
-  id: number;
-  url: string;
-  listingId: number;
-  createdAt: Date;
-};
+
+import { Image as PrismaImage } from "@prisma/client";
 import { createContext, useContext, useState } from "react";
 
-export type UploadedPhoto = {
+export type UploadedImage = {
   file: File;
   previewUrl: string; // optional, for previewing locally
 };
 
-interface PhotosContextValue {
-  photos: UploadedPhoto[];
-  existingImages: DatabaseImage[];
+interface ImagesContextValue {
+  images: UploadedImage[];
+  existingImages: PrismaImage[];
   removedImageIds: number[];
-  setPhotos: (files: UploadedPhoto[]) => void;
-  setExistingImages: (images: DatabaseImage[]) => void;
-  addPhoto: (file: File) => void;
-  removePhoto: (index: number) => void;
+  setImages: (files: UploadedImage[]) => void;
+  setExistingImages: (images: PrismaImage[]) => void;
+  addImage: (file: File) => void;
+  removeImage: (index: number) => void;
   removeExistingImage: (imageId: number) => void;
   restoreExistingImage: (imageId: number) => void;
-  // Helper to get all images that should be kept (for form submission)
   getKeptImageIds: () => number[];
-  // Helper to get all new photos (for form submission)
-  getNewPhotos: () => UploadedPhoto[];
+  getNewImages: () => UploadedImage[];
   imagesChanged: () => boolean;
 }
 
-const PhotosContext = createContext<PhotosContextValue | null>(null);
+const ImagesContext = createContext<ImagesContextValue | null>(null);
 
 export const ImagesProvider = ({
   children,
   initialImages = [],
 }: {
   children: React.ReactNode;
-  initialImages?: DatabaseImage[];
+  initialImages?: PrismaImage[];
 }) => {
-  const [photos, setPhotosState] = useState<UploadedPhoto[]>([]);
+  const [images, setImagesState] = useState<UploadedImage[]>([]);
   const [existingImages, setExistingImagesState] =
-    useState<DatabaseImage[]>(initialImages);
+    useState<PrismaImage[]>(initialImages);
   const [removedImageIds, setRemovedImageIds] = useState<number[]>([]);
 
-  const setPhotos = (files: UploadedPhoto[]) => setPhotosState(files);
+  const setImages = (files: UploadedImage[]) => setImagesState(files);
 
-  const setExistingImages = (images: DatabaseImage[]) =>
+  const setExistingImages = (images: PrismaImage[]) =>
     setExistingImagesState(images);
 
-  const addPhoto = (file: File) => {
+  const addImage = (file: File) => {
     const previewUrl = URL.createObjectURL(file);
-    setPhotosState((prev) => [...prev, { file, previewUrl }]);
+    setImagesState((prev) => [...prev, { file, previewUrl }]);
   };
 
-  const removePhoto = (index: number) => {
-    setPhotosState((prev) => prev.filter((_, i) => i !== index));
+  const removeImage = (index: number) => {
+    setImagesState((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeExistingImage = (imageId: number) => {
@@ -66,47 +59,46 @@ export const ImagesProvider = ({
     setRemovedImageIds((prev) => prev.filter((id) => id !== imageId));
   };
 
-  // Filter out removed images from existing images
   const visibleExistingImages = existingImages.filter(
     (img) => !removedImageIds.includes(img.id)
   );
 
-  // Helper functions for form submission
   const getKeptImageIds = () => {
     return existingImages
       .filter((img) => !removedImageIds.includes(img.id))
       .map((img) => img.id);
   };
 
-  const getNewPhotos = () => photos;
+  const getNewImages = () => images;
+
   const imagesChanged = () => {
-    return removedImageIds.length > 0 || photos.length > 0;
+    return removedImageIds.length > 0 || images.length > 0;
   };
 
   return (
-    <PhotosContext.Provider
+    <ImagesContext.Provider
       value={{
-        photos,
+        images,
         existingImages: visibleExistingImages,
         removedImageIds,
-        setPhotos,
+        setImages,
         setExistingImages,
-        addPhoto,
-        removePhoto,
+        addImage,
+        removeImage,
         removeExistingImage,
         restoreExistingImage,
         getKeptImageIds,
-        getNewPhotos,
+        getNewImages,
         imagesChanged,
       }}
     >
       {children}
-    </PhotosContext.Provider>
+    </ImagesContext.Provider>
   );
 };
 
-export const usePhotos = () => {
-  const ctx = useContext(PhotosContext);
-  if (!ctx) throw new Error("usePhotos must be used within a PhotosProvider");
+export const useImages = () => {
+  const ctx = useContext(ImagesContext);
+  if (!ctx) throw new Error("useImages must be used within an ImagesProvider");
   return ctx;
 };

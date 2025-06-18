@@ -1,6 +1,6 @@
 "use client";
 
-import { usePhotos } from "@/context/create-listing/images-context";
+import { useImages } from "@/context/create-listing/images-context";
 import { Input } from "../ui/input";
 import { useRouter } from "next/navigation";
 import { useEffect, useTransition } from "react";
@@ -27,7 +27,7 @@ import Image from "next/image";
 import { z } from "zod";
 
 export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
-  const { photos, addPhoto, removePhoto } = usePhotos();
+  const { images, addImage, removeImage } = useImages();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isPrevPending, startPrevTransition] = useTransition();
@@ -48,7 +48,7 @@ export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
     for (const file of files) {
       try {
         await FileSchema.parseAsync(file);
-        addPhoto(file); // ✅ only add if valid
+        addImage(file); // ✅ only add if valid
       } catch (err) {
         const errorMessage =
           err instanceof z.ZodError ? err.errors[0]?.message : "Invalid file";
@@ -100,9 +100,9 @@ export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
   useEffect(() => {
     form.setValue(
       "photos",
-      photos.map((p) => p.file)
+      images.map((image) => image.file)
     );
-  }, [photos, form]);
+  }, [images, form]);
 
   return (
     <Form {...form}>
@@ -129,23 +129,23 @@ export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
           )}
         />
 
-        {photos.length > 0 && (
+        {images.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {photos.map((p, i) => (
+            {images.map((image, index) => (
               <div
-                key={i}
+                key={index}
                 className="relative overflow-hidden rounded-lg border shadow-sm group"
               >
                 <Image
-                  src={p.previewUrl}
-                  alt={`Photo ${i + 1}`}
+                  src={image.previewUrl}
+                  alt={`Photo ${index + 1}`}
                   width={300}
                   height={300}
                   className="aspect-square object-cover transition-transform group-hover:scale-105"
                 />
                 <button
                   type="button"
-                  onClick={() => removePhoto(i)}
+                  onClick={() => removeImage(index)}
                   className="absolute top-1 right-1 rounded-full bg-red-600/90 text-white p-1 text-xs hover:bg-red-700 transition"
                 >
                   ✕

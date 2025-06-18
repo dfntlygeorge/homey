@@ -1,7 +1,7 @@
 "use client";
 
 import { AwaitedPageProps, ListingFormStep } from "@/config/types";
-import { usePhotos } from "@/context/create-listing/images-context";
+import { useImages } from "@/context/create-listing/images-context";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import {
@@ -35,7 +35,7 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
   };
 
   // retrieve data from previous steps
-  const { photos, removePhoto } = usePhotos();
+  const { images, removeImage } = useImages();
   const title = decodeURIComponent(searchParams?.title as string) || "";
   const description =
     decodeURIComponent(searchParams?.description as string) || "";
@@ -99,8 +99,8 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
         formData.append("facebookProfile", facebookProfile);
 
         // Add all photos to FormData
-        photos.forEach((photo) => {
-          formData.append("photos", photo.file);
+        images.forEach((image) => {
+          formData.append("photos", image.file);
         });
 
         // Call the server action
@@ -184,13 +184,13 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
           {/* Photos Section */}
           <section className="bg-gray-50 p-6 rounded-lg">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Photos</h2>
-            {photos.length > 0 ? (
+            {images.length > 0 ? (
               <div className="grid grid-cols-2 gap-4">
-                {photos.map((photo, index) => (
+                {images.map((image, index) => (
                   <div key={index} className="relative group">
                     <div className="aspect-video overflow-hidden rounded-lg">
                       <Image
-                        src={photo.previewUrl}
+                        src={image.previewUrl}
                         alt={`Property photo ${index + 1}`}
                         layout="responsive"
                         width={400}
@@ -199,7 +199,7 @@ export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
                       />
                     </div>
                     <button
-                      onClick={() => removePhoto(index)}
+                      onClick={() => removeImage(index)}
                       className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <svg

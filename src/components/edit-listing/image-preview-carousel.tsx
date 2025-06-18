@@ -13,7 +13,7 @@ import Image from "next/image";
 import { useCallback, useState } from "react";
 import { SwiperButtons } from "../shared/swiper-buttons";
 import { CarouselSkeleton } from "../properties/carousel-skeleton";
-import { UploadedPhoto } from "@/context/edit-listing/images-context";
+import { UploadedImage } from "@/context/edit-listing/images-context";
 import { X } from "lucide-react";
 
 // // Using the actual shape of your Image type
@@ -26,7 +26,7 @@ import { X } from "lucide-react";
 
 interface PreviewImagesProps {
   existingImages: PrismaImage[];
-  newPhotos: UploadedPhoto[];
+  newImages: UploadedImage[];
   onRemoveExisting?: (imageId: number) => void;
   onRemoveNew?: (index: number) => void;
 }
@@ -45,7 +45,7 @@ const SwiperThumb = dynamic(
 
 export const ImagePreviewCarousel = ({
   existingImages,
-  newPhotos,
+  newImages,
   onRemoveExisting,
   onRemoveNew,
 }: PreviewImagesProps) => {
@@ -80,9 +80,9 @@ export const ImagePreviewCarousel = ({
       url: img.url,
       type: "existing" as const,
     })),
-    ...newPhotos.map((photo, index) => ({
+    ...newImages.map((image, index) => ({
       id: `new-${index}`,
-      url: photo.previewUrl,
+      url: image.previewUrl,
       type: "new" as const,
       originalIndex: index,
     })),

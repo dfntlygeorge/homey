@@ -1,45 +1,45 @@
 "use client";
 import { createContext, useContext, useState } from "react";
 
-type UploadedPhoto = {
+type UploadedImage = {
   file: File;
   previewUrl: string; // optional, for previewing locally
 };
 
-interface PhotosContextValue {
-  photos: UploadedPhoto[];
-  setPhotos: (files: UploadedPhoto[]) => void;
-  addPhoto: (file: File) => void;
-  removePhoto: (index: number) => void;
+interface ImagesContextValue {
+  images: UploadedImage[];
+  setImages: (files: UploadedImage[]) => void;
+  addImage: (file: File) => void;
+  removeImage: (index: number) => void;
 }
 
-const PhotosContext = createContext<PhotosContextValue | null>(null);
+const ImagesContext = createContext<ImagesContextValue | null>(null);
 
-export const PhotosProvider = ({ children }: { children: React.ReactNode }) => {
-  const [photos, setPhotosState] = useState<UploadedPhoto[]>([]);
+export const ImagesProvider = ({ children }: { children: React.ReactNode }) => {
+  const [images, setImagesState] = useState<UploadedImage[]>([]);
 
-  const setPhotos = (files: UploadedPhoto[]) => setPhotosState(files);
+  const setImages = (files: UploadedImage[]) => setImagesState(files);
 
-  const addPhoto = (file: File) => {
+  const addImage = (file: File) => {
     const previewUrl = URL.createObjectURL(file);
-    setPhotosState((prev) => [...prev, { file, previewUrl }]);
+    setImagesState((prev) => [...prev, { file, previewUrl }]);
   };
 
-  const removePhoto = (index: number) => {
-    setPhotosState((prev) => prev.filter((_, i) => i !== index));
+  const removeImage = (index: number) => {
+    setImagesState((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
-    <PhotosContext.Provider
-      value={{ photos, setPhotos, addPhoto, removePhoto }}
+    <ImagesContext.Provider
+      value={{ images, setImages, addImage, removeImage }}
     >
       {children}
-    </PhotosContext.Provider>
+    </ImagesContext.Provider>
   );
 };
 
-export const usePhotos = () => {
-  const ctx = useContext(PhotosContext);
-  if (!ctx) throw new Error("usePhotos must be used within a PhotosProvider");
+export const useImages = () => {
+  const ctx = useContext(ImagesContext);
+  if (!ctx) throw new Error("useImages must be used within an ImagesProvider");
   return ctx;
 };
