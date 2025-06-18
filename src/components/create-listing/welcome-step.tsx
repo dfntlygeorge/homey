@@ -46,7 +46,7 @@ export const WelcomeStep = () => {
 
         <div className="flex items-center justify-around rounded-md bg-gray-100 p-4">
           <div className="text-center">
-            <p className="font-bold">Fill Property Info</p>
+            <p className="font-bold">Fill Listing Info</p>
             <p className="text-gray-500">Basic info, location, rent</p>
           </div>
           <ArrowRightIcon className="h-6 w-6" />
@@ -56,7 +56,7 @@ export const WelcomeStep = () => {
           </div>
           <ArrowRightIcon className="h-6 w-6" />
           <div className="text-center">
-            <p className="font-bold">Upload Photos</p>
+            <p className="font-bold">Upload Images</p>
             <p className="text-gray-500">Show off your space</p>
           </div>
         </div>

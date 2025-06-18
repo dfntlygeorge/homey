@@ -90,11 +90,11 @@ export const HouseRulesSchema = z.object({
   utilities: z.nativeEnum(UtilityInclusion),
 });
 
-export const UploadPhotosSchema = z.object({
-  photos: z
+export const UploadImagesSchema = z.object({
+  images: z
     .array(FileSchema)
-    .min(1, { message: "Please upload at least one photo" })
-    .max(10, { message: "You can upload up to 10 photos only" })
+    .min(1, { message: "Please upload at least one image" })
+    .max(10, { message: "You can upload up to 10 images only" })
     .refine(
       (files: File[]) => {
         // Check total size of all files combined
@@ -137,7 +137,7 @@ export const UploadPhotosSchema = z.object({
 });
 
 export const CreateListingSchema = BasicInfoSchema.merge(
-  LocationContactSchema.merge(HouseRulesSchema).merge(UploadPhotosSchema)
+  LocationContactSchema.merge(HouseRulesSchema).merge(UploadImagesSchema)
 );
 
 export const UpdateListingSchema = CreateListingSchema.partial();
@@ -146,7 +146,7 @@ export const UpdateListingSchema = CreateListingSchema.partial();
 export type BasicInfoType = z.infer<typeof BasicInfoSchema>;
 export type LocationContactType = z.infer<typeof LocationContactSchema>;
 export type HouseRulesType = z.infer<typeof HouseRulesSchema>;
-export type UploadPhotosType = z.infer<typeof UploadPhotosSchema>;
+export type UploadImagesType = z.infer<typeof UploadImagesSchema>;
 export type FileInput = z.infer<typeof FileSchema>;
 export type CreateListingType = z.infer<typeof CreateListingSchema>;
 export type UpdateListingType = z.infer<typeof UpdateListingSchema>;

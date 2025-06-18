@@ -16,12 +16,12 @@ const MAP_STEP_TO_COMPONENT = {
   [ListingFormStep.BASIC_INFO]: BasicInfoStep,
   [ListingFormStep.LOCATION_CONTACT]: LocationContactStep,
   [ListingFormStep.HOUSE_RULES]: HouseRulesStep,
-  [ListingFormStep.UPLOAD_PHOTOS]: UploadImagesStep,
+  [ListingFormStep.UPLOAD_IMAGES]: UploadImagesStep,
   [ListingFormStep.REVIEW_SUBMIT]: ReviewSubmitStep,
 };
 
-const STEPS_REQUIRING_PHOTO_PROVIDER = new Set([
-  ListingFormStep.UPLOAD_PHOTOS,
+const STEPS_REQUIRING_IMAGE_PROVIDER = new Set([
+  ListingFormStep.UPLOAD_IMAGES,
   ListingFormStep.REVIEW_SUBMIT,
 ]);
 
@@ -43,7 +43,7 @@ export default async function CreateListingPage(props: PageProps) {
 
   const component = <Component searchParams={searchParams} />;
 
-  return STEPS_REQUIRING_PHOTO_PROVIDER.has(data.step) ? (
+  return STEPS_REQUIRING_IMAGE_PROVIDER.has(data.step) ? (
     <ImagesProvider>{component}</ImagesProvider>
   ) : (
     component

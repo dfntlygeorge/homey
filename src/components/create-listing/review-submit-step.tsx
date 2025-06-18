@@ -29,7 +29,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
     startPrevTransition(async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const url = new URL(window.location.href);
-      url.searchParams.set("step", ListingFormStep.UPLOAD_PHOTOS.toString());
+      url.searchParams.set("step", ListingFormStep.UPLOAD_IMAGES.toString());
       router.push(url.toString());
     });
   };
@@ -98,9 +98,8 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
         formData.append("utilities", utilities);
         formData.append("facebookProfile", facebookProfile);
 
-        // Add all photos to FormData
         images.forEach((image) => {
-          formData.append("photos", image.file);
+          formData.append("images", image.file);
         });
 
         // Call the server action
@@ -108,7 +107,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
 
         if (result?.success) {
           toast.success("Listing created successfully!", {
-            description: "Your property has been published.",
+            description: "Your listing has been published.",
           });
           // Redirect to the listings page after successful submission
 
@@ -181,9 +180,9 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
             </div>
           </section>
 
-          {/* Photos Section */}
+          {/* IMages Section */}
           <section className="bg-gray-50 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Photos</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Images</h2>
             {images.length > 0 ? (
               <div className="grid grid-cols-2 gap-4">
                 {images.map((image, index) => (
@@ -191,7 +190,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
                     <div className="aspect-video overflow-hidden rounded-lg">
                       <Image
                         src={image.previewUrl}
-                        alt={`Property photo ${index + 1}`}
+                        alt={`Listing image ${index + 1}`}
                         layout="responsive"
                         width={400}
                         height={300}
@@ -223,7 +222,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
             ) : (
               <div className="bg-gray-100 border border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <AlertCircle className="mx-auto text-gray-400 mb-2" size={24} />
-                <p className="text-gray-500">No photos uploaded yet.</p>
+                <p className="text-gray-500">No images uploaded yet.</p>
               </div>
             )}
           </section>
@@ -341,7 +340,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
                   Going Back...
                 </>
               ) : (
-                "Back to Photos"
+                "Back to Images"
               )}
             </Button>
           </div>

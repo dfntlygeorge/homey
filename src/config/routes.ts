@@ -6,7 +6,7 @@ export const routes = {
   favourites: "/favourites",
   admin: "/admin",
   signIn: "/auth/sign-in",
-  singleProperty: (id: number) => `/listings/${id}`,
+  listing: (id: number) => `/listings/${id}`,
   reserve: (id: number) => `/listings/${id}/reserve`,
   createListing: (step: ListingFormStep) => `/listings/new?step=${step}`,
   contactOwner: (listingId: number) => `/chats?listingId=${listingId}`,

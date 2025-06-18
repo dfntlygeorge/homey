@@ -67,7 +67,7 @@ export const ListingCard = (props: ListingCardProps) => {
         >
           <div className="relative flex flex-col overflow-hidden rounded-lg bg-background shadow-md border border-border group h-full">
             <div className="relative aspect-[16/10] overflow-hidden">
-              <Link href={routes.singleProperty(id)} passHref>
+              <Link href={routes.listing(id)} passHref>
                 <Image
                   src={images?.[0]?.url || "/placeholder-property.jpg"}
                   alt={title}
@@ -94,7 +94,7 @@ export const ListingCard = (props: ListingCardProps) => {
               {/* Title and Description */}
               <div className="space-y-2">
                 <Link
-                  href={routes.singleProperty(id)}
+                  href={routes.listing(id)}
                   passHref
                   className="block"
                   title={title}
@@ -157,7 +157,7 @@ export const ListingCard = (props: ListingCardProps) => {
                   <Link href={routes.reserve(id)}>Reserve Now</Link>
                 </Button>
                 <Button className="flex-1 h-9" asChild size="sm">
-                  <Link href={routes.singleProperty(id)}>View Details</Link>
+                  <Link href={routes.listing(id)}>View Details</Link>
                 </Button>
               </div>
             </div>

@@ -33,7 +33,7 @@ export default async function FavouritesPage() {
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
-                property={listing}
+                listing={listing}
                 favourites={favourites ? favourites.ids : []}
               />
             ))}

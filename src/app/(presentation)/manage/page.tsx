@@ -28,9 +28,7 @@ export default async function ManageListingsPage() {
         <h1 className="text-3xl font-bold text-zinc-900 mb-2">
           Manage Your Listings
         </h1>
-        <p className="text-zinc-600">
-          View and manage all your property listings
-        </p>
+        <p className="text-zinc-600">View and manage all your listings</p>
       </div>
 
       {/* Single column layout for horizontal cards */}

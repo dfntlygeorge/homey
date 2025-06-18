@@ -9,8 +9,8 @@ import { routes } from "@/config/routes";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  UploadPhotosSchema,
-  UploadPhotosType,
+  UploadImagesSchema,
+  UploadImagesType,
 } from "@/app/_schemas/form.schema";
 import { FileSchema } from "@/app/_schemas/file.schema";
 import {
@@ -32,11 +32,11 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
   const [isPending, startTransition] = useTransition();
   const [isPrevPending, startPrevTransition] = useTransition();
 
-  const form = useForm<UploadPhotosType>({
-    resolver: zodResolver(UploadPhotosSchema),
+  const form = useForm<UploadImagesType>({
+    resolver: zodResolver(UploadImagesSchema),
     mode: "onTouched",
     defaultValues: {
-      photos: [],
+      images: [],
     },
   });
 
@@ -52,7 +52,7 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
       } catch (err) {
         const errorMessage =
           err instanceof z.ZodError ? err.errors[0]?.message : "Invalid file";
-        form.setError("photos", {
+        form.setError("images", {
           type: "manual",
           message: errorMessage,
         });
@@ -72,7 +72,7 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
     });
   };
 
-  const onNextStep: SubmitHandler<UploadPhotosType> = (data) => {
+  const onNextStep: SubmitHandler<UploadImagesType> = (data) => {
     startTransition(async () => {
       console.log(data);
       const valid = await form.trigger();
@@ -99,7 +99,7 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
 
   useEffect(() => {
     form.setValue(
-      "photos",
+      "images",
       images.map((image) => image.file)
     );
   }, [images, form]);
@@ -112,10 +112,10 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
       >
         <FormField
           control={form.control}
-          name="photos"
+          name="images"
           render={() => (
             <FormItem>
-              <FormLabel htmlFor="photos">Upload Photos</FormLabel>
+              <FormLabel htmlFor="images">Upload Images</FormLabel>
               <FormControl>
                 <Input
                   type="file"
@@ -138,7 +138,7 @@ export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
               >
                 <Image
                   src={image.previewUrl}
-                  alt={`Photo ${index + 1}`}
+                  alt={`Image ${index + 1}`}
                   width={300}
                   height={300}
                   className="aspect-square object-cover transition-transform group-hover:scale-105"

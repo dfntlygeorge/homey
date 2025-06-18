@@ -40,7 +40,7 @@ export enum ListingFormStep {
   BASIC_INFO = 2,
   LOCATION_CONTACT = 3,
   HOUSE_RULES = 4,
-  UPLOAD_PHOTOS = 5,
+  UPLOAD_IMAGES = 5,
   REVIEW_SUBMIT = 6,
 }
 

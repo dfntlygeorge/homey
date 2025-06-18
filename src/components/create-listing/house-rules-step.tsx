@@ -93,7 +93,7 @@ export const HouseRulesStep = (props: AwaitedPageProps) => {
       await new Promise((resolve) => setTimeout(resolve, 500)); // Optional for loading effect
 
       const url = new URL(
-        routes.createListing(ListingFormStep.UPLOAD_PHOTOS),
+        routes.createListing(ListingFormStep.UPLOAD_IMAGES),
         process.env.NEXT_PUBLIC_APP_URL
       );
 
@@ -103,7 +103,7 @@ export const HouseRulesStep = (props: AwaitedPageProps) => {
         });
       }
 
-      url.searchParams.set("step", ListingFormStep.UPLOAD_PHOTOS.toString()); // Next step
+      url.searchParams.set("step", ListingFormStep.UPLOAD_IMAGES.toString()); // Next step
 
       url.searchParams.set(
         "genderPolicy",

@@ -170,7 +170,7 @@ export const EditListingForm = ({
       } catch (err) {
         const errorMessage =
           err instanceof ZodError ? err.errors[0]?.message : "Invalid file";
-        form.setError("photos", {
+        form.setError("images", {
           type: "manual",
           message: errorMessage,
         });
@@ -216,7 +216,7 @@ export const EditListingForm = ({
 
         if (result.success) {
           toast.success("Listing updated successfully!");
-          router.push(routes.singleProperty(id));
+          router.push(routes.listing(id));
         } else {
           toast.error(result.message || "Failed to update listing");
         }
@@ -384,13 +384,13 @@ export const EditListingForm = ({
             />
           </FormFieldGroup>
 
-          <FormFieldGroup title="Photos">
+          <FormFieldGroup title="Images">
             <FormField
               control={form.control}
-              name="photos"
+              name="images"
               render={() => (
                 <FormItem>
-                  <FormLabel htmlFor="photos">Upload Photos</FormLabel>
+                  <FormLabel htmlFor="images">Upload Images</FormLabel>
                   <FormControl>
                     <Input
                       type="file"

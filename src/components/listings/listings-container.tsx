@@ -36,17 +36,5 @@ export const ListingsContainer = (props: ListingsContainerProps) => {
         </div>
       )}
     </>
-    // <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-    //   {listings.map((property) => {
-    //     return (
-    //       <ListingCard
-    //         key={property.id}
-    //         property={property}
-    //         favourites={favourites}
-    //         searchParams={searchParams}
-    //       />
-    //     );
-    //   })}
-    // </div>
   );
 };

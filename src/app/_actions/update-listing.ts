@@ -47,7 +47,7 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
     const updates = result.data;
 
-    const { photos, ...rest } = updates;
+    const { images, ...rest } = updates;
 
     await prisma.listing.update({
       where: {
@@ -122,19 +122,19 @@ export const updateListingAction = async (props: UpdateListingProps) => {
               },
             });
 
-            console.log("Photo uploaded:", imageUrl);
+            console.log("Image uploaded:", imageUrl);
           } catch (error) {
             if (error instanceof ZodError) {
               console.warn("File validation failed:", error.errors);
               return {
                 success: false,
-                message: `Invalid photo: ${error.errors[0].message}`,
+                message: `Invalid image: ${error.errors[0].message}`,
               };
             } else {
               console.error("Unexpected file validation/upload error:", error);
               return {
                 success: false,
-                message: "Something went wrong during photo upload",
+                message: "Something went wrong during image upload",
               };
             }
           }

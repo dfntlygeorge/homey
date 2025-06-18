@@ -72,7 +72,7 @@ export const ImagePreviewCarousel = ({
     });
   }, [lightboxController.toggler, activeIndex]);
 
-  // Combine existing images and new photos for display
+  // Combine existing images and new images for display
   const allImages = [
     ...existingImages.map((img) => ({
       id: img.id.toString(), // Convert to string for consistent handling

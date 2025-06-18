@@ -11,7 +11,7 @@ const steps = [
     icon: <ClipboardList className="h-8 w-8 text-primary" />,
     title: "Check Details",
     description:
-      "Review photos, rules, amenities, and real reviews to find your fit.",
+      "Review images, rules, amenities, and real reviews to find your fit.",
   },
   {
     icon: <CalendarCheck className="h-8 w-8 text-primary" />,

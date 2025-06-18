@@ -24,7 +24,7 @@ export const EmptyListingMessage = ({
       <p className="text-gray-600 mb-6 max-w-md">
         {hasFilters
           ? "Try adjusting your filters to see more results, or check back later for new listings."
-          : "We don't have any property listings available at the moment. Please check back later."}
+          : "We don't have any listings available at the moment. Please check back later."}
       </p>
 
       {hasFilters && (
