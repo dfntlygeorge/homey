@@ -6,14 +6,14 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "./tooltip";
 
-interface SignButtonProps {
+interface SignInButtonProps {
   session: Session | null;
   className: string;
 }
 
-export default function SignButton(props: SignButtonProps) {
+export default function SignInButton(props: SignInButtonProps) {
   const { session, className } = props;
   if (session) {
     const userName = session.user?.name || "User";

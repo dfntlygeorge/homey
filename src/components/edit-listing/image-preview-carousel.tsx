@@ -12,7 +12,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { SwiperButtons } from "../shared/swiper-buttons";
-import { CarouselSkeleton } from "../properties/carousel-skeleton";
+import { CarouselSkeleton } from "../listings/carousel-skeleton";
 import { UploadedImage } from "@/context/edit-listing/images-context";
 import { X } from "lucide-react";
 

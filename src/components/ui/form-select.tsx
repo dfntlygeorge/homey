@@ -5,14 +5,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "./form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "./select";
 import { UpdateListingType } from "@/app/_schemas/form.schema";
 
 interface SelectOption {

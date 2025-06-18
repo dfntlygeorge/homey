@@ -30,7 +30,7 @@ import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import { HouseRulesSchema, HouseRulesType } from "@/app/_schemas/form.schema";
 
-export const HouseRules = (props: AwaitedPageProps) => {
+export const HouseRulesStep = (props: AwaitedPageProps) => {
   const { searchParams } = props;
   const genderPolicy = (searchParams?.genderPolicy as string) ?? undefined;
   const curfew = (searchParams?.curfew as string) ?? undefined;

@@ -1,4 +1,4 @@
-import { PropertyView } from "@/components/properties/property-view";
+import { PropertyView } from "@/components/listings/property-view";
 import { PageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";

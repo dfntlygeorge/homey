@@ -1,7 +1,7 @@
-import { DialogFilters } from "@/components/properties/dialog-filters";
-import { ListingsSkeleton } from "@/components/properties/listings-skeleton";
-import { PropertyListings } from "@/components/properties/property-listings";
-import { Sidebar } from "@/components/properties/sidebar";
+import { DialogFilters } from "@/components/listings/dialog-filters";
+import { ListingsSkeleton } from "@/components/listings/listings-skeleton";
+import { PropertyListings } from "@/components/listings/property-listings";
+import { Sidebar } from "@/components/listings/sidebar";
 import { CustomPagination } from "@/components/shared/custom-pagination";
 import { LISTINGS_PER_PAGE } from "@/config/constants";
 import { routes } from "@/config/routes";

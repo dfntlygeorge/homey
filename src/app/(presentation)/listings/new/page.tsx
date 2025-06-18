@@ -1,11 +1,11 @@
 import { MultiStepFormSchema } from "@/app/_schemas/form.schema";
 import { auth } from "@/auth";
-import { BasicInfo } from "@/components/create-listing/basic-info";
-import { HouseRules } from "@/components/create-listing/house-rules";
-import { LocationContact } from "@/components/create-listing/location-contact";
-import { ReviewSubmit } from "@/components/create-listing/review-submit";
-import { UploadPhotos } from "@/components/create-listing/upload-photos";
-import { WelcomeStep } from "@/components/create-listing/welcome";
+import { BasicInfoStep } from "@/components/create-listing/basic-info-step";
+import { HouseRulesStep } from "@/components/create-listing/house-rules-step";
+import { LocationContactStep } from "@/components/create-listing/location-contact-step";
+import { ReviewSubmitStep } from "@/components/create-listing/review-submit-step";
+import { UploadImagesStep } from "@/components/create-listing/upload-images-step";
+import { WelcomeStep } from "@/components/create-listing/welcome-step";
 import { routes } from "@/config/routes";
 import { ListingFormStep, PageProps } from "@/config/types";
 import { ImagesProvider } from "@/context/create-listing/images-context";
@@ -13,11 +13,11 @@ import { notFound, redirect } from "next/navigation";
 
 const MAP_STEP_TO_COMPONENT = {
   [ListingFormStep.WELCOME]: WelcomeStep,
-  [ListingFormStep.BASIC_INFO]: BasicInfo,
-  [ListingFormStep.LOCATION_CONTACT]: LocationContact,
-  [ListingFormStep.HOUSE_RULES]: HouseRules,
-  [ListingFormStep.UPLOAD_PHOTOS]: UploadPhotos,
-  [ListingFormStep.REVIEW_SUBMIT]: ReviewSubmit,
+  [ListingFormStep.BASIC_INFO]: BasicInfoStep,
+  [ListingFormStep.LOCATION_CONTACT]: LocationContactStep,
+  [ListingFormStep.HOUSE_RULES]: HouseRulesStep,
+  [ListingFormStep.UPLOAD_PHOTOS]: UploadImagesStep,
+  [ListingFormStep.REVIEW_SUBMIT]: ReviewSubmitStep,
 };
 
 const STEPS_REQUIRING_PHOTO_PROVIDER = new Set([

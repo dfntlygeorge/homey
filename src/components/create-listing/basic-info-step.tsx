@@ -22,7 +22,7 @@ import { routes } from "@/config/routes";
 import { NativeSelect } from "../ui/native-select";
 import { BasicInfoSchema, BasicInfoType } from "@/app/_schemas/form.schema";
 
-export const BasicInfo = (props: AwaitedPageProps) => {
+export const BasicInfoStep = (props: AwaitedPageProps) => {
   const { searchParams } = props;
   const title = (searchParams?.title as string) ?? undefined;
   const description = (searchParams?.description as string) ?? undefined;

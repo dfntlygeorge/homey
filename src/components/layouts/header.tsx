@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { HeartIcon, HouseIcon, MenuIcon } from "lucide-react";
 import { auth } from "@/auth";
-import SignButton from "./sign";
+import SignInButton from "../ui/sign-in-button";
 import { getSourceId } from "@/lib/source-id";
 import { Favourites } from "@/config/types";
 import { redis } from "@/lib/redis-store";
@@ -35,7 +35,7 @@ export const PublicHeader = async () => {
             {link.label}
           </Link>
         ))}
-        <SignButton
+        <SignInButton
           session={session}
           className="group font-heading text-foreground hover:text-primary rounded px-3 py-2 text-base font-semibold uppercase transition-all duration-300 ease-in-out cursor-pointer"
         />
@@ -74,7 +74,7 @@ export const PublicHeader = async () => {
                 {link.label}
               </Link>
             ))}
-            <SignButton
+            <SignInButton
               session={session}
               className="flex items-center gap-2 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
             />

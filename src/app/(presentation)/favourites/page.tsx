@@ -1,6 +1,6 @@
-import { EmptyFavouritesMessage } from "@/components/properties/empty-favourites";
-import { FavouritesSkeleton } from "@/components/properties/favourites-skeleton";
-import { ListingCard } from "@/components/properties/listing-card";
+import { EmptyFavouritesMessage } from "@/components/listings/empty-favourites";
+import { FavouritesSkeleton } from "@/components/listings/favourites-skeleton";
+import { ListingCard } from "@/components/listings/listing-card";
 import { Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";

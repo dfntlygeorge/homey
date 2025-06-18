@@ -31,7 +31,7 @@ import {
   LocationDetails,
 } from "@/config/types/autocomplete-address.type";
 
-export const LocationContact = (props: AwaitedPageProps) => {
+export const LocationContactStep = (props: AwaitedPageProps) => {
   const { searchParams } = props;
 
   const form = useForm<LocationContactType>({

@@ -26,7 +26,7 @@ import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { z } from "zod";
 
-export const UploadPhotos = ({ searchParams }: AwaitedPageProps) => {
+export const UploadImagesStep = ({ searchParams }: AwaitedPageProps) => {
   const { images, addImage, removeImage } = useImages();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

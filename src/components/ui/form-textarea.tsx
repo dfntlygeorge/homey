@@ -5,8 +5,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Textarea } from "../ui/textarea";
+} from "./form";
+import { Textarea } from "./textarea";
 import { UpdateListingType } from "@/app/_schemas/form.schema";
 
 interface FormTextareaProps {

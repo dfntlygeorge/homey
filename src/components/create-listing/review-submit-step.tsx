@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { routes } from "@/config/routes";
 
-export const ReviewSubmit = ({ searchParams }: AwaitedPageProps) => {
+export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
   const [isPending, startTransition] = useTransition();
   const [isPrevPending, startPrevTransition] = useTransition();
   const router = useRouter();
