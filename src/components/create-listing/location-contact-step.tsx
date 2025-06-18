@@ -24,7 +24,7 @@ import {
 import { LocationPicker } from "./location-picker";
 import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
-import { ListingMinimap } from "../shared/minimap";
+import { ListingMinimap } from "../shared/map";
 import { generateSessionToken } from "@/lib/utils";
 import {
   SearchBoxSuggestion,

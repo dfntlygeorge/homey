@@ -20,17 +20,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import Link from "next/link";
-import { PropertyWithImages } from "@/config/types";
+import { ListingWithImages } from "@/config/types";
 import { useState } from "react";
 import { deleteListingAction } from "@/app/_actions/delete-listing";
 import { toast } from "sonner";
 import { routes } from "@/config/routes";
 
-export function ManageListingCard({
-  listing,
-}: {
-  listing: PropertyWithImages;
-}) {
+export function ManageListingCard({ listing }: { listing: ListingWithImages }) {
   const [isAvailable, setIsAvailable] = useState(true);
 
   const getStatusColor = (status: string) => {

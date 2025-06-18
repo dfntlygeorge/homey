@@ -1,5 +1,5 @@
-import { EmptyFavouritesMessage } from "@/components/listings/empty-favourites";
-import { FavouritesSkeleton } from "@/components/listings/favourites-skeleton";
+import { EmptyFavouritesMessage } from "@/components/listings/empty-favourites-message";
+import { FavouritesSkeleton } from "@/components/listings/skeleton/favourites-skeleton";
 import { ListingCard } from "@/components/listings/listing-card";
 import { Favourites } from "@/config/types";
 import prisma from "@/lib/prisma";

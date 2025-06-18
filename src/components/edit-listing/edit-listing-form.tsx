@@ -7,7 +7,7 @@ import {
 import { FileSchema } from "@/app/_schemas/file.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
 
-import { PropertyWithImages } from "@/config/types";
+import { ListingWithImages } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -50,7 +50,7 @@ import { getChangedFields } from "@/lib/forms";
 export const EditListingForm = ({
   listing,
 }: {
-  listing: PropertyWithImages;
+  listing: ListingWithImages;
 }) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -122,8 +122,6 @@ export const EditListingForm = ({
       facebookProfile,
     ]
   );
-
-  console.log(originalValues);
 
   const form = useForm<UpdateListingType>({
     resolver: zodResolver(UpdateListingSchema),

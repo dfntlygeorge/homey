@@ -1,4 +1,4 @@
-import { PropertyWithImages } from "@/config/types";
+import { ListingWithImages } from "@/config/types";
 
 // Utility function to calculate distance between two geographic points using Haversine formula
 export function getDistanceBetweenPoints(
@@ -37,11 +37,11 @@ function toRadians(degrees: number): number {
 
 // Separate function to filter listings by distance after fetching from database
 export function filterListingsByDistance(
-  listings: PropertyWithImages[],
+  listings: ListingWithImages[],
   centerLat: number,
   centerLon: number,
   radiusKm: number
-): PropertyWithImages[] {
+): ListingWithImages[] {
   return listings.filter((listing) => {
     const distance = getDistanceBetweenPoints(
       centerLat,

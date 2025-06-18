@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-export type PropertyWithImages = Prisma.ListingGetPayload<{
+export type ListingWithImages = Prisma.ListingGetPayload<{
   include: {
     images: true;
   };

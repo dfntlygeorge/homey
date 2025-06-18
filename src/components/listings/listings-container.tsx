@@ -1,36 +1,34 @@
 "use client";
 
-import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
+import { AwaitedPageProps, ListingWithImages } from "@/config/types";
 import { use } from "react";
 import { ListingCard } from "./listing-card";
 import { EXCLUDED_KEYS } from "@/config/constants";
-import { EmptyListingMessage } from "./empty-listing";
+import { EmptyListingMessage } from "./empty-listing-message";
 
-interface PropertyListProps {
-  properties: Promise<PropertyWithImages[]>;
+interface ListingsContainerProps {
+  listings: Promise<ListingWithImages[]>;
   favourites: number[];
   searchParams: AwaitedPageProps["searchParams"];
 }
 
-export const PropertyListings = (props: PropertyListProps) => {
-  const { properties, favourites, searchParams } = props;
-  const listings = use(properties);
+export const ListingsContainer = (props: ListingsContainerProps) => {
+  const { listings, favourites, searchParams } = props;
+  const resolvedListings = use(listings);
   const hasFilters = Object.entries(searchParams || {}).some(
     ([key, value]) => !EXCLUDED_KEYS.includes(key) && value
   );
-  console.log(hasFilters);
-  console.log("is this running");
-  console.log(listings.length);
+
   return (
     <>
-      {listings.length === 0 ? (
+      {resolvedListings.length === 0 ? (
         <EmptyListingMessage hasFilters={hasFilters} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {listings.map((property) => (
+          {resolvedListings.map((listing) => (
             <ListingCard
-              key={property.id}
-              property={property}
+              key={listing.id}
+              listing={listing}
               favourites={favourites}
               searchParams={searchParams}
             />

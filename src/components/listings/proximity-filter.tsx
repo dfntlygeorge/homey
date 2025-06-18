@@ -5,7 +5,7 @@ import { cn, generateSessionToken } from "@/lib/utils";
 import { AddressAutocomplete } from "../create-listing/address-autocomplete";
 import { NativeSelect } from "../ui/native-select";
 import { AwaitedPageProps } from "@/config/types";
-import { ListingMinimap } from "../shared/minimap";
+import { ListingMinimap } from "../shared/map";
 
 interface ProximityFilterProps extends AwaitedPageProps {
   onLocationChange: (params: {

@@ -1,4 +1,4 @@
-import { ListingMinimap } from "./minimap";
+import { ListingMinimap } from "./map";
 
 interface MapModalProps {
   address: string;

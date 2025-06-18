@@ -1,6 +1,6 @@
 "use client";
 
-import { AwaitedPageProps, PropertyWithImages } from "@/config/types";
+import { AwaitedPageProps, ListingWithImages } from "@/config/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button"; // Assuming this is your ShadCN UI Button or similar
@@ -14,18 +14,30 @@ import { FavouriteButton } from "./favourite-button";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
 
 interface ListingCardProps {
-  property: PropertyWithImages;
+  listing: ListingWithImages;
   favourites: number[];
   searchParams?: AwaitedPageProps["searchParams"];
 }
 
 export const ListingCard = (props: ListingCardProps) => {
-  const { property, favourites, searchParams } = props;
+  const { listing, favourites, searchParams } = props;
+  const {
+    latitude,
+    longitude,
+    id,
+    title,
+    images,
+    description,
+    address,
+    rent,
+    roomType,
+    slotsAvailable,
+  } = listing;
   // gets us the current pathname
   const pathname = usePathname();
 
   const [isFavourite, setIsFavourite] = useState(
-    favourites.includes(property.id) // check if the classified is in the favourites array
+    favourites.includes(listing.id) // check if the classified is in the favourites array
   );
 
   const [isVisible, setIsVisible] = useState(true);
@@ -35,8 +47,8 @@ export const ListingCard = (props: ListingCardProps) => {
   const distance = getDistanceBetweenPoints(
     centerLat,
     centerLon,
-    property.latitude,
-    property.longitude
+    latitude,
+    longitude
   );
 
   // hides non-favourite cards on the favourites page
@@ -55,10 +67,10 @@ export const ListingCard = (props: ListingCardProps) => {
         >
           <div className="relative flex flex-col overflow-hidden rounded-lg bg-background shadow-md border border-border group h-full">
             <div className="relative aspect-[16/10] overflow-hidden">
-              <Link href={routes.singleProperty(property.id)} passHref>
+              <Link href={routes.singleProperty(id)} passHref>
                 <Image
-                  src={property.images?.[0]?.url || "/placeholder-property.jpg"}
-                  alt={property.title}
+                  src={images?.[0]?.url || "/placeholder-property.jpg"}
+                  alt={title}
                   fill={true}
                   className="rounded-t-md object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
                 />
@@ -74,7 +86,7 @@ export const ListingCard = (props: ListingCardProps) => {
               <FavouriteButton
                 setIsFavourite={setIsFavourite}
                 isFavourite={isFavourite}
-                id={property.id}
+                id={id}
               />
             </div>
 
@@ -82,20 +94,20 @@ export const ListingCard = (props: ListingCardProps) => {
               {/* Title and Description */}
               <div className="space-y-2">
                 <Link
-                  href={routes.singleProperty(property.id)}
+                  href={routes.singleProperty(id)}
                   passHref
                   className="block"
-                  title={property.title}
+                  title={title}
                 >
                   <h3 className="line-clamp-1 text-base font-semibold hover:underline text-foreground transition-colors">
-                    {property.title}
+                    {title}
                   </h3>
                 </Link>
                 <p
                   className="line-clamp-2 text-sm text-muted-foreground leading-relaxed"
-                  title={property.description}
+                  title={description}
                 >
-                  {property.description}
+                  {description}
                 </p>
               </div>
 
@@ -105,7 +117,7 @@ export const ListingCard = (props: ListingCardProps) => {
                 <div className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <span className="text-sm text-muted-foreground line-clamp-1 font-medium">
-                    {property.address}
+                    {address}
                   </span>
                 </div>
 
@@ -114,22 +126,21 @@ export const ListingCard = (props: ListingCardProps) => {
                   <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
                     <BadgeDollarSign className="h-4 w-4 text-green-600" />
                     <span className="font-semibold text-foreground">
-                      {formatPrice(property.rent)}
+                      {formatPrice(rent)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
                     <Bed className="h-4 w-4 text-blue-600" />
                     <span className="font-medium text-foreground">
-                      {formatEnumValue(property.roomType)}
+                      {formatEnumValue(roomType)}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2 bg-muted/50 rounded-md px-2 py-1.5">
                     <Users className="h-4 w-4 text-purple-600" />
                     <span className="font-medium text-foreground">
-                      {property.slotsAvailable}{" "}
-                      {property.slotsAvailable === 1 ? "slot" : "slots"}
+                      {slotsAvailable} {slotsAvailable === 1 ? "slot" : "slots"}
                     </span>
                   </div>
                 </div>
@@ -143,12 +154,10 @@ export const ListingCard = (props: ListingCardProps) => {
                   variant="outline"
                   size="sm"
                 >
-                  <Link href={routes.reserve(property.id)}>Reserve Now</Link>
+                  <Link href={routes.reserve(id)}>Reserve Now</Link>
                 </Button>
                 <Button className="flex-1 h-9" asChild size="sm">
-                  <Link href={routes.singleProperty(property.id)}>
-                    View Details
-                  </Link>
+                  <Link href={routes.singleProperty(id)}>View Details</Link>
                 </Button>
               </div>
             </div>

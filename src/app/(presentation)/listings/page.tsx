@@ -1,6 +1,6 @@
 import { DialogFilters } from "@/components/listings/dialog-filters";
-import { ListingsSkeleton } from "@/components/listings/listings-skeleton";
-import { PropertyListings } from "@/components/listings/property-listings";
+import { ListingsSkeleton } from "@/components/listings/skeleton/listings-skeleton";
+import { ListingsContainer } from "@/components/listings/listings-container";
 import { Sidebar } from "@/components/listings/sidebar";
 import { CustomPagination } from "@/components/shared/custom-pagination";
 import { LISTINGS_PER_PAGE } from "@/config/constants";
@@ -62,8 +62,8 @@ export default async function ListingsPage(props: AwaitedPageProps) {
 
         {/* TODO: Add skeleton loading fallback when Suspense is used */}
         <Suspense fallback={<ListingsSkeleton />}>
-          <PropertyListings
-            properties={listings}
+          <ListingsContainer
+            listings={listings}
             favourites={favourites ? favourites.ids : []}
             searchParams={searchParams}
           />
