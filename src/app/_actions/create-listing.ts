@@ -17,7 +17,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { env } from "@/env";
-import { FileSchema } from "../_schemas/form.schema";
+import { FileSchema } from "../_schemas/file.schema";
 import { ZodError } from "zod";
 
 export const createListingAction = async (formData: FormData) => {

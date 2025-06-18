@@ -11,11 +11,7 @@ import {
   LaundryAvailability,
   UtilityInclusion,
 } from "@prisma/client";
-import {
-  ACCEPTED_IMAGE_TYPES,
-  MAX_FILE_SIZE,
-  MIN_FILE_SIZE,
-} from "@/config/constants";
+import { FileSchema } from "./file.schema";
 import { formatFileSize } from "@/lib/utils";
 
 export const MultiStepFormSchema = z.object({
@@ -50,7 +46,6 @@ export const BasicInfoSchema = z.object({
     .max(10, { message: "Slots Available must be at most 10" }),
 });
 
-export type BasicInfoType = z.infer<typeof BasicInfoSchema>;
 export const LocationContactSchema = z.object({
   address: z.string().min(1, "Please select a complete address"),
   longitude: z
@@ -83,7 +78,6 @@ export const LocationContactSchema = z.object({
       }
     ),
 });
-export type LocationContactType = z.infer<typeof LocationContactSchema>;
 
 export const HouseRulesSchema = z.object({
   genderPolicy: z.nativeEnum(GenderPolicy),
@@ -95,75 +89,6 @@ export const HouseRulesSchema = z.object({
   laundry: z.nativeEnum(LaundryAvailability),
   utilities: z.nativeEnum(UtilityInclusion),
 });
-
-export type HouseRulesType = z.infer<typeof HouseRulesSchema>;
-
-export const FileSchema = z
-  .any()
-  .refine((file) => file instanceof File, {
-    message: "Each item must be a valid file",
-  })
-  .refine((file: File) => file.size >= MIN_FILE_SIZE, {
-    message: `File is too small. Minimum size is ${formatFileSize(
-      MIN_FILE_SIZE
-    )}`,
-  })
-  .refine((file: File) => file.size <= MAX_FILE_SIZE, {
-    message: `File is too large. Maximum size is ${formatFileSize(
-      MAX_FILE_SIZE
-    )}`,
-  })
-  .refine(
-    (file: File) =>
-      ACCEPTED_IMAGE_TYPES.includes(
-        file.type as (typeof ACCEPTED_IMAGE_TYPES)[number]
-      ),
-    {
-      message: `Invalid file type. Only ${ACCEPTED_IMAGE_TYPES.join(
-        ", "
-      )} are allowed`,
-    }
-  )
-  .refine(
-    (file: File) => {
-      // Additional check for file extension to prevent MIME type spoofing
-      const extension = file.name.toLowerCase().split(".").pop();
-      const validExtensions = ["jpg", "jpeg", "png", "webp", "avif"];
-      return validExtensions.includes(extension || "");
-    },
-    {
-      message: "File extension doesn't match an allowed image format",
-    }
-  )
-  .refine(
-    (file: File) => {
-      // Check for reasonable filename length
-      return file.name.length <= 255 && file.name.length > 0;
-    },
-    {
-      message: "Filename must be between 1 and 255 characters",
-    }
-  )
-  .refine(
-    (file: File) => {
-      // Basic check to prevent executable files disguised as images
-      const dangerousExtensions = [
-        ".exe",
-        ".bat",
-        ".cmd",
-        ".com",
-        ".pif",
-        ".scr",
-        ".vbs",
-        ".js",
-      ];
-      const fileName = file.name.toLowerCase();
-      return !dangerousExtensions.some((ext) => fileName.includes(ext));
-    },
-    {
-      message: "File appears to contain executable content",
-    }
-  );
 
 export const UploadPhotosSchema = z.object({
   photos: z
@@ -211,63 +136,17 @@ export const UploadPhotosSchema = z.object({
     ),
 });
 
-export type UploadPhotosType = z.infer<typeof UploadPhotosSchema>;
-export type FileInput = z.infer<typeof FileSchema>;
-
 export const CreateListingSchema = BasicInfoSchema.merge(
   LocationContactSchema.merge(HouseRulesSchema).merge(UploadPhotosSchema)
 );
 
-export type CreateListingType = z.infer<typeof CreateListingSchema>;
-
 export const UpdateListingSchema = CreateListingSchema.partial();
+
+// TYPES HERE:
+export type BasicInfoType = z.infer<typeof BasicInfoSchema>;
+export type LocationContactType = z.infer<typeof LocationContactSchema>;
+export type HouseRulesType = z.infer<typeof HouseRulesSchema>;
+export type UploadPhotosType = z.infer<typeof UploadPhotosSchema>;
+export type FileInput = z.infer<typeof FileSchema>;
+export type CreateListingType = z.infer<typeof CreateListingSchema>;
 export type UpdateListingType = z.infer<typeof UpdateListingSchema>;
-
-export interface AddressSuggestion {
-  mapbox_id: string;
-  name: string;
-  name_preferred?: string;
-  feature_type: string;
-  address?: string;
-  full_address?: string;
-  place_formatted?: string;
-  poi_category?: string[];
-}
-
-export interface SearchBoxSuggestResponse {
-  suggestions: SearchBoxSuggestion[];
-  attribution: string;
-}
-
-export interface SearchBoxSuggestion {
-  name: string;
-  name_preferred?: string;
-  mapbox_id: string;
-  feature_type: string;
-  address?: string;
-  full_address?: string;
-  place_formatted?: string;
-  poi_category?: string[];
-  context?: {
-    country?: { name: string; country_code: string };
-    region?: { name: string; region_code: string };
-    place?: { name: string };
-  };
-}
-
-export interface AddressAutocompleteProps {
-  value: string | undefined;
-  onChange: (value: string) => void;
-  onBlur?: () => void;
-  onSelect?: (suggestion: AddressSuggestion) => void; // New callback for when user selects
-  placeholder?: string;
-  className?: string;
-  includeAddresses?: boolean; // Allow filtering by feature types
-  includePois?: boolean;
-}
-
-export interface LocationDetails {
-  address: string;
-  longitude: number;
-  latitude: number;
-}

@@ -9,7 +9,7 @@ import {
   AddressAutocompleteProps,
   AddressSuggestion,
   SearchBoxSuggestResponse,
-} from "@/app/_schemas/form.schema";
+} from "@/config/types";
 import { toast } from "sonner";
 
 export const AddressAutocomplete = (props: AddressAutocompleteProps) => {

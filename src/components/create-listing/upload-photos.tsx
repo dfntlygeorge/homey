@@ -9,10 +9,10 @@ import { routes } from "@/config/routes";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  FileSchema,
   UploadPhotosSchema,
   UploadPhotosType,
 } from "@/app/_schemas/form.schema";
+import { FileSchema } from "@/app/_schemas/file.schema";
 import {
   Form,
   FormControl,

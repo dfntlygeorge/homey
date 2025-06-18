@@ -2,10 +2,10 @@
 
 import { auth } from "@/auth";
 import {
-  FileSchema,
   UpdateListingSchema,
   UpdateListingType,
 } from "../_schemas/form.schema";
+import { FileSchema } from "../_schemas/file.schema";
 import prisma from "@/lib/prisma";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 // import { env } from "@/env";

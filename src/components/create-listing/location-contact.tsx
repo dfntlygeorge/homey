@@ -20,14 +20,13 @@ import { Loader2 } from "lucide-react";
 import {
   LocationContactSchema,
   LocationContactType,
-  LocationDetails,
 } from "@/app/_schemas/form.schema";
 import { LocationPicker } from "./location-picker";
 import { Label } from "../ui/label";
 import { AddressAutocomplete } from "./address-autocomplete";
 import { ListingMinimap } from "../shared/minimap";
 import { generateSessionToken } from "@/lib/utils";
-import { SearchBoxSuggestion } from "@/app/_schemas/form.schema";
+import { SearchBoxSuggestion, LocationDetails } from "@/config/types";
 
 export const LocationContact = (props: AwaitedPageProps) => {
   const { searchParams } = props;

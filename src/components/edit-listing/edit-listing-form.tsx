@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  FileSchema,
-  SearchBoxSuggestion,
   UpdateListingSchema,
   UpdateListingType,
 } from "@/app/_schemas/form.schema";
+import { FileSchema } from "@/app/_schemas/file.schema";
+import { SearchBoxSuggestion } from "@/config/types";
 
 import { PropertyWithImages } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";

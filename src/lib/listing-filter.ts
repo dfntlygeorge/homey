@@ -1,4 +1,4 @@
-import { PageSchema } from "@/app/_schemas/page";
+import { PageSchema } from "@/app/_schemas/page.schema";
 import { LISTINGS_PER_PAGE } from "@/config/constants";
 import { AwaitedPageProps } from "@/config/types";
 import prisma from "./prisma";
