@@ -24,7 +24,7 @@ export const navLinks = [
   },
 ];
 
-export const LISTINGS_PER_PAGE = 1;
+export const LISTINGS_PER_PAGE = 3;
 
 export const EXCLUDED_KEYS = ["page", "latitude", "longitude", "address"];
 

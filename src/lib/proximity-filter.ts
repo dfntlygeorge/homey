@@ -36,6 +36,7 @@ function toRadians(degrees: number): number {
 }
 
 // Separate function to filter listings by distance after fetching from database
+
 export function filterListingsByDistance(
   listings: ListingWithImages[],
   centerLat: number,

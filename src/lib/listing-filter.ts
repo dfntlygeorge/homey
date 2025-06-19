@@ -1,20 +1,26 @@
 import { PageSchema } from "@/app/_schemas/page.schema";
 import { LISTINGS_PER_PAGE } from "@/config/constants";
-import { AwaitedPageProps } from "@/config/types";
+import { AwaitedPageProps, ListingWithImages } from "@/config/types";
 import prisma from "./prisma";
 import { ListingFilterSchema } from "@/app/_schemas/listing.schema";
 import { Prisma } from "@prisma/client";
 import { filterListingsByDistance } from "./proximity-filter";
 
+// Define the return type for our combined function
+export interface FilteredListingsResult {
+  listings: ListingWithImages[]; // Replace with your actual listing type
+  totalCount: number;
+  totalPages: number;
+}
+
 function buildClassifiedFilterQuery(
   searchParams: AwaitedPageProps["searchParams"] | undefined
 ): Prisma.ListingWhereInput {
   console.log("searchParams", searchParams);
-  // Returns a Prisma.ClassifiedWhereInput object → This is a Prisma-compatible query object that can be used in prisma.classified.findMany().
-  const { data } = ListingFilterSchema.safeParse(searchParams); // make sure the searchParams match the schema.
+  const { data } = ListingFilterSchema.safeParse(searchParams);
   if (!data) return {};
 
-  const keys = Object.keys(data); // get the keys of the data object.
+  const keys = Object.keys(data);
 
   const rangeFilters = {
     minRent: "rent",
@@ -32,37 +38,33 @@ function buildClassifiedFilterQuery(
     "utilities",
   ];
 
-  // Extract geo parameters
+  const mapParamsToFields = keys.reduce((acc, key) => {
+    const value = searchParams?.[key] as string | undefined;
+    if (!value) return acc;
 
-  const mapParamsToFields = keys.reduce(
-    (acc, key) => {
-      const value = searchParams?.[key] as string | undefined; // get the value of the key from the searchParams.
-      if (!value) return acc; // if the value is not present, return the accumulator.
-      // Skip geo parameters as they're handled separately
-      if (["latitude", "longitude", "radius", "address"].includes(key)) {
-        return acc;
-      }
-      if (enumFilters.includes(key)) {
-        acc[key] = value;
-      } else if (key in rangeFilters) {
-        const field = rangeFilters[key as keyof typeof rangeFilters]; //  Finds the actual field name in the database.
-        acc[field] = acc[field] || {};
-
-        if (key.startsWith("min")) {
-          acc[field].gte = Number(value);
-        } else if (key.startsWith("max")) {
-          acc[field].lte = Number(value);
-        }
-      }
-
+    // Skip geo parameters as they're handled separately
+    if (["latitude", "longitude", "radius", "address"].includes(key)) {
       return acc;
-    },
+    }
+
+    if (enumFilters.includes(key)) {
+      acc[key] = value;
+    } else if (key in rangeFilters) {
+      const field = rangeFilters[key as keyof typeof rangeFilters];
+      acc[field] = acc[field] || {};
+
+      if (key.startsWith("min")) {
+        acc[field].gte = Number(value);
+      } else if (key.startsWith("max")) {
+        acc[field].lte = Number(value);
+      }
+    }
+
+    return acc;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    {} as { [key: string]: any }
-  );
+  }, {} as { [key: string]: any });
 
   return {
-    // conditionally add an object property only when q exists.
     ...(searchParams?.q && {
       OR: [
         {
@@ -79,16 +81,14 @@ function buildClassifiedFilterQuery(
         },
       ],
     }),
-
     ...mapParamsToFields,
   };
 }
 
-// Usage example in your API route or page component:
-export async function getFilteredListings(
+// OPTIMIZED: Combined function that handles both listings and count in one go
+export async function getFilteredListingsWithCount(
   searchParams: AwaitedPageProps["searchParams"] | undefined
-) {
-  // Get the base query (without geo filtering)
+): Promise<FilteredListingsResult> {
   const baseQuery = buildClassifiedFilterQuery(searchParams);
 
   // Extract geo parameters
@@ -101,26 +101,84 @@ export async function getFilteredListings(
   const radius = searchParams?.radius
     ? parseFloat(searchParams.radius as string)
     : null;
-  const validPage = PageSchema.parse(searchParams?.page); // parse the page query parameter and ensures it matches the pageSchema.
 
-  const page = validPage ? validPage : 1; // if the page query parameter is not present, set it to 1.
+  const validPage = PageSchema.parse(searchParams?.page);
+  const page = validPage ? validPage : 1;
   const offset = (page - 1) * LISTINGS_PER_PAGE;
 
-  // Fetch listings from database with base filters
-  const listings = await prisma.listing.findMany({
-    where: baseQuery,
-    // Include other options like orderBy, select, etc.
-    include: {
-      images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
-    },
-    skip: offset, // start at the correct record (pagination)
-    take: LISTINGS_PER_PAGE, // limit the records to the page size.
-  });
+  // Case 1: No geo filtering - we can use efficient database operations
+  if (latitude === null || longitude === null || radius === null) {
+    // Run both queries in parallel for better performance
+    const [listings, totalCount] = await Promise.all([
+      prisma.listing.findMany({
+        where: baseQuery,
+        include: {
+          images: { take: 1 },
+        },
+        skip: offset,
+        take: LISTINGS_PER_PAGE,
+      }),
+      prisma.listing.count({
+        where: baseQuery,
+      }),
+    ]);
 
-  // If geo parameters are provided, filter by distance
-  if (latitude !== null && longitude !== null && radius !== null) {
-    return filterListingsByDistance(listings, latitude, longitude, radius);
+    return {
+      listings,
+      totalCount,
+      totalPages: Math.ceil(totalCount / LISTINGS_PER_PAGE),
+    };
   }
 
-  return listings;
+  // Case 2: Geo filtering required - we need to fetch and filter
+  // NOTE: This is still a performance bottleneck, but it's unavoidable with Prisma
+  // Consider using raw SQL or a dedicated geo database for production
+  const allListings = await prisma.listing.findMany({
+    where: baseQuery,
+    include: {
+      images: { take: 1 },
+    },
+  });
+
+  // Filter by distance
+  const filteredListings = filterListingsByDistance(
+    allListings,
+    latitude,
+    longitude,
+    radius
+  );
+
+  // Apply pagination manually after geo filtering
+  const totalCount = filteredListings.length;
+  const paginatedListings = filteredListings.slice(
+    offset,
+    offset + LISTINGS_PER_PAGE
+  );
+
+  return {
+    listings: paginatedListings,
+    totalCount,
+    totalPages: Math.ceil(totalCount / LISTINGS_PER_PAGE),
+  };
+}
+
+// DEPRECATED: Keep these for backward compatibility, but mark as deprecated
+/**
+ * @deprecated Use getFilteredListingsWithCount instead for better performance
+ */
+export async function getFilteredListings(
+  searchParams: AwaitedPageProps["searchParams"] | undefined
+) {
+  const result = await getFilteredListingsWithCount(searchParams);
+  return result.listings;
+}
+
+/**
+ * @deprecated Use getFilteredListingsWithCount instead for better performance
+ */
+export async function getFilteredListingsCount(
+  searchParams: AwaitedPageProps["searchParams"] | undefined
+): Promise<number> {
+  const result = await getFilteredListingsWithCount(searchParams);
+  return result.totalCount;
 }

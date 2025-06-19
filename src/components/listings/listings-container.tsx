@@ -1,31 +1,30 @@
 "use client";
 
 import { AwaitedPageProps, ListingWithImages } from "@/config/types";
-import { use } from "react";
 import { ListingCard } from "./listing-card";
 import { EXCLUDED_KEYS } from "@/config/constants";
 import { EmptyListingMessage } from "./empty-listing-message";
 
 interface ListingsContainerProps {
-  listings: Promise<ListingWithImages[]>;
+  listings: ListingWithImages[]; // Previously Promise<ListingWIthImages[]>
   favourites: number[];
   searchParams: AwaitedPageProps["searchParams"];
 }
 
 export const ListingsContainer = (props: ListingsContainerProps) => {
   const { listings, favourites, searchParams } = props;
-  const resolvedListings = use(listings);
+  // Uses use hook from react to resolved. like const resolvedListings = use(listings)
   const hasFilters = Object.entries(searchParams || {}).some(
     ([key, value]) => !EXCLUDED_KEYS.includes(key) && value
   );
 
   return (
     <>
-      {resolvedListings.length === 0 ? (
+      {listings.length === 0 ? (
         <EmptyListingMessage hasFilters={hasFilters} />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {resolvedListings.map((listing) => (
+          {listings.map((listing) => (
             <ListingCard
               key={listing.id}
               listing={listing}
