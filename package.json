@@ -28,6 +28,7 @@
     "@upstash/redis": "^1.34.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "debounce": "^2.2.0",
     "framer-motion": "^12.15.0",
     "fslightbox-react": "^1.8.0",

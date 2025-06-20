@@ -83,8 +83,6 @@ export function ManageListingCard({ listing }: { listing: ListingWithImages }) {
               ₱{listing.rent.toLocaleString()}
             </p>
 
-            <p className="text-xs text-zinc-600 mb-1">Listed to Marketplace</p>
-
             <p className="text-xs text-zinc-500">2 views (14 days)</p>
           </div>
         </div>
@@ -101,12 +99,12 @@ export function ManageListingCard({ listing }: { listing: ListingWithImages }) {
             {isAvailable ? (
               <>
                 <Pause className="w-3 h-3 mr-1" />
-                Unavailable
+                Mark as unavailable
               </>
             ) : (
               <>
                 <Play className="w-3 h-3 mr-1" />
-                Available
+                Mark as available
               </>
             )}
           </Button>

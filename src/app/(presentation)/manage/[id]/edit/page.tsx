@@ -19,11 +19,24 @@ export default async function EditListingPage(props: AwaitedPageProps) {
   if (!listing) return <div>No listing found</div>;
 
   return (
-    <div className="flex">
-      <ImagesProvider initialImages={listing.images}>
-        <ImagePreviewWrapper />
-        <EditListingForm listing={listing} />
-      </ImagesProvider>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Edit Listing</h1>
+          <p className="text-gray-600 mt-2">
+            Update your property information and images
+          </p>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row gap-8 bg-white rounded-lg shadow-sm overflow-hidden">
+          <ImagesProvider initialImages={listing.images}>
+            <ImagePreviewWrapper />
+            <EditListingForm listing={listing} />
+          </ImagesProvider>
+        </div>
+      </div>
     </div>
   );
 }

@@ -52,3 +52,18 @@ export type PrevState = {
 export interface Favourites {
   ids: number[];
 }
+
+export interface FilterState {
+  search: string;
+  status: string;
+  dateRange: string;
+  sortBy: string;
+}
+
+export const DateRangeFilter = {
+  TODAY: "TODAY",
+  WEEK: "WEEK",
+  MONTH: "MONTH",
+} as const;
+
+export type DateRangeFilter = keyof typeof DateRangeFilter;
