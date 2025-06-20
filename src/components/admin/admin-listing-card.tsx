@@ -34,8 +34,9 @@ import Link from "next/link";
 import { ListingWithImagesAndUser } from "@/config/types";
 import { useState } from "react";
 import { toast } from "sonner";
-import { updateListingStatus } from "@/app/_actions/admin";
-import { ListingStatus } from "@prisma/client";
+import { updateListingStatus } from "@/app/_actions/update-listing-status";
+import { ListingStatus, NotificationType } from "@prisma/client";
+import { createNotificationAction } from "@/app/_actions/notification";
 
 interface AdminListingCardProps {
   listing: ListingWithImagesAndUser;
@@ -77,6 +78,12 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
     try {
       // TODO: Implement approve listing action
       await updateListingStatus(listing.id, ListingStatus.APPROVED);
+      await createNotificationAction(
+        listing.user.id,
+        `Your listing '${listing.title} has been approved.`,
+        NotificationType.LISTING,
+        listing.id
+      );
       toast.success("Listing approved successfully");
     } catch (error) {
       console.error("Error in approving the listing: ", error);
@@ -91,6 +98,12 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
     try {
       // TODO: Implement reject listing action
       await updateListingStatus(listing.id, ListingStatus.REJECTED);
+      await createNotificationAction(
+        listing.user.id,
+        `Your listing '${listing.title} has been rejected.`,
+        NotificationType.LISTING,
+        listing.id
+      );
       toast.success("Listing rejected");
     } catch (error) {
       console.error("Error in rejecting the listing: ", error);
@@ -341,6 +354,12 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
                       await updateListingStatus(
                         listing.id,
                         ListingStatus.PENDING
+                      );
+                      await createNotificationAction(
+                        listing.user.id,
+                        `Your listing '${listing.title} has been mark as pending.`,
+                        NotificationType.LISTING,
+                        listing.id
                       );
                       toast.success("Status reset to pending");
                     }}

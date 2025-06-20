@@ -1,4 +1,3 @@
-import { signIn, signOut } from "@/auth";
 import { Session } from "next-auth";
 import Image from "next/image";
 import {
@@ -7,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+import { SignInAction, signOutAction } from "@/app/_actions/auth";
 
 interface SignInButtonProps {
   session: Session | null;
@@ -21,13 +21,7 @@ export default function SignInButton(props: SignInButtonProps) {
 
     return (
       <div className="flex items-center gap-2">
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
-          className="inline"
-        >
+        <form action={signOutAction} className="inline">
           <button type="submit" className={className}>
             Sign Out
           </button>
@@ -62,13 +56,7 @@ export default function SignInButton(props: SignInButtonProps) {
     );
   }
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn("google");
-      }}
-      className="inline"
-    >
+    <form action={SignInAction} className="inline">
       <button type="submit" className={className}>
         Sign In
       </button>

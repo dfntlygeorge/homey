@@ -1,5 +1,5 @@
 "use client";
-import { updateListingStatus } from "@/app/_actions/admin";
+import { updateListingStatus } from "@/app/_actions/update-listing-status";
 import { Listing, ListingStatus } from "@prisma/client";
 
 export const AdminActionButtons = ({ listing }: { listing: Listing }) => {

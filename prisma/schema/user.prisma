@@ -9,8 +9,9 @@ model User {
 
     role UserRole?
 
-    listings Listing[]
-    reviews  Review[]
+    listings      Listing[]
+    reviews       Review[]
+    notifications Notification[]
 
     @@map("users")
 }

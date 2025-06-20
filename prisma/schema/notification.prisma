@@ -1,0 +1,23 @@
+model Notification {
+    id        Int              @id @default(autoincrement())
+    userId    String
+    message   String
+    read      Boolean          @default(false)
+    type      NotificationType @default(SYSTEM)
+    listingId Int? // Optional reference to listing
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+
+    user    User     @relation(fields: [userId], references: [id])
+    listing Listing? @relation(fields: [listingId], references: [id]) // Optional relation to listing
+
+    @@index([userId, read]) // For efficient queries
+    @@index([createdAt]) // For ordering by date
+}
+
+enum NotificationType {
+    LISTING
+    MESSAGE
+    ALERT
+    SYSTEM
+}
