@@ -5,7 +5,7 @@ import { routes } from "@/config/routes";
 import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
 import { env } from "@/env";
 import { Filter, X, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { parseAsString, useQueryStates } from "nuqs";
 import { ChangeEvent, useEffect, useState } from "react";
 import { SearchInput } from "../shared/search-input";
@@ -16,6 +16,11 @@ import { cn, formatEnumValue } from "@/lib/utils";
 export const ManageSidebar = (props: AwaitedPageProps) => {
   const { searchParams } = props;
   const router = useRouter();
+  const pathname = usePathname();
+
+  const baseRoute = pathname.startsWith("/admin")
+    ? routes.admin
+    : routes.manage;
   const [filterCount, setFilterCount] = useState(0);
   const [queryStates, setQueryStates] = useQueryStates(
     {
@@ -35,7 +40,7 @@ export const ManageSidebar = (props: AwaitedPageProps) => {
   }, [searchParams]);
 
   const clearFilters = () => {
-    const url = new URL(routes.manage, env.NEXT_PUBLIC_APP_URL);
+    const url = new URL(baseRoute, env.NEXT_PUBLIC_APP_URL);
     window.location.replace(url.toString());
     setFilterCount(0);
   };
