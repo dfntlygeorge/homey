@@ -1,13 +1,20 @@
 import { auth } from "@/auth";
 import { ManageListingCard } from "@/components/manage/manage-listing-card";
-import { ManageSidebar } from "@/components/manage/manage-sidebar";
+import { ManageSidebar } from "@/components/manage/manage-side-enhanced";
 import { NoListingsMessage } from "@/components/manage/no-listings-message";
 import { UnauthenticatedMessage } from "@/components/manage/unauthenticated-message";
 import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { ListingStatus } from "@prisma/client";
 import { startOfToday, startOfWeek, startOfMonth } from "date-fns";
-import { BarChart3, Eye, Calendar, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  Eye,
+  Calendar,
+  TrendingUp,
+  Archive,
+  FolderOpen,
+} from "lucide-react";
 
 export default async function ManageListingsPage(props: AwaitedPageProps) {
   const session = await auth();
@@ -19,6 +26,10 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
   const status = searchParams?.status as ListingStatus | undefined;
   const dateRange = searchParams?.dateRange as DateRangeFilter | undefined;
   const query = searchParams?.q as string | undefined;
+  const view = searchParams?.view as string | undefined;
+
+  // Determine if we're viewing archived listings
+  const isViewingArchived = view === "archived";
 
   let createdAt: { gte: Date } | undefined;
 
@@ -30,9 +41,11 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
     createdAt = { gte: startOfMonth(new Date()) };
   }
 
+  // Fetch listings based on archive status
   const listings = await prisma.listing.findMany({
     where: {
       userId,
+      isArchived: isViewingArchived, // Filter by archive status
       ...(status && { status }),
       ...(createdAt && { createdAt }),
       ...(query && {
@@ -61,7 +74,23 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
     orderBy: { updatedAt: "desc" },
   });
 
-  // Calculate stats
+  // Get counts for both active and archived listings
+  const [activeCount, archivedCount] = await Promise.all([
+    prisma.listing.count({
+      where: {
+        userId,
+        isArchived: false,
+      },
+    }),
+    prisma.listing.count({
+      where: {
+        userId,
+        isArchived: true,
+      },
+    }),
+  ]);
+
+  // Calculate stats based on current view
   const approvedListings = listings.filter(
     (l) => l.status === ListingStatus.APPROVED
   ).length;
@@ -70,13 +99,24 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
   ).length;
   const totalViews = 18; // This should come from your analytics
 
-  if (listings.length === 0 && !status && !dateRange && !query) {
-    return <NoListingsMessage />;
+  // Show no listings message only if no listings exist at all and no filters are applied
+  if (
+    listings.length === 0 &&
+    !status &&
+    !dateRange &&
+    !query &&
+    !isViewingArchived &&
+    activeCount === 0
+  ) {
+    return <NoListingsMessage hasArchived={archivedCount > 0} />;
   }
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <ManageSidebar searchParams={searchParams} />
+      <ManageSidebar
+        searchParams={searchParams}
+        archivedCount={archivedCount}
+      />
 
       <div className="flex-1 overflow-hidden">
         <div className="container mx-auto p-6 max-w-6xl h-full">
@@ -85,11 +125,14 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold text-foreground mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  Manage Your Listings
+                  {isViewingArchived
+                    ? "Archived Listings"
+                    : "Manage Your Listings"}
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  View, edit, and track the performance of your property
-                  listings
+                  {isViewingArchived
+                    ? "View and manage your archived property listings"
+                    : "View, edit, and track the performance of your property listings"}
                 </p>
               </div>
 
@@ -104,11 +147,15 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
               <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <BarChart3 className="h-5 w-5 text-blue-500" />
+                    {isViewingArchived ? (
+                      <Archive className="h-5 w-5 text-blue-500" />
+                    ) : (
+                      <BarChart3 className="h-5 w-5 text-blue-500" />
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Total Listings
+                      {isViewingArchived ? "Archived" : "Total"} Listings
                     </p>
                     <p className="text-2xl font-bold text-foreground">
                       {listings.length}
@@ -159,6 +206,36 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
                 </div>
               </div>
             </div>
+
+            {/* View Toggle Pills - Only show if user has both active and archived listings */}
+            {(activeCount > 0 || archivedCount > 0) && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                  <button
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                      !isViewingArchived
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    disabled={!isViewingArchived}
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                    Active ({activeCount})
+                  </button>
+                  <button
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                      isViewingArchived
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    disabled={isViewingArchived}
+                  >
+                    <Archive className="h-4 w-4" />
+                    Archived ({archivedCount})
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Results Section */}
@@ -167,7 +244,7 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <h2 className="text-xl font-semibold text-foreground">
-                  Your Listings
+                  {isViewingArchived ? "Archived Listings" : "Your Listings"}
                 </h2>
                 {(status || dateRange || query) && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -188,10 +265,14 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
               <div className="text-center py-12">
                 <div className="max-w-md mx-auto">
                   <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                    <BarChart3 className="h-8 w-8 text-muted-foreground" />
+                    {isViewingArchived ? (
+                      <Archive className="h-8 w-8 text-muted-foreground" />
+                    ) : (
+                      <BarChart3 className="h-8 w-8 text-muted-foreground" />
+                    )}
                   </div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">
-                    No listings found
+                    No {isViewingArchived ? "archived " : ""}listings found
                   </h3>
                   <p className="text-muted-foreground mb-4">
                     Try adjusting your filters to see more results
@@ -199,6 +280,29 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
                 </div>
               </div>
             )}
+
+            {/* Empty State for Archived View */}
+            {listings.length === 0 &&
+              isViewingArchived &&
+              !status &&
+              !dateRange &&
+              !query && (
+                <div className="text-center py-12">
+                  <div className="max-w-md mx-auto">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                      <Archive className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      No archived listings
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      You haven&apos;t archived any listings yet. Archived
+                      listings are hidden from public view but can be restored
+                      anytime.
+                    </p>
+                  </div>
+                </div>
+              )}
 
             {/* Listings Grid */}
             {listings.length > 0 && (
@@ -209,7 +313,10 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
                     className="animate-in fade-in-0 slide-in-from-bottom-4"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <ManageListingCard listing={listing} />
+                    <ManageListingCard
+                      listing={listing}
+                      isArchived={isViewingArchived}
+                    />
                   </div>
                 ))}
               </div>

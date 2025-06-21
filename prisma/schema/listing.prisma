@@ -14,6 +14,7 @@ model Listing {
     reviews       Review[]
     images        Image[]
     notifications Notification[]
+    report        Report[]
     status        ListingStatus         @default(PENDING)
     genderPolicy  GenderPolicy          @map("gender_policy")
     curfew        CurfewPolicy
@@ -23,6 +24,9 @@ model Listing {
     wifi          WifiAvailability
     utilities     UtilityInclusion
     pets          PetPolicy
+
+    isAvailable Boolean @default(true) @map("is_available")
+    isArchived  Boolean @default(false) @map("is_archived")
 
     userId    String   @map("user_id")
     createdAt DateTime @default(now()) @map("created_at")
