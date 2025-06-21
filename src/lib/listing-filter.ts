@@ -65,7 +65,7 @@ function buildClassifiedFilterQuery(
   }, {} as { [key: string]: any });
 
   return {
-    isAvailable: true,
+    isAvailable: false,
     ...(searchParams?.q && {
       OR: [
         {
