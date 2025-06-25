@@ -26,6 +26,7 @@ export const ManageSidebar = (props: AwaitedPageProps) => {
     {
       status: parseAsString.withDefault(""),
       dateRange: parseAsString.withDefault(""),
+      hasReports: parseAsString.withDefault(""),
     },
     {
       shallow: false,
@@ -148,6 +149,25 @@ export const ManageSidebar = (props: AwaitedPageProps) => {
                     label: formatEnumValue(value),
                     value,
                   })),
+                ]}
+                className="w-full rounded-lg border-input bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-md"
+              />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center">
+              Reports Status
+            </h3>
+            <div className="space-y-2">
+              <NativeSelect
+                label=""
+                name="hasReports"
+                value={queryStates.hasReports || ""}
+                onChange={handleChange}
+                options={[
+                  { label: "All Listings", value: "" },
+                  { label: "Has Reports", value: "true" },
+                  { label: "No Reports", value: "false" },
                 ]}
                 className="w-full rounded-lg border-input bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-md"
               />

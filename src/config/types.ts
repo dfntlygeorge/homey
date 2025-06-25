@@ -12,6 +12,13 @@ export type ListingWithImagesAndUser = Prisma.ListingGetPayload<{
     user: true;
   };
 }>;
+export type ListingWithImagesUserAndReports = Prisma.ListingGetPayload<{
+  include: {
+    images: true;
+    user: true;
+    reports: true;
+  };
+}>;
 
 type Params = {
   [x: string]: string | string[];

@@ -1,8 +1,9 @@
 model Report {
-    id        String   @id @default(cuid())
-    listingId Int
-    listing   Listing  @relation(fields: [listingId], references: [id])
-    reason    String
-    createdAt DateTime @default(now())
-    userId    String?
+    id                String   @id @default(cuid())
+    listingId         Int
+    listing           Listing  @relation(fields: [listingId], references: [id])
+    reasons           String[]
+    additionalDetails String?
+    createdAt         DateTime @default(now())
+    userId            String
 }

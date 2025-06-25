@@ -6,9 +6,15 @@ import { UnauthenticatedMessage } from "@/components/manage/unauthenticated-mess
 import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { getStatusLabel } from "@/lib/utils";
-import { ListingStatus } from "@prisma/client";
+import { ListingStatus, Prisma } from "@prisma/client";
 import { startOfToday, startOfWeek, startOfMonth } from "date-fns";
-import { BarChart3, Eye, Calendar, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  Eye,
+  Calendar,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 
 export default async function ManageListingsPage(props: AwaitedPageProps) {
   const session = await auth();
@@ -19,8 +25,40 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
   const status = searchParams?.status as ListingStatus | undefined;
   const dateRange = searchParams?.dateRange as DateRangeFilter | undefined;
   const query = searchParams?.q as string | undefined;
-
+  const hasReports = searchParams?.hasReports as string | undefined; // New filter
   let createdAt: { gte: Date } | undefined;
+
+  const whereClause: Prisma.ListingWhereInput = {
+    ...(status && { status }),
+    ...(createdAt && { createdAt }),
+    ...(query && {
+      OR: [
+        {
+          title: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+  };
+
+  // Add reports filter logic
+  if (hasReports === "true") {
+    whereClause.reports = {
+      some: {}, // Has at least one report
+    };
+  } else if (hasReports === "false") {
+    whereClause.reports = {
+      none: {}, // Has no reports
+    };
+  }
 
   if (dateRange === "TODAY") {
     createdAt = { gte: startOfToday() };
@@ -31,32 +69,16 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
   }
 
   const listings = await prisma.listing.findMany({
-    where: {
-      ...(status && { status }),
-      ...(createdAt && { createdAt }),
-      ...(query && {
-        OR: [
-          {
-            title: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            description: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-        ],
-      }),
-    },
+    where: whereClause,
     include: {
       images: {
         take: 1,
         orderBy: { id: "asc" },
       },
       user: true,
+      reports: {
+        orderBy: { createdAt: "desc" },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -71,6 +93,14 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
   const rejectedListings = listings.filter(
     (l) => l.status === ListingStatus.REJECTED
   ).length;
+
+  const reportedListings = listings.filter(
+    (l) => l.reports && l.reports.length > 0
+  ).length;
+  const totalReports = listings.reduce(
+    (acc, l) => acc + (l.reports?.length || 0),
+    0
+  );
 
   if (listings.length === 0 && !status && !dateRange && !query) {
     return <NoListingsMessage />;
@@ -93,7 +123,7 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -148,6 +178,26 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
                     <p className="text-2xl font-bold text-foreground">
                       {rejectedListings}
                     </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* New Reports Stats Card */}
+              <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-red-500/10 rounded-lg">
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Reported</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {reportedListings}
+                    </p>
+                    {totalReports > reportedListings && (
+                      <p className="text-xs text-muted-foreground">
+                        {totalReports} total reports
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

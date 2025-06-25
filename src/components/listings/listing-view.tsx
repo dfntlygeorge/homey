@@ -26,6 +26,7 @@ import { ListingMinimap } from "../shared/map";
 import { Suspense } from "react";
 import { MapSkeleton } from "./skeleton/map-skeleton";
 import { ListingDetailsSkeleton } from "./skeleton/listing-details-skeleton";
+import { MoreListingActions } from "./more-listing-actions";
 
 const features = (listing: Listing) => [
   {
@@ -188,9 +189,13 @@ export const ListingView = async (props: ListingWithImages) => {
               <div className="bg-white rounded-lg shadow-sm p-6 lg:p-8">
                 {/* Property Header */}
                 <div className="border-b border-gray-100 pb-6 mb-6">
-                  <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-3">
-                    {title}
-                  </h1>
+                  <div className="flex justify-between items-start mb-3">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                      {title}
+                    </h1>
+                    <MoreListingActions listingId={id} />
+                  </div>
+
                   <p className="text-gray-600 text-base mb-4 flex items-center">
                     📍 {address}
                   </p>
@@ -282,16 +287,6 @@ export const ListingView = async (props: ListingWithImages) => {
             </Suspense>
           </div>
         </div>
-      </div>
-
-      {/* Sticky Footer */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 shadow-lg">
-        <Link
-          href={routes.listings}
-          className="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-all duration-200"
-        >
-          ← Back to Listings
-        </Link>
       </div>
     </div>
   );

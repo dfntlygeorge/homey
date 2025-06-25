@@ -84,3 +84,14 @@ export const SORT_OPTIONS = [
   { label: "Price: Low to High", value: "price-low" },
   { label: "Status", value: "status" },
 ];
+
+export const REPORT_REASONS = [
+  { id: "spam", label: "Spam or misleading" },
+  { id: "inappropriate", label: "Inappropriate content" },
+  { id: "fraud", label: "Fraud or scam" },
+  { id: "duplicate", label: "Duplicate listing" },
+  { id: "wrong-category", label: "Wrong category" },
+  { id: "offensive", label: "Offensive language" },
+  { id: "copyright", label: "Copyright violation" },
+  { id: "other", label: "Other" },
+];

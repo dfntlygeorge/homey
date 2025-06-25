@@ -14,7 +14,7 @@ model Listing {
     reviews       Review[]
     images        Image[]
     notifications Notification[]
-    report        Report[]
+    reports       Report[]
     status        ListingStatus         @default(PENDING)
     genderPolicy  GenderPolicy          @map("gender_policy")
     curfew        CurfewPolicy

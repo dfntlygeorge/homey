@@ -11,6 +11,8 @@ import {
   Phone,
   Facebook,
   Users,
+  AlertTriangle,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
-import { ListingWithImagesAndUser } from "@/config/types";
+import { ListingWithImagesUserAndReports } from "@/config/types";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateListingStatus } from "@/app/_actions/update-listing-status";
@@ -39,7 +41,7 @@ import { ListingStatus, NotificationType } from "@prisma/client";
 import { createNotificationAction } from "@/app/_actions/notification";
 
 interface AdminListingCardProps {
-  listing: ListingWithImagesAndUser;
+  listing: ListingWithImagesUserAndReports;
 }
 
 export function AdminListingCard({ listing }: AdminListingCardProps) {
@@ -56,6 +58,27 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
         return "bg-red-100 text-red-800";
       default:
         return "bg-zinc-100 text-zinc-800";
+    }
+  };
+
+  // Add this helper function in your AdminListingCard component
+  const getReportSeverity = (reportsCount: number) => {
+    if (reportsCount >= 5) return "high";
+    if (reportsCount >= 3) return "medium";
+    if (reportsCount >= 1) return "low";
+    return "none";
+  };
+
+  const getReportColor = (severity: string) => {
+    switch (severity) {
+      case "high":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "medium":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "low":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -158,6 +181,23 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
                     <Users className="w-3 h-3" />
                     {listing.slotsAvailable} slots
                   </span>
+
+                  {/* Add Reports Badge */}
+                  {listing.reports && listing.reports.length > 0 && (
+                    <>
+                      <span className="text-sm text-zinc-500">•</span>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs border ${getReportColor(
+                          getReportSeverity(listing.reports.length)
+                        )}`}
+                      >
+                        <AlertTriangle className="w-3 h-3 mr-1" />
+                        {listing.reports.length} report
+                        {listing.reports.length !== 1 ? "s" : ""}
+                      </Badge>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -325,6 +365,57 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
                     </div>
                   </div>
                 </div>
+
+                <Separator />
+                {/* Reports Section */}
+                {listing.reports && listing.reports.length > 0 && (
+                  <div>
+                    <h4 className="font-medium mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-500" />
+                      Reports ({listing.reports.length})
+                    </h4>
+                    <div className="space-y-3 max-h-40 overflow-y-auto">
+                      {listing.reports.slice(0, 3).map((report, _) => (
+                        <div
+                          key={report.id}
+                          className="p-3 bg-red-50 border border-red-200 rounded-lg"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex flex-wrap gap-1">
+                              {report.reasons.map((reason, i) => (
+                                <Badge
+                                  key={i}
+                                  variant="destructive"
+                                  className="text-xs"
+                                >
+                                  {reason}
+                                </Badge>
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {formatDate(report.createdAt)}
+                            </span>
+                          </div>
+                          {report.additionalDetails && (
+                            <p className="text-sm text-gray-700 mt-2">
+                              {report.additionalDetails}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                      {listing.reports.length > 3 && (
+                        <div className="text-center">
+                          <Link
+                            href={`/admin/listings/${listing.id}/reports`}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline"
+                          >
+                            View all {listing.reports.length} reports
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </DialogContent>
             </Dialog>
 
@@ -348,6 +439,17 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
                     View Landlord Profile
                   </Link>
                 </DropdownMenuItem>
+
+                {/* Add Reports Management Option */}
+                {listing.reports && listing.reports.length > 0 && (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/listings/${listing.id}/reports`}>
+                      <Shield className="w-4 h-4 mr-2" />
+                      Manage Reports ({listing.reports.length})
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+
                 {listing.status !== "PENDING" && (
                   <DropdownMenuItem
                     onClick={async () => {
@@ -357,7 +459,7 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
                       );
                       await createNotificationAction(
                         listing.user.id,
-                        `Your listing '${listing.title} has been mark as pending.`,
+                        `Your listing '${listing.title}' has been marked as pending.`,
                         NotificationType.LISTING,
                         listing.id
                       );
