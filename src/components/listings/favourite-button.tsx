@@ -6,6 +6,9 @@ import { HeartIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";
 import { endpoints } from "@/config/endpoints";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { routes } from "@/config/routes";
 
 interface FavouriteButtonProps {
   setIsFavourite: (isFavourite: boolean) => void;
@@ -17,19 +20,38 @@ export const FavouriteButton = (props: FavouriteButtonProps) => {
   const { setIsFavourite, isFavourite, id } = props;
 
   const router = useRouter();
+  const { data: session } = useSession();
+  const isAuthenticated = !!session;
 
   const handleFavourite = async () => {
+    // Check authentication before proceeding
+    if (!isAuthenticated) {
+      toast.info("Please sign in to save listings", {
+        action: {
+          label: "Sign In",
+          onClick: () => router.push(routes.signIn), // Adjust to your sign-in route
+        },
+      });
+      return;
+    }
+
     try {
       const { ids } = await api.post<{ ids: number[] }>(endpoints.favourites, {
         json: { id },
       });
 
-      if (ids.includes(id)) setIsFavourite(true);
-      else setIsFavourite(false);
+      if (ids.includes(id)) {
+        setIsFavourite(true);
+        toast.success("Listing saved to favourites");
+      } else {
+        setIsFavourite(false);
+        toast.success("Listing removed from favourites");
+      }
 
       setTimeout(() => router.refresh(), 250);
     } catch (error) {
       console.error("Failed to update favourite:", error);
+      toast.error("Failed to update favourite. Please try again.");
     }
   };
 
