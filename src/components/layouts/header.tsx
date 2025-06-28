@@ -3,15 +3,24 @@ import { getSourceId } from "@/lib/source-id";
 import { Favourites } from "@/config/types";
 import { redis } from "@/lib/redis-store";
 import prisma from "@/lib/prisma";
-import { notFound } from "next/navigation";
 import { ClientHeaderWrapper } from "./client-header-wrapper";
 
 export const PublicHeader = async () => {
   const session = await auth();
   const userId = session?.user?.id;
 
-  if (!userId) notFound();
+  // For unauthenticated users, show header with empty data
+  if (!userId || !session) {
+    return (
+      <ClientHeaderWrapper
+        initialNotifications={[]}
+        session={null} // Pass null session
+        favourites={null}
+      />
+    );
+  }
 
+  // For authenticated users, fetch their data
   const sourceId = await getSourceId();
   const favourites = await redis.get<Favourites>(sourceId ?? "");
   const notifications = await prisma.notification.findMany({

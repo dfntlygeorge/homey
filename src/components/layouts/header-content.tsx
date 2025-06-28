@@ -18,7 +18,7 @@ import { Favourites } from "@/config/types";
 
 interface PublicHeaderContentProps {
   notifications: Notification[];
-  session: Session;
+  session: Session | null;
   favourites: Favourites | null;
   onNotificationUpdate: (notifications: Notification[]) => void;
 }

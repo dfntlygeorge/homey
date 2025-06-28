@@ -8,7 +8,7 @@ import { Favourites } from "@/config/types";
 
 interface ClientHeaderWrapperProps {
   initialNotifications: Notification[];
-  session: Session;
+  session: Session | null;
   favourites: Favourites | null;
 }
 
