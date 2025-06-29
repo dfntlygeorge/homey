@@ -13,4 +13,5 @@ export const ListingFilterSchema = z.object({
   wifi: z.string().optional(),
   pets: z.string().optional(),
   utilities: z.string().optional(),
+  sortBy: z.string().optional(),
 });

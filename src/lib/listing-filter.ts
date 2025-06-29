@@ -43,7 +43,9 @@ function buildClassifiedFilterQuery(
     if (!value) return acc;
 
     // Skip geo parameters as they're handled separately
-    if (["latitude", "longitude", "radius", "address"].includes(key)) {
+    if (
+      ["latitude", "longitude", "radius", "address", "sortBy"].includes(key)
+    ) {
       return acc;
     }
 
@@ -86,11 +88,37 @@ function buildClassifiedFilterQuery(
   };
 }
 
+// Helper function to build sort order based on sortBy parameter
+function buildSortOrder(
+  sortBy?: string
+): Prisma.ListingOrderByWithRelationInput[] {
+  switch (sortBy) {
+    case "newest":
+      return [{ createdAt: "desc" }];
+    case "oldest":
+      return [{ createdAt: "asc" }];
+    case "price_asc":
+      return [{ rent: "asc" }];
+    case "price_desc":
+      return [{ rent: "desc" }];
+    case "popular":
+      // Assuming you have a views or bookmarks count field
+      // You might need to add these fields to your schema
+      return [{ viewCount: "desc" }, { createdAt: "desc" }];
+    case "updated":
+      return [{ updatedAt: "desc" }];
+    default:
+      // Default sorting: newest first
+      return [{ createdAt: "desc" }];
+  }
+}
+
 // OPTIMIZED: Combined function that handles both listings and count in one go
 export async function getFilteredListingsWithCount(
   searchParams: AwaitedPageProps["searchParams"] | undefined
 ): Promise<FilteredListingsResult> {
   const baseQuery = buildClassifiedFilterQuery(searchParams);
+  const sortOrder = buildSortOrder(searchParams?.sortBy as string);
 
   // Extract geo parameters
   const latitude = searchParams?.latitude
@@ -116,6 +144,7 @@ export async function getFilteredListingsWithCount(
         include: {
           images: { take: 1 },
         },
+        orderBy: sortOrder,
         skip: offset,
         take: LISTINGS_PER_PAGE,
       }),
@@ -139,6 +168,7 @@ export async function getFilteredListingsWithCount(
     include: {
       images: { take: 1 },
     },
+    orderBy: sortOrder,
   });
 
   // Filter by distance
@@ -161,25 +191,4 @@ export async function getFilteredListingsWithCount(
     totalCount,
     totalPages: Math.ceil(totalCount / LISTINGS_PER_PAGE),
   };
-}
-
-// DEPRECATED: Keep these for backward compatibility, but mark as deprecated
-/**
- * @deprecated Use getFilteredListingsWithCount instead for better performance
- */
-export async function getFilteredListings(
-  searchParams: AwaitedPageProps["searchParams"] | undefined
-) {
-  const result = await getFilteredListingsWithCount(searchParams);
-  return result.listings;
-}
-
-/**
- * @deprecated Use getFilteredListingsWithCount instead for better performance
- */
-export async function getFilteredListingsCount(
-  searchParams: AwaitedPageProps["searchParams"] | undefined
-): Promise<number> {
-  const result = await getFilteredListingsWithCount(searchParams);
-  return result.totalCount;
 }

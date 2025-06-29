@@ -21,8 +21,8 @@ import {
 } from "@prisma/client";
 import { NativeSelect } from "../ui/native-select";
 import { ProximityFilter } from "./proximity-filter";
-import { Filter, X } from "lucide-react";
-import { EXCLUDED_KEYS } from "@/config/constants";
+import { ArrowUpDown, Filter, X } from "lucide-react";
+import { EXCLUDED_KEYS, SORT_OPTIONS } from "@/config/constants";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   const router = useRouter();
@@ -45,6 +45,7 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       longitude: parseAsString.withDefault(""),
       radius: parseAsString.withDefault(""),
       address: parseAsString.withDefault(""),
+      sortBy: parseAsString.withDefault(""),
     },
     {
       shallow: false,
@@ -128,6 +129,26 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
             placeholder="Search properties..."
             className="w-full rounded-lg border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
+        </div>
+        <div className="p-6 border-b border-border">
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-primary" />
+              Sort By
+            </h3>
+            <NativeSelect
+              name="sortBy"
+              value={queryStates.sortBy || ""}
+              onChange={handleChange}
+              options={SORT_OPTIONS.map((option) => ({
+                label: option.label,
+                value: option.value,
+              }))}
+              placeholder="Choose sorting..."
+              className="w-full"
+              selectClassName="text-sm"
+            />
+          </div>
         </div>
 
         {/* Filters Section */}

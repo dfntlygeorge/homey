@@ -10,6 +10,7 @@ model Listing {
     slotsAvailable  Int      @map("slots_available")
     contact         String   @map("contact_info")
     facebookProfile String   @map("facebook_profile")
+    viewCount       Int      @default(0) @map("view_count")
 
     reviews       Review[]
     images        Image[]

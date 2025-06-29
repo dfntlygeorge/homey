@@ -31,7 +31,13 @@ export const navLinks = [
 
 export const LISTINGS_PER_PAGE = 3;
 
-export const EXCLUDED_KEYS = ["page", "latitude", "longitude", "address"];
+export const EXCLUDED_KEYS = [
+  "page",
+  "latitude",
+  "longitude",
+  "address",
+  "sortBy",
+];
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 export const MIN_FILE_SIZE = 1024; // 1KB minimum to avoid empty files
@@ -77,13 +83,13 @@ export const DATE_RANGE_OPTIONS = [
   { label: "Last 3 Months", value: "3months" },
 ];
 
-export const SORT_OPTIONS = [
-  { label: "Newest First", value: "newest" },
-  { label: "Oldest First", value: "oldest" },
-  { label: "Price: High to Low", value: "price-high" },
-  { label: "Price: Low to High", value: "price-low" },
-  { label: "Status", value: "status" },
-];
+// export const SORT_OPTIONS = [
+//   { label: "Newest First", value: "newest" },
+//   { label: "Oldest First", value: "oldest" },
+//   { label: "Price: High to Low", value: "price-high" },
+//   { label: "Price: Low to High", value: "price-low" },
+//   { label: "Status", value: "status" },
+// ];
 
 export const REPORT_REASONS = [
   { id: "spam", label: "Spam or misleading" },
@@ -95,3 +101,11 @@ export const REPORT_REASONS = [
   { id: "copyright", label: "Copyright violation" },
   { id: "other", label: "Other" },
 ];
+export const SORT_OPTIONS = [
+  { label: "Newest First", value: "newest" },
+  { label: "Oldest First", value: "oldest" },
+  { label: "Price: Low to High", value: "price_asc" },
+  { label: "Price: High to Low", value: "price_desc" },
+  { label: "Most Popular", value: "popular" },
+  { label: "Recently Updated", value: "updated" },
+] as const;
