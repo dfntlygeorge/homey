@@ -19,6 +19,7 @@ import { revalidatePath } from "next/cache";
 import { env } from "@/env";
 import { FileSchema } from "../_schemas/file.schema";
 import { ZodError } from "zod";
+import { moderateListingAction } from "./moderate-listing";
 
 export const createListingAction = async (formData: FormData) => {
   try {
@@ -92,6 +93,8 @@ export const createListingAction = async (formData: FormData) => {
         userId,
       },
     });
+
+    await moderateListingAction(listing);
 
     // Set up S3 client for image uploads
     const s3Client = new S3Client({

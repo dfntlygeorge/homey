@@ -26,6 +26,9 @@ model Listing {
     utilities     UtilityInclusion
     pets          PetPolicy
 
+    moderationReason String?
+    moderatedAt      DateTime?
+
     isAvailable Boolean @default(true) @map("is_available")
     isArchived  Boolean @default(false) @map("is_archived")
 

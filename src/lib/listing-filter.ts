@@ -3,7 +3,7 @@ import { LISTINGS_PER_PAGE } from "@/config/constants";
 import { AwaitedPageProps, ListingWithImages } from "@/config/types";
 import prisma from "./prisma";
 import { ListingFilterSchema } from "@/app/_schemas/listing.schema";
-import { Prisma } from "@prisma/client";
+import { ListingStatus, Prisma } from "@prisma/client";
 import { filterListingsByDistance } from "./proximity-filter";
 
 // Define the return type for our combined function
@@ -67,7 +67,9 @@ function buildClassifiedFilterQuery(
   }, {} as { [key: string]: any });
 
   return {
-    isAvailable: false,
+    isAvailable: true,
+    isArchived: false,
+    status: ListingStatus.APPROVED,
     ...(searchParams?.q && {
       OR: [
         {

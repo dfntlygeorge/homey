@@ -81,3 +81,8 @@ export const DateRangeFilter = {
 } as const;
 
 export type DateRangeFilter = keyof typeof DateRangeFilter;
+
+export type ModerationResponse = {
+  action: "approve" | "manual_review" | "reject";
+  reason?: string;
+};
