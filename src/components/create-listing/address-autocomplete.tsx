@@ -11,6 +11,7 @@ import {
   SearchBoxSuggestResponse,
 } from "@/config/types/autocomplete-address.type";
 import { toast } from "sonner";
+import { env } from "@/env";
 
 export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
   const {
@@ -39,7 +40,7 @@ export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
       return;
     }
 
-    const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    const accessToken = env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
     if (!accessToken) {
       console.error("Mapbox access token is not configured");
       return;

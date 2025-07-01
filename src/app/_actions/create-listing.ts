@@ -98,10 +98,10 @@ export const createListingAction = async (formData: FormData) => {
 
     // Set up S3 client for image uploads
     const s3Client = new S3Client({
-      region: env.NEXT_PUBLIC_AWS_S3_REGION,
+      region: env.AWS_S3_REGION,
       credentials: {
-        accessKeyId: env.NEXT_PUBLIC_AWS_S3_ACCESS_KEY_ID ?? "",
-        secretAccessKey: env.NEXT_PUBLIC_AWS_S3_SECRET_ACCESS_KEY ?? "",
+        accessKeyId: env.AWS_S3_ACCESS_KEY_ID ?? "",
+        secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY ?? "",
       },
     });
 
@@ -118,7 +118,7 @@ export const createListingAction = async (formData: FormData) => {
 
             const fileExtension = image.name.split(".").pop();
             const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
-            const bucketName = env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+            const bucketName = env.AWS_S3_BUCKET_NAME;
 
             // Convert file to buffer for S3 upload
             const arrayBuffer = await image.arrayBuffer();
@@ -135,7 +135,7 @@ export const createListingAction = async (formData: FormData) => {
             await s3Client.send(command);
 
             // Create the S3 URL
-            const imageUrl = `https://${bucketName}.s3.${env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
+            const imageUrl = `https://${bucketName}.s3.${env.AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
             imageUrls.push(imageUrl);
 
             // Create image record in database
