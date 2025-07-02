@@ -1,6 +1,5 @@
-import { Listing } from "@prisma/client";
 import { routes } from "./routes";
-import { ListingFormStep } from "./types";
+import { ListingFormStep, ListingWithImages } from "./types";
 
 export const navLinks = [
   {
@@ -111,7 +110,7 @@ export const SORT_OPTIONS = [
   { label: "Recently Updated", value: "updated" },
 ] as const;
 
-export const MODERATION_PROMPT = (listing: Listing) => {
+export const MODERATION_PROMPT = (listing: ListingWithImages) => {
   const {
     title,
     description,

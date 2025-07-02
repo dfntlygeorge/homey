@@ -94,8 +94,6 @@ export const createListingAction = async (formData: FormData) => {
       },
     });
 
-    await moderateListingAction(listing);
-
     // Set up S3 client for image uploads
     const s3Client = new S3Client({
       region: env.AWS_S3_REGION,
@@ -166,8 +164,11 @@ export const createListingAction = async (formData: FormData) => {
       }
     }
 
-    // Revalidate the listings page to show updated data
     revalidatePath("/listings");
+
+    moderateListingAction(listing.id).catch((e) => {
+      console.error("Error running background moderation:", e);
+    });
 
     return {
       success: true,
