@@ -12,6 +12,7 @@ model User {
     listings      Listing[]
     reviews       Review[]
     notifications Notification[]
+    createdAt     DateTime       @default(now()) @map("created_at")
 
     @@map("users")
 }
