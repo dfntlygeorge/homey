@@ -1,4 +1,4 @@
-import { ListingWithImages } from "@/config/types";
+import { ListingWithImagesAndAddress } from "@/config/types";
 import {
   UtensilsIcon,
   WifiIcon,
@@ -146,7 +146,7 @@ const features = (listing: Listing) => [
   },
 ];
 
-export const ListingView = async (props: ListingWithImages) => {
+export const ListingView = async (props: ListingWithImagesAndAddress) => {
   const session = await auth();
   const {
     images,
@@ -158,9 +158,8 @@ export const ListingView = async (props: ListingWithImages) => {
     id,
     facebookProfile,
     contact,
-    longitude,
-    latitude,
   } = props;
+
   return (
     <div className="relative min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6 lg:px-8">
@@ -174,9 +173,9 @@ export const ListingView = async (props: ListingWithImages) => {
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <Suspense fallback={<MapSkeleton />}>
                 <ListingMinimap
-                  address={address}
-                  longitude={longitude}
-                  latitude={latitude}
+                  address={address.formattedAddress}
+                  longitude={address.longitude}
+                  latitude={address.latitude}
                   showExpandButton={true}
                 />
               </Suspense>
@@ -197,7 +196,7 @@ export const ListingView = async (props: ListingWithImages) => {
                   </div>
 
                   <p className="text-gray-600 text-base mb-4 flex items-center">
-                    📍 {address}
+                    📍 {address.formattedAddress}
                   </p>
 
                   {/* Price and Room Type */}

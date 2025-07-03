@@ -1,0 +1,11 @@
+model Address {
+    id               Int      @id @default(autoincrement())
+    formattedAddress String   @map("formatted_address")
+    longitude        Float
+    latitude         Float
+    createdAt        DateTime @default(now()) @map("created_at")
+
+    listings Listing[]
+
+    @@map("addresses")
+}

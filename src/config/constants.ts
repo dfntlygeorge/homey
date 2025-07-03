@@ -1,5 +1,5 @@
 import { routes } from "./routes";
-import { ListingFormStep, ListingWithImages } from "./types";
+import { ListingFormStep, ListingWithAddress } from "./types";
 
 export const navLinks = [
   {
@@ -110,7 +110,7 @@ export const SORT_OPTIONS = [
   { label: "Recently Updated", value: "updated" },
 ] as const;
 
-export const MODERATION_PROMPT = (listing: ListingWithImages) => {
+export const MODERATION_PROMPT = (listing: ListingWithAddress) => {
   const {
     title,
     description,
@@ -121,6 +121,7 @@ export const MODERATION_PROMPT = (listing: ListingWithImages) => {
     roomType,
     slotsAvailable,
   } = listing;
+  const formattedAddress = address.formattedAddress;
   return `
   You are a strict content moderation system for rental listings in the Philippines.
 
@@ -162,7 +163,7 @@ Return ONLY a JSON object in the following exact format:
 
 Listing Title: ${title}
 Description: ${description}
-Address: ${address}
+Address: ${formattedAddress}
 Contact Info: ${contact}
 Facebook Profile: ${facebookProfile}
 Rent: ${rent}

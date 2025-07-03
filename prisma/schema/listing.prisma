@@ -1,42 +1,54 @@
 model Listing {
-    id              Int      @id @default(autoincrement())
-    title           String
-    description     String
-    address         String
-    longitude       Float
-    latitude        Float
+    id          Int    @id @default(autoincrement())
+    title       String
+    description String
+
+    // Address relationship
+    addressId Int     @map("address_id")
+    address   Address @relation(fields: [addressId], references: [id])
+
+    // Owner relationship
+    userId String @map("user_id")
+    user   User   @relation(fields: [userId], references: [id])
+
+    // Basic rental info
     rent            Int
     roomType        RoomType @map("room_type")
     slotsAvailable  Int      @map("slots_available")
     contact         String   @map("contact_info")
     facebookProfile String   @map("facebook_profile")
-    viewCount       Int      @default(0) @map("view_count")
 
+    // Property amenities & policies
+    genderPolicy GenderPolicy          @map("gender_policy")
+    curfew       CurfewPolicy
+    laundry      LaundryAvailability
+    caretaker    CaretakerAvailability
+    kitchen      KitchenAvailability
+    wifi         WifiAvailability
+    utilities    UtilityInclusion
+    pets         PetPolicy
+
+    // Status & availability
+    status      ListingStatus @default(PENDING)
+    isAvailable Boolean       @default(true) @map("is_available")
+    isArchived  Boolean       @default(false) @map("is_archived")
+
+    // Moderation
+    moderationReason String?   @map("moderation_reason")
+    moderatedAt      DateTime? @map("moderated_at")
+
+    // Analytics
+    viewCount Int @default(0) @map("view_count")
+
+    // Timestamps
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    // Relations
     reviews       Review[]
     images        Image[]
     notifications Notification[]
     reports       Report[]
-    status        ListingStatus         @default(PENDING)
-    genderPolicy  GenderPolicy          @map("gender_policy")
-    curfew        CurfewPolicy
-    laundry       LaundryAvailability
-    caretaker     CaretakerAvailability
-    kitchen       KitchenAvailability
-    wifi          WifiAvailability
-    utilities     UtilityInclusion
-    pets          PetPolicy
-
-    moderationReason String?
-    moderatedAt      DateTime?
-
-    isAvailable Boolean @default(true) @map("is_available")
-    isArchived  Boolean @default(false) @map("is_archived")
-
-    userId    String   @map("user_id")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-
-    user User @relation(fields: [userId], references: [id])
 
     @@map("listings")
 }

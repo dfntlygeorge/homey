@@ -7,7 +7,7 @@ import {
 import { FileSchema } from "@/app/_schemas/file.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
 
-import { ListingWithImages } from "@/config/types";
+import { ListingWithImagesAndAddress } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -51,7 +51,7 @@ import { EDIT_LISTING_STEPS } from "@/config/constants";
 export const EditListingForm = ({
   listing,
 }: {
-  listing: ListingWithImages;
+  listing: ListingWithImagesAndAddress;
 }) => {
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(0);
@@ -66,8 +66,6 @@ export const EditListingForm = ({
     rent,
     slotsAvailable,
     address,
-    longitude,
-    latitude,
     contact,
     genderPolicy,
     curfew,
@@ -88,9 +86,9 @@ export const EditListingForm = ({
       roomType,
       rent,
       slotsAvailable,
-      address,
-      longitude,
-      latitude,
+      address: address.formattedAddress,
+      longitude: address.longitude,
+      latitude: address.latitude,
       contact,
       genderPolicy,
       curfew,
@@ -110,8 +108,6 @@ export const EditListingForm = ({
       rent,
       slotsAvailable,
       address,
-      longitude,
-      latitude,
       contact,
       genderPolicy,
       curfew,

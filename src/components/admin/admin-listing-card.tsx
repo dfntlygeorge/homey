@@ -33,7 +33,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
-import { ListingWithImagesUserAndReports } from "@/config/types";
+import {
+  ListingWithAddress,
+  ListingWithImagesUserAndReports,
+} from "@/config/types";
 import { useState } from "react";
 import { toast } from "sonner";
 import { updateListingStatus } from "@/app/_actions/update-listing-status";
@@ -41,7 +44,7 @@ import { ListingStatus, NotificationType } from "@prisma/client";
 import { createNotificationAction } from "@/app/_actions/notification";
 
 interface AdminListingCardProps {
-  listing: ListingWithImagesUserAndReports;
+  listing: ListingWithImagesUserAndReports & ListingWithAddress;
 }
 
 export function AdminListingCard({ listing }: AdminListingCardProps) {
@@ -225,7 +228,9 @@ export function AdminListingCard({ listing }: AdminListingCardProps) {
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-3 h-3" />
-                <span className="truncate">{listing.address}</span>
+                <span className="truncate">
+                  {listing.address.formattedAddress}
+                </span>
               </div>
             </div>
           </div>

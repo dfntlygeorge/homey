@@ -1,6 +1,6 @@
 "use client";
 
-import { AwaitedPageProps, ListingWithImages } from "@/config/types";
+import { AwaitedPageProps, ListingWithImagesAndAddress } from "@/config/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button"; // Assuming this is your ShadCN UI Button or similar
@@ -14,7 +14,7 @@ import { FavouriteButton } from "./favourite-button";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
 
 interface ListingCardProps {
-  listing: ListingWithImages;
+  listing: ListingWithImagesAndAddress;
   favourites: number[];
   searchParams?: AwaitedPageProps["searchParams"];
 }
@@ -22,8 +22,6 @@ interface ListingCardProps {
 export const ListingCard = (props: ListingCardProps) => {
   const { listing, favourites, searchParams } = props;
   const {
-    latitude,
-    longitude,
     id,
     title,
     images,
@@ -33,6 +31,7 @@ export const ListingCard = (props: ListingCardProps) => {
     roomType,
     slotsAvailable,
   } = listing;
+
   // gets us the current pathname
   const pathname = usePathname();
 
@@ -47,8 +46,8 @@ export const ListingCard = (props: ListingCardProps) => {
   const distance = getDistanceBetweenPoints(
     centerLat,
     centerLon,
-    latitude,
-    longitude
+    address.latitude,
+    address.longitude
   );
 
   // hides non-favourite cards on the favourites page
@@ -117,7 +116,7 @@ export const ListingCard = (props: ListingCardProps) => {
                 <div className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <span className="text-sm text-muted-foreground line-clamp-1 font-medium">
-                    {address}
+                    {address.formattedAddress}
                   </span>
                 </div>
 

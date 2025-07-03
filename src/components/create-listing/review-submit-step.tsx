@@ -19,6 +19,18 @@ import { createListingAction } from "@/app/_actions/create-listing";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { routes } from "@/config/routes";
+import { CreateListingType } from "@/app/_schemas/form.schema";
+import {
+  CaretakerAvailability,
+  CurfewPolicy,
+  GenderPolicy,
+  KitchenAvailability,
+  LaundryAvailability,
+  PetPolicy,
+  RoomType,
+  UtilityInclusion,
+  WifiAvailability,
+} from "@prisma/client";
 
 export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
   const [isPending, startTransition] = useTransition();
@@ -39,7 +51,7 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
   const title = decodeURIComponent(searchParams?.title as string) || "";
   const description =
     decodeURIComponent(searchParams?.description as string) || "";
-  const roomType = decodeURIComponent(searchParams?.roomType as string) || "";
+
   const rent = Number(decodeURIComponent(searchParams?.rent as string));
   const slotsAvailable = Number(
     decodeURIComponent(searchParams?.slotsAvailable as string)
@@ -50,18 +62,56 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
     decodeURIComponent(searchParams?.longitude as string)
   );
   const contact = decodeURIComponent(searchParams?.contact as string) || "";
-  const genderPolicy =
-    decodeURIComponent(searchParams?.genderPolicy as string) || "";
-  const curfew = decodeURIComponent(searchParams?.curfew as string) || "";
-  const caretaker = decodeURIComponent(searchParams?.caretaker as string) || "";
-  const pets = decodeURIComponent(searchParams?.pets as string) || "";
-  const kitchen = decodeURIComponent(searchParams?.kitchen as string) || "";
-  const wifi = decodeURIComponent(searchParams?.wifi as string) || "";
-  const laundry = decodeURIComponent(searchParams?.laundry as string) || "";
-  const utilities = decodeURIComponent(searchParams?.utilities as string) || "";
-  const facebookProfile = decodeURIComponent(
-    (searchParams?.facebookProfile as string) || ""
-  );
+  const facebookProfile =
+    decodeURIComponent(searchParams?.facebookProfile as string) || "";
+
+  const roomType = decodeURIComponent(
+    searchParams?.roomType as string
+  ) as RoomType;
+  const genderPolicy = decodeURIComponent(
+    searchParams?.genderPolicy as string
+  ) as GenderPolicy;
+  const curfew = decodeURIComponent(
+    searchParams?.curfew as string
+  ) as CurfewPolicy;
+  const caretaker = decodeURIComponent(
+    searchParams?.caretaker as string
+  ) as CaretakerAvailability;
+  const pets = decodeURIComponent(searchParams?.pets as string) as PetPolicy;
+  const kitchen = decodeURIComponent(
+    searchParams?.kitchen as string
+  ) as KitchenAvailability;
+  const wifi = decodeURIComponent(
+    searchParams?.wifi as string
+  ) as WifiAvailability;
+  const laundry = decodeURIComponent(
+    searchParams?.laundry as string
+  ) as LaundryAvailability;
+  const utilities = decodeURIComponent(
+    searchParams?.utilities as string
+  ) as UtilityInclusion;
+
+  const createListingData: CreateListingType = {
+    title,
+    description,
+    roomType,
+    rent,
+    slotsAvailable,
+    address,
+    longitude,
+    latitude,
+    contact,
+    genderPolicy,
+    curfew,
+    caretaker,
+    pets,
+    kitchen,
+    wifi,
+    laundry,
+    utilities,
+    facebookProfile,
+    images: images.map((img) => img.file), // images as File[]
+  };
 
   // Helper function to render feature badges
   const FeatureBadge = ({ value, label }: { value: string; label: string }) => (
@@ -76,34 +126,8 @@ export const ReviewSubmitStep = ({ searchParams }: AwaitedPageProps) => {
   const handleSubmit = () => {
     startTransition(async () => {
       try {
-        const formData = new FormData();
-
-        // Add all text fields to FormData
-        formData.append("title", title);
-        formData.append("description", description);
-        formData.append("roomType", roomType);
-        formData.append("rent", rent.toString());
-        formData.append("slotsAvailable", slotsAvailable.toString());
-        formData.append("address", address);
-        formData.append("longitude", longitude.toString());
-        formData.append("latitude", latitude.toString());
-        formData.append("contact", contact);
-        formData.append("genderPolicy", genderPolicy);
-        formData.append("curfew", curfew);
-        formData.append("caretaker", caretaker);
-        formData.append("pets", pets);
-        formData.append("kitchen", kitchen);
-        formData.append("wifi", wifi);
-        formData.append("laundry", laundry);
-        formData.append("utilities", utilities);
-        formData.append("facebookProfile", facebookProfile);
-
-        images.forEach((image) => {
-          formData.append("images", image.file);
-        });
-
         // Call the server action
-        const result = await createListingAction(formData);
+        const result = await createListingAction(createListingData);
 
         if (result?.success) {
           toast.success("Listing created successfully!", {

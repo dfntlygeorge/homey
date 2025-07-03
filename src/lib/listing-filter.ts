@@ -1,6 +1,6 @@
 import { PageSchema } from "@/app/_schemas/page.schema";
 import { LISTINGS_PER_PAGE } from "@/config/constants";
-import { AwaitedPageProps, ListingWithImages } from "@/config/types";
+import { AwaitedPageProps, ListingWithImagesAndAddress } from "@/config/types";
 import prisma from "./prisma";
 import { ListingFilterSchema } from "@/app/_schemas/listing.schema";
 import { ListingStatus, Prisma } from "@prisma/client";
@@ -8,7 +8,7 @@ import { filterListingsByDistance } from "./proximity-filter";
 
 // Define the return type for our combined function
 export interface FilteredListingsResult {
-  listings: ListingWithImages[]; // Replace with your actual listing type
+  listings: ListingWithImagesAndAddress[]; // Replace with your actual listing type
   totalCount: number;
   totalPages: number;
 }
@@ -145,6 +145,7 @@ export async function getFilteredListingsWithCount(
         where: baseQuery,
         include: {
           images: { take: 1 },
+          address: true,
         },
         orderBy: sortOrder,
         skip: offset,
@@ -169,6 +170,7 @@ export async function getFilteredListingsWithCount(
     where: baseQuery,
     include: {
       images: { take: 1 },
+      address: true,
     },
     orderBy: sortOrder,
   });

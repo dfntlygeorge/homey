@@ -1,6 +1,6 @@
 "use client";
 
-import { ListingWithImages } from "@/config/types";
+import { ListingWithImagesAndAddress } from "@/config/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { MapPin, BadgeDollarSign, Bed, Users, Eye } from "lucide-react";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
 
 interface UserListingCardProps {
-  listing: ListingWithImages;
+  listing: ListingWithImagesAndAddress;
 }
 
 export const UserListingCard = ({ listing }: UserListingCardProps) => {
@@ -52,7 +52,7 @@ export const UserListingCard = ({ listing }: UserListingCardProps) => {
           {/* Location */}
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin className="w-3 h-3 flex-shrink-0" />
-            <span className="line-clamp-1">{address}</span>
+            <span className="line-clamp-1">{address.formattedAddress}</span>
           </div>
 
           {/* Property Details */}

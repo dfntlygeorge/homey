@@ -3,25 +3,20 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import {
-  CaretakerAvailability,
-  CurfewPolicy,
-  GenderPolicy,
-  KitchenAvailability,
-  LaundryAvailability,
-  PetPolicy,
-  RoomType,
-  UtilityInclusion,
-  WifiAvailability,
-} from "@prisma/client";
+
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { env } from "@/env";
-import { FileSchema } from "../_schemas/file.schema";
-import { ZodError } from "zod";
-import { moderateListingAction } from "./moderate-listing";
 
-export const createListingAction = async (formData: FormData) => {
+import { moderateListingAction } from "./moderate-listing";
+import {
+  CreateListingSchema,
+  CreateListingType,
+} from "../_schemas/form.schema";
+
+export const createListingAction = async (
+  createListingData: CreateListingType
+) => {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -33,139 +28,95 @@ export const createListingAction = async (formData: FormData) => {
       };
     }
 
-    // Extract data from FormData
-    const listingData = {
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      roomType: formData.get("roomType") as RoomType,
-      rent: Number(formData.get("rent")),
-      slotsAvailable: Number(formData.get("slotsAvailable")),
-      address: formData.get("address") as string,
-      longitude: Number(formData.get("longitude")),
-      latitude: Number(formData.get("latitude")),
-      contact: formData.get("contact") as string,
-      genderPolicy: formData.get("genderPolicy") as GenderPolicy,
-      curfew: formData.get("curfew") as CurfewPolicy,
-      caretaker: formData.get("caretaker") as CaretakerAvailability,
-      pets: formData.get("pets") as PetPolicy,
-      kitchen: formData.get("kitchen") as KitchenAvailability,
-      wifi: formData.get("wifi") as WifiAvailability,
-      laundry: formData.get("laundry") as LaundryAvailability,
-      utilities: formData.get("utilities") as UtilityInclusion,
-      facebookProfile: formData.get("facebookProfile") as string,
-    };
+    const { data, success, error } =
+      CreateListingSchema.safeParse(createListingData);
 
-    // Validate required fields
-    const requiredFields = [
-      "title",
-      "description",
-      "roomType",
-      "rent",
-      "slotsAvailable",
-      "address",
-      "contact",
-      "genderPolicy",
-      "curfew",
-      "caretaker",
-      "pets",
-      "kitchen",
-      "wifi",
-      "laundry",
-      "utilities",
-      "facebookProfile",
-      "longitude",
-      "latitude",
-    ];
-
-    for (const field of requiredFields) {
-      if (!listingData[field as keyof typeof listingData]) {
-        return {
-          success: false,
-          message: `${field} is required`,
-        };
-      }
+    if (!success) {
+      console.error("Validation Failed", error.message);
+      return {
+        success: false,
+        message: error.message,
+      };
     }
+
+    const { images, longitude, latitude, address, ...listingData } = data;
+
+    const addressId = (
+      await prisma.address.create({
+        data: {
+          formattedAddress: address,
+          longitude,
+          latitude,
+        },
+      })
+    ).id;
+
+    console.log("ADDRESS CREATED: ", addressId);
 
     // Create the listing in the database
     const listing = await prisma.listing.create({
       data: {
         ...listingData,
         userId,
+        addressId,
       },
     });
+
+    console.log("LISTING CREATED: ", listing);
 
     // Set up S3 client for image uploads
     const s3Client = new S3Client({
       region: env.AWS_S3_REGION,
       credentials: {
-        accessKeyId: env.AWS_S3_ACCESS_KEY_ID ?? "",
-        secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY ?? "",
+        accessKeyId: env.AWS_S3_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY,
       },
     });
 
     // Handle image uploads
-    const imageUrls = [];
-    const imageEntries = formData.getAll("images");
+    // Handle image uploads in parallel
+    const uploadPromises = images.map(async (image, index) => {
+      try {
+        const fileExtension = image.name.split(".").pop();
+        const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
+        const bucketName = env.AWS_S3_BUCKET_NAME;
 
-    if (imageEntries.length > 0) {
-      for (const image of imageEntries) {
-        if (image instanceof File) {
-          try {
-            // ✅ Validate using FileSchema
-            FileSchema.parse(image);
+        const arrayBuffer = await image.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-            const fileExtension = image.name.split(".").pop();
-            const uniqueFileName = `${listing.id}/${uuidv4()}.${fileExtension}`;
-            const bucketName = env.AWS_S3_BUCKET_NAME;
+        const command = new PutObjectCommand({
+          Bucket: bucketName,
+          Key: uniqueFileName,
+          Body: buffer,
+          ContentType: image.type,
+        });
 
-            // Convert file to buffer for S3 upload
-            const arrayBuffer = await image.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
+        await s3Client.send(command);
 
-            // Upload to S3
-            const command = new PutObjectCommand({
-              Bucket: bucketName,
-              Key: uniqueFileName,
-              Body: buffer,
-              ContentType: image.type,
-            });
+        const imageUrl = `https://${bucketName}.s3.${env.AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
 
-            await s3Client.send(command);
-
-            // Create the S3 URL
-            const imageUrl = `https://${bucketName}.s3.${env.AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
-            imageUrls.push(imageUrl);
-
-            // Create image record in database
-            await prisma.image.create({
-              data: {
-                url: imageUrl,
-                listingId: listing.id,
-              },
-            });
-
-            console.log("Image uploaded:", imageUrl);
-          } catch (error) {
-            if (error instanceof ZodError) {
-              console.warn("File validation failed:", error.errors);
-              return {
-                success: false,
-                message: `Invalid image: ${error.errors[0].message}`,
-              };
-            } else {
-              console.error("Unexpected file validation/upload error:", error);
-              return {
-                success: false,
-                message: "Something went wrong during image upload",
-              };
-            }
-          }
-        }
+        return {
+          url: imageUrl,
+          listingId: listing.id,
+          order: index, // Maintain order if needed
+        };
+      } catch (error) {
+        console.error(`Failed to upload image ${image.name}:`, error);
+        throw new Error(`Failed to upload image: ${image.name}`);
       }
-    }
+    });
 
+    // Wait for all uploads to complete
+    const uploadResults = await Promise.all(uploadPromises);
+
+    // Batch insert all images to database
+    await prisma.image.createMany({
+      data: uploadResults,
+    });
+
+    console.log(`Successfully uploaded ${uploadResults.length} images`);
     revalidatePath("/listings");
-
+    console.log("MODERATING THE LISTING:");
     moderateListingAction(listing.id).catch((e) => {
       console.error("Error running background moderation:", e);
     });

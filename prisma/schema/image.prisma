@@ -4,6 +4,7 @@ model Image {
 
     listingId Int     @map("listing_id")
     listing   Listing @relation(fields: [listingId], references: [id])
+    order     Int
 
     createdAt DateTime @default(now()) @map("created_at")
 }

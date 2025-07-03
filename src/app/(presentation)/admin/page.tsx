@@ -76,6 +76,7 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
         orderBy: { id: "asc" },
       },
       user: true,
+      address: true,
       reports: {
         orderBy: { createdAt: "desc" },
       },

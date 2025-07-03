@@ -5,6 +5,17 @@ export type ListingWithImages = Prisma.ListingGetPayload<{
     images: true;
   };
 }>;
+export type ListingWithAddress = Prisma.ListingGetPayload<{
+  include: {
+    address: true;
+  };
+}>;
+export type ListingWithImagesAndAddress = Prisma.ListingGetPayload<{
+  include: {
+    images: true;
+    address: true;
+  };
+}>;
 export type UserWithListingsAndReviews = Prisma.UserGetPayload<{
   include: {
     listings: {

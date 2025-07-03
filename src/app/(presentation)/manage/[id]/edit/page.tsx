@@ -13,6 +13,7 @@ export default async function EditListingPage(props: AwaitedPageProps) {
     },
     include: {
       images: true,
+      address: true,
     },
   });
 

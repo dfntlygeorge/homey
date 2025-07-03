@@ -1,12 +1,12 @@
 "use client";
 
-import { AwaitedPageProps, ListingWithImages } from "@/config/types";
+import { AwaitedPageProps, ListingWithImagesAndAddress } from "@/config/types";
 import { ListingCard } from "./listing-card";
 import { EXCLUDED_KEYS } from "@/config/constants";
 import { EmptyListingMessage } from "./empty-listing-message";
 
 interface ListingsContainerProps {
-  listings: ListingWithImages[]; // Previously Promise<ListingWIthImages[]>
+  listings: ListingWithImagesAndAddress[]; // Previously Promise<ListingWIthImages[]>
   favourites: number[];
   searchParams: AwaitedPageProps["searchParams"];
 }

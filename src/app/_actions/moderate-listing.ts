@@ -8,6 +8,7 @@ import { ListingStatus } from "@prisma/client";
 import { moderateImageFromS3 } from "./rekognition";
 
 export const moderateListingAction = async (listingId: number) => {
+  console.log("moderateListingAction was called");
   // Prepare text moderation promise
   const listing = await prisma.listing.findUnique({
     where: {
@@ -15,10 +16,13 @@ export const moderateListingAction = async (listingId: number) => {
     },
     include: {
       images: true,
+      address: true,
     },
   });
 
   if (!listing) return;
+
+  console.log("THESE IS A LISTING: ", listing.title);
 
   const textModerationPromise = (async () => {
     const prompt = MODERATION_PROMPT(listing);
@@ -26,6 +30,7 @@ export const moderateListingAction = async (listingId: number) => {
 
     if (!response.text) {
       // fallback if no text
+      console.log("GEMINI ERROR?");
       return { action: "manual_review", reason: "No AI response" };
     }
 
