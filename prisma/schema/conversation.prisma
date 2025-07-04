@@ -1,0 +1,18 @@
+model Conversation {
+    id        Int    @id @default(autoincrement())
+    listingId Int
+    renterId  String
+    ownerId   String
+
+    listing Listing @relation(fields: [listingId], references: [id])
+    renter  User    @relation("RenterConversations", fields: [renterId], references: [id])
+    owner   User    @relation("OwnerConversations", fields: [ownerId], references: [id])
+
+    messages Message[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Add unique constraint to prevent duplicate conversations
+    @@unique([listingId, renterId, ownerId])
+}

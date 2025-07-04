@@ -9,10 +9,15 @@ model User {
 
     role UserRole?
 
-    listings      Listing[]
-    reviews       Review[]
-    notifications Notification[]
-    createdAt     DateTime       @default(now()) @map("created_at")
+    listings              Listing[]
+    reviews               Review[]
+    notifications         Notification[]
+    conversationsAsRenter Conversation[] @relation("RenterConversations")
+    conversationsAsOwner  Conversation[] @relation("OwnerConversations")
+
+    sentMessages     Message[] @relation("SentMessages")
+    receivedMessages Message[] @relation("ReceivedMessages")
+    createdAt        DateTime  @default(now()) @map("created_at")
 
     @@map("users")
 }

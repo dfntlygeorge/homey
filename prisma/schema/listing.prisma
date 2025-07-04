@@ -48,6 +48,7 @@ model Listing {
     images        Image[]
     notifications Notification[]
     reports       Report[]
+    conversations Conversation[]
 
     @@map("listings")
 }
