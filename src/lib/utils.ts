@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import debounce from "debounce"; // Debouncing limits how often a function runs, especially for events that happen quickly, like typing in a search box. It waits until the user stops typing for a set time before executing the function.
-import { ListingStatus } from "@prisma/client";
+import { ListingStatus, Review } from "@prisma/client";
 import { GenerateContentResponse } from "@google/genai";
 import { ModerationResponse } from "@/config/types";
 
@@ -118,4 +118,10 @@ export async function parseAiRawResponse(response: GenerateContentResponse) {
   const parsed: ModerationResponse = JSON.parse(cleaned);
 
   return parsed;
+}
+
+export function calculateAverageRating(reviews: Review[]) {
+  if (reviews.length === 0) return 0;
+  const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+  return totalRating / reviews.length;
 }

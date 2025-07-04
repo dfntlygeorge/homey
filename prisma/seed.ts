@@ -17,79 +17,102 @@ import { faker } from "@faker-js/faker";
 const imageUrl =
   "https://luxurylux.s3.ap-southeast-2.amazonaws.com/uploads/Online-House-Rental-Sites.jpg";
 
-async function seedListings(landlordId: string) {
-  const listings = Array.from({ length: 15 }, (_, i) => ({
-    title: faker.company.name(),
-    description: faker.lorem.paragraph(),
-    location: faker.location.city(),
-    rent:
-      faker.number.int({ min: 1000, max: 10000 }) -
-      (faker.number.int({ min: 1000, max: 10000 }) % 1000),
-    roomType: faker.helpers.arrayElement(Object.values(RoomType)),
-    slotsAvailable: faker.number.int({ min: 1, max: 10 }),
-    contact: faker.phone.number(),
+async function seedReviews() {
+  // Fetch all users and addresses
+  const users = await prisma.user.findMany({ select: { id: true } });
+  const addresses = await prisma.address.findMany({ select: { id: true } });
 
-    genderPolicy: faker.helpers.arrayElement(
-      Object.values(GenderPolicy)
-    ) as GenderPolicy,
-    status: faker.helpers.arrayElement(
-      Object.values(ListingStatus)
-    ) as ListingStatus,
-    curfew: faker.helpers.arrayElement(
-      Object.values(CurfewPolicy)
-    ) as CurfewPolicy,
-    laundry: faker.helpers.arrayElement(
-      Object.values(LaundryAvailability)
-    ) as LaundryAvailability,
-    caretaker: faker.helpers.arrayElement(
-      Object.values(CaretakerAvailability)
-    ) as CaretakerAvailability,
-    kitchen: faker.helpers.arrayElement(
-      Object.values(KitchenAvailability)
-    ) as KitchenAvailability,
-    wifi: faker.helpers.arrayElement(
-      Object.values(WifiAvailability)
-    ) as WifiAvailability,
-    utilities: faker.helpers.arrayElement(
-      Object.values(UtilityInclusion)
-    ) as UtilityInclusion,
-    pets: faker.helpers.arrayElement(Object.values(PetPolicy)) as PetPolicy,
+  if (users.length === 0) throw new Error("No users found in the database");
+  if (addresses.length === 0)
+    throw new Error("No addresses found in the database");
 
-    userId: landlordId,
+  const reviewsData = Array.from({ length: 13 }, () => ({
+    rating: faker.number.int({ min: 1, max: 5 }),
+    comment: faker.lorem.sentences({ min: 1, max: 3 }),
+
+    userId: faker.helpers.arrayElement(users).id,
+    addressId: faker.helpers.arrayElement(addresses).id,
   }));
 
-  await prisma.listing.createMany({ data: listings });
-  return await prisma.listing.findMany({
-    where: { userId: landlordId },
-    select: { id: true },
-  });
-}
-
-async function seedLandlord() {
-  const landlord = await prisma.user.findFirst();
-  if (!landlord) throw new Error("No users found in the database");
-
-  const updatedLandlord = await prisma.user.update({
-    where: { id: landlord.id },
-    data: { role: UserRole.LANDLORD },
+  await prisma.review.createMany({
+    data: reviewsData,
   });
 
-  return updatedLandlord;
+  console.log(`✅ Seeded ${reviewsData.length} reviews`);
 }
-async function seedImages(listings: { id: number }[]) {
-  const images = listings.flatMap((listing) =>
-    Array.from({ length: 5 }, (_, i) => ({
-      listingId: listing.id,
-      url: `${imageUrl}?${i}`,
-    }))
-  );
 
-  await prisma.image.createMany({ data: images });
-}
+// async function seedListings(landlordId: string) {
+//   const listings = Array.from({ length: 15 }, (_, i) => ({
+//     title: faker.company.name(),
+//     description: faker.lorem.paragraph(),
+//     location: faker.location.city(),
+//     rent:
+//       faker.number.int({ min: 1000, max: 10000 }) -
+//       (faker.number.int({ min: 1000, max: 10000 }) % 1000),
+//     roomType: faker.helpers.arrayElement(Object.values(RoomType)),
+//     slotsAvailable: faker.number.int({ min: 1, max: 10 }),
+//     contact: faker.phone.number(),
+
+//     genderPolicy: faker.helpers.arrayElement(
+//       Object.values(GenderPolicy)
+//     ) as GenderPolicy,
+//     status: faker.helpers.arrayElement(
+//       Object.values(ListingStatus)
+//     ) as ListingStatus,
+//     curfew: faker.helpers.arrayElement(
+//       Object.values(CurfewPolicy)
+//     ) as CurfewPolicy,
+//     laundry: faker.helpers.arrayElement(
+//       Object.values(LaundryAvailability)
+//     ) as LaundryAvailability,
+//     caretaker: faker.helpers.arrayElement(
+//       Object.values(CaretakerAvailability)
+//     ) as CaretakerAvailability,
+//     kitchen: faker.helpers.arrayElement(
+//       Object.values(KitchenAvailability)
+//     ) as KitchenAvailability,
+//     wifi: faker.helpers.arrayElement(
+//       Object.values(WifiAvailability)
+//     ) as WifiAvailability,
+//     utilities: faker.helpers.arrayElement(
+//       Object.values(UtilityInclusion)
+//     ) as UtilityInclusion,
+//     pets: faker.helpers.arrayElement(Object.values(PetPolicy)) as PetPolicy,
+
+//     userId: landlordId,
+//   }));
+
+//   await prisma.listing.createMany({ data: listings });
+//   return await prisma.listing.findMany({
+//     where: { userId: landlordId },
+//     select: { id: true },
+//   });
+// }
+
+// async function seedLandlord() {
+//   const landlord = await prisma.user.findFirst();
+//   if (!landlord) throw new Error("No users found in the database");
+
+//   const updatedLandlord = await prisma.user.update({
+//     where: { id: landlord.id },
+//     data: { role: UserRole.LANDLORD },
+//   });
+
+//   return updatedLandlord;
+// }
+// async function seedImages(listings: { id: number }[]) {
+//   const images = listings.flatMap((listing) =>
+//     Array.from({ length: 5 }, (_, i) => ({
+//       listingId: listing.id,
+//       url: `${imageUrl}?${i}`,
+//     }))
+//   );
+
+//   await prisma.image.createMany({ data: images });
+// }
 
 async function main() {
-  const listings = await prisma.listing.findMany();
-  await seedImages(listings);
+  await seedReviews();
 }
 
 main()

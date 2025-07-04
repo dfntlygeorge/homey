@@ -6,6 +6,7 @@ model Address {
     createdAt        DateTime @default(now()) @map("created_at")
 
     listings Listing[]
+    reviews  Review[]
 
     @@map("addresses")
 }

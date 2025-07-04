@@ -45,7 +45,6 @@ model Listing {
     updatedAt DateTime @updatedAt @map("updated_at")
 
     // Relations
-    reviews       Review[]
     images        Image[]
     notifications Notification[]
     reports       Report[]

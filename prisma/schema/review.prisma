@@ -5,8 +5,8 @@ model Review {
 
     userId    String  @map("user_id")
     user      User    @relation(fields: [userId], references: [id])
-    listingId Int     @map("listing_id")
-    listing   Listing @relation(fields: [listingId], references: [id])
+    addressId Int     @map("address_id")
+    address   Address @relation(fields: [addressId], references: [id])
 
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")

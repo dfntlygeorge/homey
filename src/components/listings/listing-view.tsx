@@ -1,4 +1,4 @@
-import { ListingWithImagesAndAddress } from "@/config/types";
+import { ListingWithImagesAndAddressAndReviews } from "@/config/types";
 import {
   UtensilsIcon,
   WifiIcon,
@@ -8,13 +8,14 @@ import {
   ClockIcon,
   WashingMachineIcon,
   UserCheckIcon,
+  StarIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Listing } from "@prisma/client";
 import { routes } from "@/config/routes";
 import { auth } from "@/auth";
-import { cn, formatEnumValue } from "@/lib/utils";
+import { calculateAverageRating, cn, formatEnumValue } from "@/lib/utils";
 import { ListingCarousel } from "./listing-carousel";
 import {
   Tooltip,
@@ -27,6 +28,7 @@ import { Suspense } from "react";
 import { MapSkeleton } from "./skeleton/map-skeleton";
 import { ListingDetailsSkeleton } from "./skeleton/listing-details-skeleton";
 import { MoreListingActions } from "./more-listing-actions";
+import { ReviewsModal } from "../reviews/reviews-modal";
 
 const features = (listing: Listing) => [
   {
@@ -145,8 +147,40 @@ const features = (listing: Listing) => [
     label: listing.pets === "ALLOWED" ? "Pets Allowed" : "No Pets Allowed",
   },
 ];
+// Helper function to render stars
+const renderStars = (rating: number) => {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.5;
 
-export const ListingView = async (props: ListingWithImagesAndAddress) => {
+  for (let i = 0; i < 5; i++) {
+    if (i < fullStars) {
+      stars.push(
+        <StarIcon key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+      );
+    } else if (i === fullStars && hasHalfStar) {
+      stars.push(
+        <div key={i} className="relative">
+          <StarIcon className="h-5 w-5 text-gray-300" />
+          <div
+            className="absolute inset-0 overflow-hidden"
+            style={{ width: "50%" }}
+          >
+            <StarIcon className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+          </div>
+        </div>
+      );
+    } else {
+      stars.push(<StarIcon key={i} className="h-5 w-5 text-gray-300" />);
+    }
+  }
+
+  return stars;
+};
+
+export const ListingView = async (
+  props: ListingWithImagesAndAddressAndReviews
+) => {
   const session = await auth();
   const {
     images,
@@ -160,6 +194,9 @@ export const ListingView = async (props: ListingWithImagesAndAddress) => {
     contact,
   } = props;
 
+  const reviews = address.reviews || [];
+  const averageRating = calculateAverageRating(reviews);
+  const reviewCount = reviews.length;
   return (
     <div className="relative min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6 lg:px-8">
@@ -208,6 +245,28 @@ export const ListingView = async (props: ListingWithImagesAndAddress) => {
                     {formatEnumValue(roomType)}
                   </p>
                 </div>
+
+                {/* Ratings and Reviews Section */}
+                {reviewCount > 0 && (
+                  <div className="border-b border-gray-100 pb-6 mb-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-1">
+                        {renderStars(averageRating)}
+                      </div>
+                      <span className="text-lg font-semibold text-gray-900">
+                        {averageRating.toFixed(1)}
+                      </span>
+                      <span className="text-gray-500">
+                        ({reviewCount}{" "}
+                        {reviewCount === 1 ? "review" : "reviews"})
+                      </span>
+                    </div>
+                    <ReviewsModal
+                      reviews={reviews}
+                      averageRating={averageRating}
+                    />
+                  </div>
+                )}
 
                 {/* Description */}
                 {description && (

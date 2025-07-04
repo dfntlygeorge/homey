@@ -10,10 +10,30 @@ export type ListingWithAddress = Prisma.ListingGetPayload<{
     address: true;
   };
 }>;
+
+export type ReviewWithUser = Prisma.ReviewGetPayload<{
+  include: {
+    user: true;
+  };
+}>;
 export type ListingWithImagesAndAddress = Prisma.ListingGetPayload<{
   include: {
     images: true;
     address: true;
+  };
+}>;
+export type ListingWithImagesAndAddressAndReviews = Prisma.ListingGetPayload<{
+  include: {
+    images: true;
+    address: {
+      include: {
+        reviews: {
+          include: {
+            user: true;
+          };
+        };
+      };
+    };
   };
 }>;
 export type UserWithListingsAndReviews = Prisma.UserGetPayload<{
