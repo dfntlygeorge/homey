@@ -29,6 +29,7 @@ import { MapSkeleton } from "./skeleton/map-skeleton";
 import { ListingDetailsSkeleton } from "./skeleton/listing-details-skeleton";
 import { MoreListingActions } from "./more-listing-actions";
 import { ReviewsModal } from "../reviews/reviews-modal";
+import { ReviewPrompt } from "../reviews/review-prompt";
 
 const features = (listing: Listing) => [
   {
@@ -197,6 +198,7 @@ export const ListingView = async (
   const reviews = address.reviews || [];
   const averageRating = calculateAverageRating(reviews);
   const reviewCount = reviews.length;
+  const addressId = address.id; // for testing
   return (
     <div className="relative min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6 lg:px-8">
@@ -346,6 +348,9 @@ export const ListingView = async (
           </div>
         </div>
       </div>
+
+      {/* FOR TESTING PURPOSES ONLY */}
+      <ReviewPrompt addressId={addressId} />
     </div>
   );
 };
