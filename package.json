@@ -71,7 +71,7 @@
     "typescript": "^5.8.3"
   },
   "prisma": {
-    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed/seed.ts",
     "schema": "./prisma/schema"
   }
 }
