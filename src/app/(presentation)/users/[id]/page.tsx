@@ -15,7 +15,11 @@ export default async function UserProfilePage(props: PageProps) {
       listings: {
         include: {
           images: true,
-          reviews: true,
+          address: {
+            include: {
+              reviews: true,
+            },
+          },
         },
         where: {
           status: "APPROVED", // Only show approved listings
@@ -26,13 +30,6 @@ export default async function UserProfilePage(props: PageProps) {
         },
       },
       reviews: {
-        include: {
-          listing: {
-            select: {
-              title: true,
-            },
-          },
-        },
         orderBy: {
           createdAt: "desc",
         },
@@ -40,15 +37,36 @@ export default async function UserProfilePage(props: PageProps) {
       _count: {
         select: {
           listings: true,
-          reviews: true,
         },
       },
     },
   });
 
   if (!user) {
+    console.log("NOT FOUND");
     notFound();
   }
 
-  return <UserProfileView user={user} />;
+  let totalReviews = 0;
+  let totalRatingSum = 0;
+
+  user.listings.forEach((listing) => {
+    const reviews = listing.address?.reviews || [];
+
+    totalReviews += reviews.length;
+    totalRatingSum += reviews.reduce((sum, review) => sum + review.rating, 0);
+  });
+
+  const averageRating = totalReviews > 0 ? totalRatingSum / totalReviews : 0;
+
+  console.log("Total reviews received:", totalReviews);
+  console.log("Average rating:", averageRating.toFixed(2));
+
+  return (
+    <UserProfileView
+      user={user}
+      totalReviews={totalReviews}
+      averageRating={averageRating}
+    />
+  );
 }

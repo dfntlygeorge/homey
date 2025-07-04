@@ -3,16 +3,15 @@ import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
 import { Calendar, CheckCircle } from "lucide-react";
-import { UserWithListingsAndReviews } from "@/config/types";
+import { HATDOG } from "@/config/types";
 import { StarRating } from "./star-rating";
 import { ContactSection } from "./contact-section";
 import { UserStats } from "./user-stats";
 
 interface UserProfileHeaderProps {
-  user: UserWithListingsAndReviews & {
+  user: HATDOG & {
     _count: {
       listings: number;
-      reviews: number;
     };
   };
   avgRating: number;
@@ -56,7 +55,7 @@ export const UserProfileHeader = ({
             {/* User Info */}
             <div className="text-center space-y-2">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground ">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   {user.name || "Anonymous User"}
                 </h1>
                 {/* TODO: Replace with actual isVerified field */}
@@ -71,13 +70,19 @@ export const UserProfileHeader = ({
                 <span>Joined {joinDate}</span>
               </div>
 
-              {/* Rating */}
-              {totalReviews > 0 && (
-                <div className="flex items-center justify-center gap-2">
-                  <StarRating rating={avgRating} />
-                  <span className="text-sm text-muted-foreground">
-                    {avgRating.toFixed(1)} • {totalReviews} reviews
-                  </span>
+              {/* Overall Rating - only show if user has listings with reviews */}
+              {totalReviews > 0 && user.listings.length > 0 && (
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center justify-center gap-2">
+                    <StarRating rating={avgRating} />
+                    <span className="text-sm text-muted-foreground">
+                      {avgRating.toFixed(1)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Based on {totalReviews} review
+                    {totalReviews !== 1 ? "s" : ""} across all listings
+                  </p>
                 </div>
               )}
             </div>
@@ -94,7 +99,6 @@ export const UserProfileHeader = ({
       <UserStats
         listingCount={user._count.listings}
         reviewCount={totalReviews}
-        joinDate={joinDate}
         totalViews={totalViews}
       />
     </div>

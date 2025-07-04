@@ -1,16 +1,25 @@
 "use client";
 
-import { ListingWithImagesAndAddress } from "@/config/types";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { routes } from "@/config/routes";
-import { MapPin, BadgeDollarSign, Bed, Users, Eye } from "lucide-react";
+import { MapPin, BadgeDollarSign, Bed, Users, Eye, Star } from "lucide-react";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 
 interface UserListingCardProps {
-  listing: ListingWithImagesAndAddress;
+  listing: Prisma.ListingGetPayload<{
+    include: {
+      images: true;
+      address: {
+        include: {
+          reviews: true;
+        };
+      };
+    };
+  }>;
 }
 
 export const UserListingCard = ({ listing }: UserListingCardProps) => {
@@ -24,6 +33,13 @@ export const UserListingCard = ({ listing }: UserListingCardProps) => {
     slotsAvailable,
     viewCount,
   } = listing;
+
+  const reviews = address.reviews || [];
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+      : 0;
+  const reviewCount = reviews.length;
 
   return (
     <div className="flex bg-background border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 h-32">
@@ -74,9 +90,21 @@ export const UserListingCard = ({ listing }: UserListingCardProps) => {
 
         {/* Bottom Section */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Eye className="w-3 h-3" />
-            <span>{viewCount || 0} views</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>{viewCount || 0} views</span>
+            </div>
+
+            {/* Rating Display */}
+            {reviewCount > 0 && (
+              <div className="flex items-center gap-1">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-yellow-600 font-medium">
+                  {averageRating.toFixed(1)} ({reviewCount})
+                </span>
+              </div>
+            )}
           </div>
 
           <Button

@@ -1,25 +1,24 @@
 "use client";
 
-import { UserWithListingsAndReviews } from "@/config/types";
+import { HATDOG } from "@/config/types";
 import { UserProfileHeader } from "./user-profile-header";
 import { UserListings } from "./user-listings";
-import { UserReviews } from "./user-reviews";
 
 interface UserProfileViewProps {
-  user: UserWithListingsAndReviews & {
+  user: HATDOG & {
     _count: {
       listings: number;
-      reviews: number;
     };
   };
+  totalReviews: number;
+  averageRating: number;
 }
-export const UserProfileView = ({ user }: UserProfileViewProps) => {
-  const avgRating =
-    user.reviews.length > 0
-      ? user.reviews.reduce((sum, review) => sum + review.rating, 0) /
-        user.reviews.length
-      : 0;
 
+export const UserProfileView = ({
+  user,
+  totalReviews,
+  averageRating,
+}: UserProfileViewProps) => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -28,15 +27,14 @@ export const UserProfileView = ({ user }: UserProfileViewProps) => {
           <div className="lg:col-span-1">
             <UserProfileHeader
               user={user}
-              avgRating={avgRating}
-              totalReviews={user.reviews.length}
+              avgRating={averageRating}
+              totalReviews={totalReviews}
             />
           </div>
 
-          {/* Right Column - Listings & Reviews */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Right Column - Listings (Full Width) */}
+          <div className="lg:col-span-2">
             <UserListings listings={user.listings} />
-            <UserReviews reviews={user.reviews} />
           </div>
         </div>
       </div>

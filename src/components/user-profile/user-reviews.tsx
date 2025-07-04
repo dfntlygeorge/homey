@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { ReviewWithListingTitle } from "@/config/types";
+// import { ReviewWithListingTitle } from "@/config/types";
 import { StarRating } from "./star-rating";
+import { Review } from "@prisma/client";
 
 interface UserReviewsProps {
-  reviews: ReviewWithListingTitle[];
+  reviews: Review[];
 }
 
 export const UserReviews = ({ reviews }: UserReviewsProps) => {
@@ -42,7 +43,7 @@ export const UserReviews = ({ reviews }: UserReviewsProps) => {
                   <div>
                     <StarRating rating={review.rating} size="sm" />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Review for &quot;{review.listing.title}&quot;
+                      Review for &quot;{"PLACEHOLDER"}&quot;
                     </p>
                   </div>
                   <span className="text-xs text-muted-foreground">
