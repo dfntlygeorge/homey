@@ -39,6 +39,21 @@ export default async function ChatsPage(props: PageProps) {
   const activeConversation = id
     ? conversations.find((conv) => conv.id === Number(id))
     : null;
+
+  // Handle the seen messages update for active conversation
+  if (activeConversation) {
+    await prisma.message.updateMany({
+      where: {
+        isSeen: false,
+        conversationId: activeConversation.id,
+        receiverId: userId,
+      },
+      data: {
+        isSeen: true,
+      },
+    });
+  }
+
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
       {/* Chat List */}
@@ -55,7 +70,10 @@ export default async function ChatsPage(props: PageProps) {
         className={`flex-1 flex flex-col ${!id ? "hidden md:flex" : "flex"}`}
       >
         {activeConversation ? (
-          <ChatWindow conversation={activeConversation} />
+          <ChatWindow
+            conversation={activeConversation}
+            currentUserId={userId}
+          />
         ) : (
           <div className="hidden md:flex flex-1 items-center justify-center text-gray-500">
             Select a conversation

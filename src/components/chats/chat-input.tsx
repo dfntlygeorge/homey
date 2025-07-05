@@ -5,13 +5,22 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Send } from "lucide-react";
 import { createMessage } from "@/app/_actions/create-message";
+import { socket } from "@/socket";
+import { Message } from "@prisma/client";
 
 interface ChatInputProps {
   conversationId: number;
   receiverId: string;
+  currentUserId: string;
+  onOptimisticMessage?: (message: Message & { isPending: boolean }) => void;
 }
 
-export const ChatInput = ({ conversationId, receiverId }: ChatInputProps) => {
+export const ChatInput = ({
+  conversationId,
+  receiverId,
+  currentUserId,
+  onOptimisticMessage,
+}: ChatInputProps) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -25,6 +34,24 @@ export const ChatInput = ({ conversationId, receiverId }: ChatInputProps) => {
     // Clear input immediately for better UX
     setMessage("");
 
+    // Create optimistic message
+    const optimisticMessage = {
+      id: Date.now(), // Temporary ID
+      text: messageText,
+      senderId: currentUserId,
+      receiverId: receiverId,
+      conversationId: conversationId,
+      isDelivered: false, // Mark as not delivered initially
+      isSeen: false,
+      createdAt: new Date(),
+      isPending: true, // Flag to show "Sending..." status
+    };
+
+    // Add optimistic message immediately
+    if (onOptimisticMessage) {
+      onOptimisticMessage(optimisticMessage);
+    }
+
     startTransition(async () => {
       const result = await createMessage(
         conversationId,
@@ -36,6 +63,16 @@ export const ChatInput = ({ conversationId, receiverId }: ChatInputProps) => {
         setError(result.error);
         // Restore message text if there was an error
         setMessage(messageText);
+        // TODO: Remove optimistic message or mark as failed
+      } else {
+        // Emit socket event after successful DB save
+        socket.emit("send_message", {
+          text: messageText,
+          senderId: currentUserId,
+          receiverId: receiverId,
+          conversationId: conversationId,
+          isDelivered: true,
+        });
       }
     });
   };

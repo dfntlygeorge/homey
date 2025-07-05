@@ -4,41 +4,25 @@ import { socket } from "@/socket";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
-
+  const [reply, setReply] = useState<string | null>(null);
   useEffect(() => {
-    if (socket.connected) {
-      onConnect();
-    }
+    socket.connect();
 
-    function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
+    socket.emit("send_message", {
+      text: "Hi there!",
+      conversationId: 1,
+      senderId: "123",
+    });
 
-      socket.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
-    }
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-
+    socket.on("new_message", (data) => {
+      console.log(data);
+      setReply(data.text);
+    });
     return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
+      socket.off("new_message");
+      socket.disconnect();
     };
   }, []);
 
-  return (
-    <div>
-      <p>Status: {isConnected ? "connected" : "disconnected"}</p>
-      <p>Transport: {transport}</p>
-    </div>
-  );
+  return <div>{reply}</div>;
 }

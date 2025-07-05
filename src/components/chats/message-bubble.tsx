@@ -5,7 +5,7 @@ import { Message, User } from "@prisma/client";
 import Image from "next/image";
 
 interface MessageBubbleProps {
-  message: Message;
+  message: Message & { isPending?: boolean }; // Add isPending flag
   isCurrentUser: boolean;
   otherUser: User;
   isLastMessageFromCurrentUser: boolean;
@@ -19,8 +19,6 @@ export const MessageBubble = ({
   isLastMessageFromCurrentUser,
   isLastSeenMessage,
 }: MessageBubbleProps) => {
-  console.log("IS LAST MESSAGE: ", isLastMessageFromCurrentUser);
-  console.log("IS CURRENT USER: ", isCurrentUser);
   const defaultAvatar =
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face";
 
@@ -53,7 +51,6 @@ export const MessageBubble = ({
         )}
 
         {/* Message Bubble Container with proper spacing */}
-        {/* Message Bubble Container - Wrapper for bubble and timestamp */}
         <div className="flex flex-col gap-1">
           {/* Message Bubble */}
           <div
@@ -61,7 +58,7 @@ export const MessageBubble = ({
               isCurrentUser
                 ? "bg-blue-500 text-white rounded-br-md"
                 : "bg-gray-200 text-gray-900 rounded-bl-md"
-            }`}
+            } ${message.isPending ? "opacity-70" : ""}`}
           >
             <p className="text-sm whitespace-pre-wrap break-words">
               {message.text}
@@ -89,8 +86,11 @@ export const MessageBubble = ({
                 isCurrentUser ? "justify-end" : "justify-start"
               }`}
             >
-              {/* Show seen indicator on the last seen message */}
-              {isLastSeenMessage ? (
+              {/* Show sending status for pending messages */}
+              {message.isPending ? (
+                <div className="text-[11px] text-gray-400">Sending...</div>
+              ) : /* Show seen indicator on the last seen message */
+              isLastSeenMessage ? (
                 <div className="flex items-center gap-1 group/seen relative">
                   <div className="w-4 h-4 rounded-full overflow-hidden">
                     <Image
