@@ -33,7 +33,6 @@ export const ChatItem = ({
 
   // Get the most recent message
   const recentMessage = conversation.messages[0];
-  console.log(conversation.listing.images[0]?.url);
 
   // Get listing image or fallback
   const listingImage =

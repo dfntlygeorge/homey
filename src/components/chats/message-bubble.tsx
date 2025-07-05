@@ -9,6 +9,7 @@ interface MessageBubbleProps {
   isCurrentUser: boolean;
   otherUser: User;
   isLastMessageFromCurrentUser: boolean;
+  isLastSeenMessage: boolean;
 }
 
 export const MessageBubble = ({
@@ -16,6 +17,7 @@ export const MessageBubble = ({
   isCurrentUser,
   otherUser,
   isLastMessageFromCurrentUser,
+  isLastSeenMessage,
 }: MessageBubbleProps) => {
   console.log("IS LAST MESSAGE: ", isLastMessageFromCurrentUser);
   console.log("IS CURRENT USER: ", isCurrentUser);
@@ -27,6 +29,7 @@ export const MessageBubble = ({
 
   // Format time ago for "Sent" status
   const timeAgo = formatTimeAgo(message.createdAt);
+
   return (
     <div className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} `}>
       <div
@@ -79,14 +82,37 @@ export const MessageBubble = ({
             </span>
           </div>
 
-          {/* Sent Status - Below the bubble */}
-          {isCurrentUser && isLastMessageFromCurrentUser && (
+          {/* Status - Below the bubble */}
+          {isCurrentUser && (
             <div
-              className={`text-[11px] text-gray-400 px-1 ${
-                isCurrentUser ? "text-right" : "text-left"
+              className={`flex items-center gap-1 px-1 ${
+                isCurrentUser ? "justify-end" : "justify-start"
               }`}
             >
-              {timeAgo}
+              {/* Show seen indicator on the last seen message */}
+              {isLastSeenMessage ? (
+                <div className="flex items-center gap-1 group/seen relative">
+                  <div className="w-4 h-4 rounded-full overflow-hidden">
+                    <Image
+                      src={otherUser.image || defaultAvatar}
+                      alt={otherUser.name || "User"}
+                      width={16}
+                      height={16}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Seen tooltip */}
+                  <div className="absolute bottom-full right-0 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover/seen:opacity-100 transition-opacity duration-200 z-10">
+                    Seen by {otherUser.name} at {formattedTime}
+                  </div>
+                </div>
+              ) : (
+                /* Show sent status only on the last delivered message */
+                isLastMessageFromCurrentUser && (
+                  <div className="text-[11px] text-gray-400">{timeAgo}</div>
+                )
+              )}
             </div>
           )}
         </div>

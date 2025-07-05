@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { MessageList } from "./message-list";
 import { ChatInput } from "./chat-input";
+import prisma from "@/lib/prisma";
 
 interface ChatWindowProps {
   conversation:
@@ -41,6 +42,18 @@ export const ChatWindow = async ({ conversation }: ChatWindowProps) => {
     );
   }
   if (!conversation) return; // Empty state message
+  // SIMPLE SEEN SYSTEM
+  await prisma.message.updateMany({
+    where: {
+      isSeen: false,
+      // isDelivered: true,
+      conversationId: conversation.id,
+      receiverId: currentUserId,
+    },
+    data: {
+      isSeen: true,
+    },
+  });
 
   // Get the other user
   const otherUser =

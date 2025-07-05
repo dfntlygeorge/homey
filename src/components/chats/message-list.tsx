@@ -92,6 +92,9 @@ export const MessageList = ({
     );
   }
   const lastDeliveredMessage = sortedMessages.findLast((m) => m.isDelivered);
+  const lastSeenMessage = sortedMessages.findLast(
+    (m) => m.senderId === currentUserId && m.isSeen
+  );
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -111,6 +114,7 @@ export const MessageList = ({
                 lastDeliveredMessage?.id === message.id;
               const isLastMessageFromCurrentUser =
                 isLastDeliveredMessage && message.senderId === currentUserId;
+              const isLastSeenMessage = lastSeenMessage?.id === message.id;
 
               return (
                 <MessageBubble
@@ -119,6 +123,7 @@ export const MessageList = ({
                   isCurrentUser={message.senderId === currentUserId}
                   otherUser={otherUser}
                   isLastMessageFromCurrentUser={isLastMessageFromCurrentUser}
+                  isLastSeenMessage={isLastSeenMessage}
                 />
               );
             })}
