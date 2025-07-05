@@ -34,7 +34,7 @@ export default async function ChatsLayout({ children }: PropsWithChildren) {
   });
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
       {/* Chat List - Always visible on desktop, full screen on mobile */}
       <div className="w-full md:w-80 md:border-r md:border-gray-200 bg-white">
         <ChatList conversations={conversations} currentUserId={userId} />

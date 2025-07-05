@@ -17,10 +17,25 @@ export const MessageList = ({
   otherUser,
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom only if user is near the bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Check if user is near the bottom (within 100px)
+    const isNearBottom =
+      container.scrollTop + container.clientHeight >=
+      container.scrollHeight - 100;
+
+    // Only scroll if user is near bottom
+    if (isNearBottom) {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
   }, [messages]);
 
   // Sort messages by creation time (old to newest)
@@ -78,7 +93,7 @@ export const MessageList = ({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-6">
+    <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-6">
       {messageGroups.map((group, groupIndex) => (
         <div key={groupIndex} className="space-y-3">
           {/* Timestamp */}

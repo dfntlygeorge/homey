@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { MessageList } from "./message-list";
+import { ChatInput } from "./chat-input";
 
 interface ChatWindowProps {
   conversation: Prisma.ConversationGetPayload<{
@@ -44,9 +45,9 @@ export const ChatWindow = async ({ conversation }: ChatWindowProps) => {
       : conversation.renter;
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-white">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-white">
+      {/* Fixed Header */}
+      <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
         <div className="flex items-center">
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -59,13 +60,18 @@ export const ChatWindow = async ({ conversation }: ChatWindowProps) => {
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-hidden">
+      {/* Scrollable Messages Area */}
+      <div className="flex-1 overflow-y-auto">
         <MessageList
           messages={conversation.messages}
           currentUserId={currentUserId}
           otherUser={otherUser}
         />
+      </div>
+
+      {/* Fixed Chat Input */}
+      <div className="flex-shrink-0">
+        <ChatInput conversationId={conversation.id} receiverId={otherUser.id} />
       </div>
     </div>
   );
