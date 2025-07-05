@@ -43,11 +43,14 @@ export const ChatItem = ({
   const formatTimestamp = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
+    const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (minutes < 60) {
+    if (seconds < 60) {
+      return "Just now";
+    } else if (minutes < 60) {
       return `${minutes}m`;
     } else if (hours < 24) {
       return `${hours}h`;
@@ -60,6 +63,23 @@ export const ChatItem = ({
   const truncateMessage = (text: string, maxLength: number = 60) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
+  };
+
+  const lastMessage = conversation.messages[0];
+  const isFromCurrentUser = lastMessage?.senderId === currentUserId;
+  const isUnread = lastMessage && !lastMessage.isSeen && !isFromCurrentUser;
+
+  // Format message text based on sender and seen status
+  const formatMessageText = () => {
+    if (!lastMessage) return "No messages yet";
+
+    if (isFromCurrentUser) {
+      // Case 1: Message from current user - prefix with "You:"
+      return `You: ${truncateMessage(lastMessage.text)}`;
+    } else {
+      // Case 2: Message from other user
+      return truncateMessage(lastMessage.text);
+    }
   };
 
   return (
@@ -87,19 +107,23 @@ export const ChatItem = ({
           <h3 className="text-sm font-medium text-gray-900 truncate">
             {otherUser.name || "Unknown User"}
           </h3>
-          {recentMessage && (
-            <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-              {formatTimestamp(recentMessage.createdAt)}
-            </span>
-          )}
         </div>
 
         {/* Recent Message */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600 truncate">
-            {recentMessage
-              ? truncateMessage(recentMessage.text)
-              : "No messages yet"}
+          <p
+            className={`text-sm truncate ${
+              isUnread
+                ? "font-bold text-gray-900" // Bold for unread messages from other users
+                : "text-gray-600" // Normal weight for read messages or current user's messages
+            }`}
+          >
+            {formatMessageText()}
+            {recentMessage && (
+              <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
+                • {formatTimestamp(recentMessage.createdAt)}
+              </span>
+            )}
           </p>
         </div>
 
