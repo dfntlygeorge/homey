@@ -4,18 +4,21 @@ import { MessageList } from "./message-list";
 import { ChatInput } from "./chat-input";
 
 interface ChatWindowProps {
-  conversation: Prisma.ConversationGetPayload<{
-    include: {
-      renter: true;
-      owner: true;
-      messages: true;
-      listing: {
+  conversation:
+    | Prisma.ConversationGetPayload<{
         include: {
-          images: true;
+          renter: true;
+          owner: true;
+          messages: true;
+          listing: {
+            include: {
+              images: true;
+            };
+          };
         };
-      };
-    };
-  }>;
+      }>
+    | null
+    | undefined;
 }
 
 export const ChatWindow = async ({ conversation }: ChatWindowProps) => {
@@ -37,6 +40,7 @@ export const ChatWindow = async ({ conversation }: ChatWindowProps) => {
       </div>
     );
   }
+  if (!conversation) return; // Empty state message
 
   // Get the other user
   const otherUser =

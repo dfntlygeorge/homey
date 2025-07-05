@@ -1,7 +1,7 @@
 "use client";
 
 import { Prisma } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChatItem } from "./chat-item";
 
 interface ChatListProps {
@@ -22,9 +22,15 @@ interface ChatListProps {
 
 export const ChatList = ({ conversations, currentUserId }: ChatListProps) => {
   const router = useRouter();
+  const pathname = usePathname();
+  console.log(pathname);
+
+  const isChatPage = pathname.startsWith("/chats/") && pathname !== "/chats";
+
+  if (isChatPage) return;
 
   const handleChatClick = (conversationId: number) => {
-    router.push(`/chats/${conversationId}`);
+    router.push(`/chats?id=${conversationId}`);
   };
 
   return (
