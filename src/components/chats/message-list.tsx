@@ -9,12 +9,16 @@ interface MessageListProps {
   messages: Message[];
   currentUserId: string;
   otherUser: User;
+  lastDeliveredMessage?: Message;
+  lastSeenMessage?: Message;
 }
 
 export const MessageList = ({
   messages,
   currentUserId,
   otherUser,
+  lastDeliveredMessage,
+  lastSeenMessage,
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -91,10 +95,6 @@ export const MessageList = ({
       </div>
     );
   }
-  const lastDeliveredMessage = sortedMessages.findLast((m) => m.isDelivered);
-  const lastSeenMessage = sortedMessages.findLast(
-    (m) => m.senderId === currentUserId && m.isSeen
-  );
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-6">

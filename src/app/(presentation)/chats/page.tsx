@@ -40,20 +40,6 @@ export default async function ChatsPage(props: PageProps) {
     ? conversations.find((conv) => conv.id === Number(id))
     : null;
 
-  // Handle the seen messages update for active conversation
-  if (activeConversation) {
-    await prisma.message.updateMany({
-      where: {
-        isSeen: false,
-        conversationId: activeConversation.id,
-        receiverId: userId,
-      },
-      data: {
-        isSeen: true,
-      },
-    });
-  }
-
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
       {/* Chat List */}

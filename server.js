@@ -34,6 +34,17 @@ app.prepare().then(() => {
       io.to(`conversation_${data.conversationId}`).emit("new_message", data);
     });
 
+    socket.on("mark_messages_seen", (data) => {
+      console.log("Messages marked as seen:", data);
+
+      // Broadcast to all users in the conversation that messages have been seen
+      io.to(`conversation_${data.conversationId}`).emit("messages_seen", {
+        conversationId: data.conversationId,
+        seenByUserId: data.seenByUserId,
+        seenAt: data.seenAt,
+      });
+    });
+
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
     });
