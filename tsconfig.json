@@ -30,7 +30,8 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/components/edit-listing",
-    "src/context/edit-listing"
+    "src/context/edit-listing",
+    "server.js"
   ],
   "exclude": ["node_modules"]
 }
