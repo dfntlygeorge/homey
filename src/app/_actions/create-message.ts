@@ -38,6 +38,7 @@ export async function createMessage(
         senderId,
         receiverId,
         conversationId,
+        isDelivered: true,
       },
       include: {
         sender: {
@@ -51,7 +52,7 @@ export async function createMessage(
     });
 
     // Revalidate the page to show the new message
-    revalidatePath(`/chats/${conversation.id}`);
+    revalidatePath("/chats");
 
     return { success: true, message };
   } catch (error) {

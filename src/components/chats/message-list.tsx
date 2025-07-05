@@ -91,6 +91,7 @@ export const MessageList = ({
       </div>
     );
   }
+  const lastDeliveredMessage = sortedMessages.findLast((m) => m.isDelivered);
 
   return (
     <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -105,14 +106,22 @@ export const MessageList = ({
 
           {/* Messages in this group */}
           <div className="space-y-2">
-            {group.messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isCurrentUser={message.senderId === currentUserId}
-                otherUser={otherUser}
-              />
-            ))}
+            {group.messages.map((message) => {
+              const isLastDeliveredMessage =
+                lastDeliveredMessage?.id === message.id;
+              const isLastMessageFromCurrentUser =
+                isLastDeliveredMessage && message.senderId === currentUserId;
+
+              return (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isCurrentUser={message.senderId === currentUserId}
+                  otherUser={otherUser}
+                  isLastMessageFromCurrentUser={isLastMessageFromCurrentUser}
+                />
+              );
+            })}
           </div>
         </div>
       ))}

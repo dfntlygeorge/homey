@@ -4,6 +4,7 @@ import debounce from "debounce"; // Debouncing limits how often a function runs,
 import { ListingStatus, Review } from "@prisma/client";
 import { GenerateContentResponse } from "@google/genai";
 import { ModerationResponse } from "@/config/types";
+import { format, isToday, isYesterday, isThisWeek, isThisYear } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -125,3 +126,78 @@ export function calculateAverageRating(reviews: Review[]) {
   const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
   return totalRating / reviews.length;
 }
+
+export const formatTimeAgo = (date: Date | string): string => {
+  const now = new Date();
+  const messageDate = new Date(date);
+  const diffInSeconds = Math.floor(
+    (now.getTime() - messageDate.getTime()) / 1000
+  );
+
+  // Less than a minute
+  if (diffInSeconds < 60) {
+    return "Sent now";
+  }
+
+  // Less than an hour
+  if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `Sent ${minutes}m ago`;
+  }
+
+  // Less than a day
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `Sent ${hours}h ago`;
+  }
+
+  // Less than a week
+  if (diffInSeconds < 604800) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `Sent ${days}d ago`;
+  }
+
+  // Less than a month (30 days)
+  if (diffInSeconds < 2592000) {
+    const weeks = Math.floor(diffInSeconds / 604800);
+    return `Sent ${weeks}w ago`;
+  }
+
+  // Less than a year
+  if (diffInSeconds < 31536000) {
+    const months = Math.floor(diffInSeconds / 2592000);
+    return `Sent ${months}mo ago`;
+  }
+
+  // More than a year
+  const years = Math.floor(diffInSeconds / 31536000);
+  return `Sent ${years}y ago`;
+};
+
+// Format timestamp for hover display (shows date context when needed)
+export const formatHoverTimestamp = (date: Date | string): string => {
+  const messageDate = new Date(date);
+
+  // Today: show just time
+  if (isToday(messageDate)) {
+    return format(messageDate, "h:mm a");
+  }
+
+  // Yesterday: show "Yesterday" + time
+  if (isYesterday(messageDate)) {
+    return `Yesterday ${format(messageDate, "h:mm a")}`;
+  }
+
+  // This week: show day name + time
+  if (isThisWeek(messageDate)) {
+    return format(messageDate, "EEEE h:mm a"); // e.g., "Monday 2:30 PM"
+  }
+
+  // This year: show month/day + time
+  if (isThisYear(messageDate)) {
+    return format(messageDate, "MMM d, h:mm a"); // e.g., "Jan 15, 2:30 PM"
+  }
+
+  // Different year: show full date + time
+  return format(messageDate, "MMM d, yyyy h:mm a"); // e.g., "Jan 15, 2023 2:30 PM"
+};
