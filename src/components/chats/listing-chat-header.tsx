@@ -4,8 +4,8 @@ import { Prisma, User } from "@prisma/client";
 import { useReservationStatus } from "@/hooks/useReservationStatus";
 import { ChatPartnerInfo } from "./chat-partner-info";
 import { ReservationStatusIndicator } from "./reservation-status-indicator";
-import { ReservationActionButtons } from "./reservation-action-buttons";
 import { ListingPreview } from "./chat-listing-preview";
+import { ReservationActionButtons } from "./reservation-action-buttons";
 
 interface ListingChatHeaderProps {
   listing: Prisma.ListingGetPayload<{
@@ -38,6 +38,7 @@ export const ListingChatHeader = ({
       isOwner={isOwner}
       reservationStatus={reservationData.reservationStatus}
       hasPendingReservation={reservationData.hasPendingReservation}
+      isLoadingStatus={reservationData.isLoadingStatus}
       isReserving={reservationData.isReserving}
       isDeclining={reservationData.isDeclining}
       isAccepting={reservationData.isAccepting}

@@ -6,6 +6,7 @@ interface ReservationActionButtonsProps {
   isOwner: boolean;
   reservationStatus: ReservationStatus | null;
   hasPendingReservation: boolean;
+  isLoadingStatus: boolean;
   isReserving: boolean;
   isDeclining: boolean;
   isAccepting: boolean;
@@ -19,6 +20,7 @@ export const ReservationActionButtons = ({
   isOwner,
   reservationStatus,
   hasPendingReservation,
+  isLoadingStatus,
   isReserving,
   isDeclining,
   isAccepting,
@@ -27,6 +29,14 @@ export const ReservationActionButtons = ({
   onDecline,
   onAccept,
 }: ReservationActionButtonsProps) => {
+  // Don't show buttons while loading status
+  if (isLoadingStatus) {
+    return (
+      <div className="min-w-0 px-2 sm:px-3 py-1.5">
+        <div className="w-4 h-4 border border-zinc-300 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   if (isOwner) {
     // Owner sees accept/decline buttons only if there's a pending reservation
     if (hasPendingReservation && reservationStatus === "PENDING") {

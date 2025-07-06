@@ -28,11 +28,13 @@ export const useReservationStatus = ({
   const [reservationStatus, setReservationStatus] =
     useState<ReservationStatus | null>(null);
   const [hasPendingReservation, setHasPendingReservation] = useState(false);
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
 
   // Check for existing reservation on mount
   useEffect(() => {
     const checkReservation = async () => {
       try {
+        setIsLoadingStatus(true);
         if (isOwner) {
           const result = await checkOwnerReservationStatus(
             listingId,
@@ -51,6 +53,8 @@ export const useReservationStatus = ({
         }
       } catch (error) {
         console.error("Error checking reservation:", error);
+      } finally {
+        setIsLoadingStatus(false);
       }
     };
 
@@ -143,6 +147,7 @@ export const useReservationStatus = ({
   return {
     reservationStatus,
     hasPendingReservation,
+    isLoadingStatus,
     isReserving,
     isDeclining,
     isAccepting,
