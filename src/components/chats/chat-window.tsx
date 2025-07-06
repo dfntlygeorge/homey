@@ -11,7 +11,22 @@ import {
   checkExistingReview,
   checkReviewPromptEligibility,
 } from "@/app/_actions/reserve";
-import { ReviewSystemMessage } from "../reviews/review-system-message";
+
+// System message type
+export interface SystemMessage {
+  id: string;
+  type: "review_prompt" | "review_submitted";
+  createdAt: Date;
+  data: {
+    addressId?: number;
+    listingTitle?: string;
+    existingReview?: {
+      id: number;
+      rating: number;
+      comment: string;
+    } | null;
+  };
+}
 
 interface ChatWindowProps {
   conversation: Prisma.ConversationGetPayload<{
@@ -36,12 +51,7 @@ export const ChatWindow = ({
   currentUserId,
 }: ChatWindowProps) => {
   const [messages, setMessages] = useState(conversation.messages || []);
-  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
-  const [existingReview, setExistingReview] = useState<{
-    id: number;
-    rating: number;
-    comment: string;
-  } | null>(null);
+  const [systemMessages, setSystemMessages] = useState<SystemMessage[]>([]);
 
   // Check if current user is the renter
   const isRenter = conversation.renterId === currentUserId;
@@ -91,11 +101,30 @@ export const ChatWindow = ({
         );
 
         if (reviewResult.success) {
-          if (reviewResult.hasReview) {
-            setExistingReview(reviewResult.review);
-            setShowReviewPrompt(true);
-          } else {
-            setShowReviewPrompt(true);
+          const systemMessageId = `review_${conversation.listing.address.id}_${currentUserId}`;
+
+          // Check if we already have a system message for this review
+          const existingSystemMessage = systemMessages.find(
+            (msg) => msg.id === systemMessageId
+          );
+
+          if (!existingSystemMessage) {
+            const newSystemMessage: SystemMessage = {
+              id: systemMessageId,
+              type: reviewResult.hasReview
+                ? "review_submitted"
+                : "review_prompt",
+              createdAt: new Date(),
+              data: {
+                addressId: conversation.listing.address.id,
+                listingTitle: conversation.listing.title,
+                existingReview: reviewResult.hasReview
+                  ? reviewResult.review
+                  : null,
+              },
+            };
+
+            setSystemMessages((prev) => [...prev, newSystemMessage]);
           }
         }
       }
@@ -107,7 +136,45 @@ export const ChatWindow = ({
     conversation.listing.id,
     conversation.listing.address?.id,
     currentUserId,
+    systemMessages,
+    conversation.listing.title,
   ]);
+
+  // Handle review submission success
+  const handleReviewSubmitted = useCallback(
+    (reviewData: { rating: number; comment: string }) => {
+      if (!conversation.listing.address?.id) return;
+
+      const systemMessageId = `review_${conversation.listing.address.id}_${currentUserId}`;
+
+      setSystemMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === systemMessageId
+            ? {
+                ...msg,
+                type: "review_submitted" as const,
+                data: {
+                  ...msg.data,
+                  existingReview: {
+                    id: Date.now(), // Temporary ID
+                    rating: reviewData.rating,
+                    comment: reviewData.comment,
+                  },
+                },
+              }
+            : msg
+        )
+      );
+    },
+    [conversation.listing.address?.id, currentUserId]
+  );
+
+  // Handle system message dismissal
+  const handleDismissSystemMessage = useCallback((systemMessageId: string) => {
+    setSystemMessages((prev) =>
+      prev.filter((msg) => msg.id !== systemMessageId)
+    );
+  }, []);
 
   useEffect(() => {
     // Update messages when conversation changes
@@ -236,10 +303,6 @@ export const ChatWindow = ({
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )[0];
 
-  const handleDismissReviewPrompt = () => {
-    setShowReviewPrompt(false);
-  };
-
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-white">
       {/* Listing Context Header */}
@@ -249,24 +312,17 @@ export const ChatWindow = ({
         otherUser={otherUser}
       />
 
-      {/* Review System Message - Only show for renters */}
-      {showReviewPrompt && isRenter && conversation.listing.address?.id && (
-        <ReviewSystemMessage
-          addressId={conversation.listing.address.id}
-          listingTitle={conversation.listing.title}
-          onDismiss={handleDismissReviewPrompt}
-          existingReview={existingReview}
-        />
-      )}
-
       {/* Scrollable Messages Area */}
       <div className="flex-1 overflow-y-auto">
         <MessageList
           messages={messages}
+          systemMessages={systemMessages}
           currentUserId={currentUserId}
           otherUser={otherUser}
           lastDeliveredMessage={lastDeliveredMessage}
           lastSeenMessage={lastSeenMessage}
+          onReviewSubmitted={handleReviewSubmitted}
+          onDismissSystemMessage={handleDismissSystemMessage}
         />
       </div>
 

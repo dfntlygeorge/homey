@@ -3,22 +3,35 @@
 import { Message, User } from "@prisma/client";
 import { useEffect, useRef } from "react";
 import { MessageBubble } from "./message-bubble";
+import { SystemMessageBubble } from "./system-message-bubble";
 import { formatMessageTimestamp } from "@/lib/message-utils";
+import { SystemMessage } from "./chat-window";
+
+// Combined message type for rendering
+type CombinedMessage =
+  | { type: "user"; data: Message }
+  | { type: "system"; data: SystemMessage };
 
 interface MessageListProps {
   messages: Message[];
+  systemMessages: SystemMessage[];
   currentUserId: string;
   otherUser: User;
   lastDeliveredMessage?: Message;
   lastSeenMessage?: Message;
+  onReviewSubmitted: (reviewData: { rating: number; comment: string }) => void;
+  onDismissSystemMessage: (systemMessageId: string) => void;
 }
 
 export const MessageList = ({
   messages,
+  systemMessages,
   currentUserId,
   otherUser,
   lastDeliveredMessage,
   lastSeenMessage,
+  onReviewSubmitted,
+  onDismissSystemMessage,
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,23 +53,43 @@ export const MessageList = ({
         block: "end",
       });
     }
-  }, [messages]);
+  }, [messages, systemMessages]);
 
-  // Sort messages by creation time (old to newest)
-  const sortedMessages = [...messages].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  );
+  // Combine and sort all messages by creation time
+  const combineAndSortMessages = (): CombinedMessage[] => {
+    const userMessages: CombinedMessage[] = messages.map((msg) => ({
+      type: "user" as const,
+      data: msg,
+    }));
+
+    const systemMessagesFormatted: CombinedMessage[] = systemMessages.map(
+      (msg) => ({
+        type: "system" as const,
+        data: msg,
+      })
+    );
+
+    const allMessages = [...userMessages, ...systemMessagesFormatted];
+
+    return allMessages.sort((a, b) => {
+      const timeA = new Date(a.data.createdAt).getTime();
+      const timeB = new Date(b.data.createdAt).getTime();
+      return timeA - timeB;
+    });
+  };
+
+  const sortedMessages = combineAndSortMessages();
 
   // Group messages by time threshold (30 minutes)
   const messageGroups: Array<{
     timestamp: Date;
-    messages: typeof sortedMessages;
+    messages: CombinedMessage[];
   }> = [];
 
   const TIME_THRESHOLD = 30 * 60 * 1000; // 30 minutes in milliseconds
 
   sortedMessages.forEach((message, index) => {
-    const messageTime = new Date(message.createdAt);
+    const messageTime = new Date(message.data.createdAt);
 
     if (index === 0) {
       // First message always starts a new group
@@ -66,7 +99,9 @@ export const MessageList = ({
       });
     } else {
       const lastGroup = messageGroups[messageGroups.length - 1];
-      const lastMessageTime = new Date(sortedMessages[index - 1].createdAt);
+      const lastMessageTime = new Date(
+        sortedMessages[index - 1].data.createdAt
+      );
       const timeDiff = messageTime.getTime() - lastMessageTime.getTime();
 
       if (timeDiff > TIME_THRESHOLD) {
@@ -110,17 +145,31 @@ export const MessageList = ({
           {/* Messages in this group */}
           <div className="space-y-2">
             {group.messages.map((message) => {
+              if (message.type === "system") {
+                return (
+                  <SystemMessageBubble
+                    key={`system-${message.data.id}`}
+                    systemMessage={message.data}
+                    onReviewSubmitted={onReviewSubmitted}
+                    onDismiss={() => onDismissSystemMessage(message.data.id)}
+                  />
+                );
+              }
+
+              // Handle user messages
+              const userMessage = message.data as Message;
               const isLastDeliveredMessage =
-                lastDeliveredMessage?.id === message.id;
+                lastDeliveredMessage?.id === userMessage.id;
               const isLastMessageFromCurrentUser =
-                isLastDeliveredMessage && message.senderId === currentUserId;
-              const isLastSeenMessage = lastSeenMessage?.id === message.id;
+                isLastDeliveredMessage &&
+                userMessage.senderId === currentUserId;
+              const isLastSeenMessage = lastSeenMessage?.id === userMessage.id;
 
               return (
                 <MessageBubble
-                  key={message.id}
-                  message={message}
-                  isCurrentUser={message.senderId === currentUserId}
+                  key={`user-${userMessage.id}`}
+                  message={userMessage}
+                  isCurrentUser={userMessage.senderId === currentUserId}
                   otherUser={otherUser}
                   isLastMessageFromCurrentUser={isLastMessageFromCurrentUser}
                   isLastSeenMessage={isLastSeenMessage}
