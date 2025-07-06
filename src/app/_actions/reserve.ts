@@ -97,6 +97,7 @@ export async function checkReservationStatus(
       select: {
         id: true,
         status: true,
+        acceptedAt: true,
       },
     });
 
@@ -129,6 +130,7 @@ export async function checkOwnerReservationStatus(
       select: {
         id: true,
         status: true,
+        acceptedAt: true,
       },
     });
 
@@ -190,10 +192,13 @@ export async function acceptReservationAction(
 
     // Use transaction to update both reservation and listing
     await prisma.$transaction(async (tx) => {
-      // Update reservation status to ACCEPTED
+      // Update reservation status to ACCEPTED with acceptedAt timestamp
       await tx.reservation.update({
         where: { id: reservation.id },
-        data: { status: "ACCEPTED" },
+        data: {
+          status: "ACCEPTED",
+          acceptedAt: new Date(),
+        },
       });
 
       // Calculate new slots available
@@ -272,6 +277,80 @@ export async function declineReservationAction(
     return {
       success: false,
       error: "Failed to decline reservation",
+    };
+  }
+}
+
+// New function to check if review prompt should be shown
+export async function checkReviewPromptEligibility(
+  listingId: number,
+  userId: string
+) {
+  try {
+    const reservation = await prisma.reservation.findFirst({
+      where: {
+        listingId,
+        userId,
+        status: "ACCEPTED",
+      },
+      select: {
+        id: true,
+        acceptedAt: true,
+      },
+    });
+
+    if (!reservation || !reservation.acceptedAt) {
+      return {
+        success: true,
+        showPrompt: false,
+      };
+    }
+
+    // Check if a month has passed since acceptance
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const showPrompt = reservation.acceptedAt <= oneMonthAgo;
+
+    return {
+      success: true,
+      showPrompt,
+      reservationId: reservation.id,
+    };
+  } catch (error) {
+    console.error("Error checking review prompt eligibility:", error);
+    return {
+      success: false,
+      error: "Failed to check review prompt eligibility",
+    };
+  }
+}
+
+// New function to check if user already reviewed the listing
+export async function checkExistingReview(addressId: number, userId: string) {
+  try {
+    const existingReview = await prisma.review.findFirst({
+      where: {
+        addressId,
+        userId,
+      },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+      },
+    });
+
+    return {
+      success: true,
+      hasReview: !!existingReview,
+      review: existingReview,
+    };
+  } catch (error) {
+    console.error("Error checking existing review:", error);
+    return {
+      success: false,
+      error: "Failed to check existing review",
     };
   }
 }

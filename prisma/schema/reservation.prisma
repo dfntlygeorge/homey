@@ -7,8 +7,9 @@ model Reservation {
 
     status ReservationStatus @default(PENDING)
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    acceptedAt DateTime?
 
     // Relations
     listing Listing @relation(fields: [listingId], references: [id])

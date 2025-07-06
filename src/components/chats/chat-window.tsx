@@ -7,6 +7,11 @@ import { useState, useEffect, useCallback } from "react";
 import { socket } from "@/socket";
 import { markMessagesAsSeen } from "@/app/_actions/mark-as-seen";
 import { ListingChatHeader } from "./listing-chat-header";
+import {
+  checkExistingReview,
+  checkReviewPromptEligibility,
+} from "@/app/_actions/reserve";
+import { ReviewSystemMessage } from "../reviews/review-system-message";
 
 interface ChatWindowProps {
   conversation: Prisma.ConversationGetPayload<{
@@ -31,6 +36,15 @@ export const ChatWindow = ({
   currentUserId,
 }: ChatWindowProps) => {
   const [messages, setMessages] = useState(conversation.messages || []);
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
+  const [existingReview, setExistingReview] = useState<{
+    id: number;
+    rating: number;
+    comment: string;
+  } | null>(null);
+
+  // Check if current user is the renter
+  const isRenter = conversation.renterId === currentUserId;
 
   const markMessagesAsSeenHandler = useCallback(async () => {
     try {
@@ -58,6 +72,43 @@ export const ChatWindow = ({
     }
   }, [conversation.id, currentUserId]);
 
+  // Check review prompt eligibility
+  const checkReviewPrompt = useCallback(async () => {
+    if (!isRenter || !conversation.listing.address?.id) return;
+
+    try {
+      // Check if user is eligible for review prompt
+      const eligibilityResult = await checkReviewPromptEligibility(
+        conversation.listing.id,
+        currentUserId
+      );
+
+      if (eligibilityResult.success && eligibilityResult.showPrompt) {
+        // Check if user already has a review
+        const reviewResult = await checkExistingReview(
+          conversation.listing.address.id,
+          currentUserId
+        );
+
+        if (reviewResult.success) {
+          if (reviewResult.hasReview) {
+            setExistingReview(reviewResult.review);
+            setShowReviewPrompt(true);
+          } else {
+            setShowReviewPrompt(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error checking review prompt:", error);
+    }
+  }, [
+    isRenter,
+    conversation.listing.id,
+    conversation.listing.address?.id,
+    currentUserId,
+  ]);
+
   useEffect(() => {
     // Update messages when conversation changes
     setMessages(conversation.messages || []);
@@ -70,8 +121,11 @@ export const ChatWindow = ({
 
       // Mark messages as seen when entering conversation
       markMessagesAsSeenHandler();
+
+      // Check review prompt eligibility
+      checkReviewPrompt();
     }
-  }, [conversation.id, markMessagesAsSeenHandler]);
+  }, [conversation.id, markMessagesAsSeenHandler, checkReviewPrompt]);
 
   useEffect(() => {
     // Listen for new messages
@@ -182,6 +236,10 @@ export const ChatWindow = ({
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )[0];
 
+  const handleDismissReviewPrompt = () => {
+    setShowReviewPrompt(false);
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-white">
       {/* Listing Context Header */}
@@ -190,6 +248,16 @@ export const ChatWindow = ({
         currentUserId={currentUserId}
         otherUser={otherUser}
       />
+
+      {/* Review System Message - Only show for renters */}
+      {showReviewPrompt && isRenter && conversation.listing.address?.id && (
+        <ReviewSystemMessage
+          addressId={conversation.listing.address.id}
+          listingTitle={conversation.listing.title}
+          onDismiss={handleDismissReviewPrompt}
+          existingReview={existingReview}
+        />
+      )}
 
       {/* Scrollable Messages Area */}
       <div className="flex-1 overflow-y-auto">
