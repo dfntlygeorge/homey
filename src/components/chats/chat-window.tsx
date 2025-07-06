@@ -6,6 +6,7 @@ import { ChatInput } from "./chat-input";
 import { useState, useEffect, useCallback } from "react";
 import { socket } from "@/socket";
 import { markMessagesAsSeen } from "@/app/_actions/mark-as-seen";
+import { ListingChatHeader } from "./listing-chat-header";
 
 interface ChatWindowProps {
   conversation: Prisma.ConversationGetPayload<{
@@ -16,6 +17,8 @@ interface ChatWindowProps {
       listing: {
         include: {
           images: true;
+          address: true;
+          user: true;
         };
       };
     };
@@ -181,19 +184,12 @@ export const ChatWindow = ({
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-white">
-      {/* Fixed Header */}
-      <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
-        <div className="flex items-center">
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900">
-              {otherUser.name || "Unknown User"}
-            </h2>
-            <p className="text-sm text-gray-600">
-              {conversation.listing.title}
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Listing Context Header */}
+      <ListingChatHeader
+        listing={conversation.listing}
+        currentUserId={currentUserId}
+        otherUser={otherUser}
+      />
 
       {/* Scrollable Messages Area */}
       <div className="flex-1 overflow-y-auto">

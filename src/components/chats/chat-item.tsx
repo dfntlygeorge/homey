@@ -11,6 +11,8 @@ interface ChatItemProps {
       listing: {
         include: {
           images: true;
+          address: true;
+          user: true;
         };
       };
       messages: true;

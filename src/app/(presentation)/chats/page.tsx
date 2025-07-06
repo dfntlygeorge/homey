@@ -23,6 +23,8 @@ export default async function ChatsPage(props: PageProps) {
           images: {
             take: 1,
           },
+          address: true,
+          user: true,
         },
       },
       messages: {
