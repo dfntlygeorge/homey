@@ -201,3 +201,10 @@ export const formatHoverTimestamp = (date: Date | string): string => {
   // Different year: show full date + time
   return format(messageDate, "MMM d, yyyy h:mm a"); // e.g., "Jan 15, 2023 2:30 PM"
 };
+
+export const formatRoomType = (roomType: string): string => {
+  return roomType
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (l) => l.toUpperCase());
+};
