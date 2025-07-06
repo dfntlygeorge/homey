@@ -1,7 +1,9 @@
 "use client";
 
-import { Prisma } from "@prisma/client";
+import { Message, Prisma } from "@prisma/client";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { socket } from "@/socket";
 
 interface ChatItemProps {
   conversation: Prisma.ConversationGetPayload<{
@@ -25,14 +27,91 @@ export const ChatItem = ({
   currentUserId,
   onClick,
 }: ChatItemProps) => {
+  // Local state to track the most recent message and seen status
+  const [recentMessage, setRecentMessage] = useState(conversation.messages[0]);
+  const [unseenCount, setUnseenCount] = useState(0);
+
+  // Calculate initial unseen count
+  useEffect(() => {
+    const count = conversation.messages.filter(
+      (msg) => msg.receiverId === currentUserId && !msg.isSeen
+    ).length;
+    setUnseenCount(count);
+  }, [conversation.messages, currentUserId]);
+
+  // Listen for real-time updates
+  useEffect(() => {
+    // Join the conversation room to listen for updates
+    socket.emit("join_conversation", conversation.id);
+
+    // Handle new messages
+    const handleNewMessage = (newMessage: Message) => {
+      // Only update if this message belongs to this conversation
+      if (newMessage.conversationId === conversation.id) {
+        // Create a proper message object
+        const messageWithDefaults = {
+          id: Date.now(),
+          text: newMessage.text,
+          senderId: newMessage.senderId,
+          receiverId: newMessage.receiverId,
+          conversationId: newMessage.conversationId,
+          isDelivered: newMessage.isDelivered || true,
+          isSeen: false,
+          createdAt: new Date(),
+        };
+
+        // Update the recent message
+        setRecentMessage(messageWithDefaults);
+
+        // If the message is for the current user, increment unseen count
+        if (messageWithDefaults.receiverId === currentUserId) {
+          setUnseenCount((prev) => prev + 1);
+        }
+      }
+    };
+
+    // Handle messages being marked as seen
+    const handleMessagesSeen = (data: {
+      conversationId: number;
+      seenByUserId: string;
+      seenAt: Date;
+    }) => {
+      // Only update if this is for this conversation
+      if (data.conversationId === conversation.id) {
+        // If the current user's messages were seen by the other user
+        if (
+          recentMessage?.senderId === currentUserId &&
+          recentMessage?.receiverId === data.seenByUserId
+        ) {
+          setRecentMessage((prev) => (prev ? { ...prev, isSeen: true } : prev));
+        }
+
+        // If the other user marked messages as seen and current user sent them
+        if (data.seenByUserId === currentUserId) {
+          setUnseenCount(0);
+        }
+      }
+    };
+
+    socket.on("new_message", handleNewMessage);
+    socket.on("messages_seen", handleMessagesSeen);
+
+    return () => {
+      socket.off("new_message", handleNewMessage);
+      socket.off("messages_seen", handleMessagesSeen);
+    };
+  }, [
+    conversation.id,
+    currentUserId,
+    recentMessage?.senderId,
+    recentMessage?.receiverId,
+  ]);
+
   // Determine the other user (not the current user)
   const otherUser =
     conversation.renterId === currentUserId
       ? conversation.owner
       : conversation.renter;
-
-  // Get the most recent message
-  const recentMessage = conversation.messages[0];
 
   // Get listing image or fallback
   const listingImage =
@@ -65,20 +144,18 @@ export const ChatItem = ({
     return text.substring(0, maxLength) + "...";
   };
 
-  const lastMessage = conversation.messages[0];
-  const isFromCurrentUser = lastMessage?.senderId === currentUserId;
-  const isUnread = lastMessage && !lastMessage.isSeen && !isFromCurrentUser;
+  const isFromCurrentUser = recentMessage?.senderId === currentUserId;
 
   // Format message text based on sender and seen status
   const formatMessageText = () => {
-    if (!lastMessage) return "No messages yet";
+    if (!recentMessage) return "No messages yet";
 
     if (isFromCurrentUser) {
       // Case 1: Message from current user - prefix with "You:"
-      return `You: ${truncateMessage(lastMessage.text)}`;
+      return `You: ${truncateMessage(recentMessage.text)}`;
     } else {
       // Case 2: Message from other user
-      return truncateMessage(lastMessage.text);
+      return truncateMessage(recentMessage.text);
     }
   };
 
@@ -88,7 +165,7 @@ export const ChatItem = ({
       className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150"
     >
       {/* Avatar - Listing Image */}
-      <div className="flex-shrink-0 mr-3">
+      <div className="flex-shrink-0 mr-3 relative">
         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-200">
           <Image
             src={listingImage}
@@ -98,6 +175,12 @@ export const ChatItem = ({
             className="w-full h-full object-cover"
           />
         </div>
+        {/* Unread count badge */}
+        {unseenCount > 0 && (
+          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {unseenCount > 9 ? "9+" : unseenCount}
+          </div>
+        )}
       </div>
 
       {/* Chat Content */}
@@ -113,7 +196,7 @@ export const ChatItem = ({
         <div className="flex items-center justify-between">
           <p
             className={`text-sm truncate ${
-              isUnread
+              unseenCount
                 ? "font-bold text-gray-900" // Bold for unread messages from other users
                 : "text-gray-600" // Normal weight for read messages or current user's messages
             }`}
@@ -134,6 +217,20 @@ export const ChatItem = ({
           </p>
         </div>
       </div>
+
+      {/* Seen indicator for current user's messages */}
+      {isFromCurrentUser && (
+        <div className="flex-shrink-0 ml-2">
+          {recentMessage.isSeen ? (
+            <div className="w-2 h-2 rounded-full bg-blue-500" title="Seen" />
+          ) : (
+            <div
+              className="w-2 h-2 rounded-full bg-gray-400"
+              title="Delivered"
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 };
