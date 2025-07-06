@@ -12,4 +12,5 @@ export const routes = {
   contactOwner: (listingId: number) => `/chats?listingId=${listingId}`,
   manage: "/manage",
   editListing: (listingId: number) => `/manage/${listingId}/edit`,
+  chat: (conversationId: number) => `/chats?id=${conversationId}`,
 };

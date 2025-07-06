@@ -1,8 +1,10 @@
 import prisma from "@/lib/prisma";
-import { seedMessages } from "./message.seed";
+// import { seedMessages } from "./message.seed";
 
 async function main() {
-  await seedMessages();
+  console.log("DELETING CONERSATIONS");
+  await prisma.conversation.deleteMany();
+  console.log("SUCCESSFUL");
 }
 
 main()

@@ -1,4 +1,3 @@
-import { ListingWithImagesAndAddressAndReviews } from "@/config/types";
 import {
   UtensilsIcon,
   WifiIcon,
@@ -12,17 +11,11 @@ import {
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { Listing } from "@prisma/client";
+import { Listing, Prisma } from "@prisma/client";
 import { routes } from "@/config/routes";
 import { auth } from "@/auth";
 import { calculateAverageRating, cn, formatEnumValue } from "@/lib/utils";
 import { ListingCarousel } from "./listing-carousel";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 import { ListingMinimap } from "../shared/map";
 import { Suspense } from "react";
 import { MapSkeleton } from "./skeleton/map-skeleton";
@@ -30,6 +23,25 @@ import { ListingDetailsSkeleton } from "./skeleton/listing-details-skeleton";
 import { MoreListingActions } from "./more-listing-actions";
 import { ReviewsModal } from "../reviews/reviews-modal";
 import { ReviewPrompt } from "../reviews/review-prompt";
+import { ChatOwnerButton } from "./chat-owner-button";
+
+interface ListingViewProps {
+  listing: Prisma.ListingGetPayload<{
+    include: {
+      images: true;
+      address: {
+        include: {
+          reviews: {
+            include: {
+              user: true;
+            };
+          };
+        };
+      };
+      user: true;
+    };
+  }>;
+}
 
 const features = (listing: Listing) => [
   {
@@ -179,21 +191,11 @@ const renderStars = (rating: number) => {
   return stars;
 };
 
-export const ListingView = async (
-  props: ListingWithImagesAndAddressAndReviews
-) => {
+export const ListingView = async ({ listing }: ListingViewProps) => {
   const session = await auth();
-  const {
-    images,
-    title,
-    description,
-    address,
-    rent,
-    roomType,
-    id,
-    facebookProfile,
-    contact,
-  } = props;
+  const { images, title, description, address, rent, roomType, id, user } =
+    listing;
+  const ownerId = user.id;
 
   const reviews = address.reviews || [];
   const averageRating = calculateAverageRating(reviews);
@@ -296,31 +298,7 @@ export const ListingView = async (
 
                   <div className="text-center">
                     <p className="text-sm text-gray-600 mb-2">Not sure yet?</p>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Link
-                            href={facebookProfile ?? ""}
-                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200"
-                          >
-                            💬 Contact Owner
-                          </Link>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {facebookProfile ? (
-                            <p>
-                              You&apos;ll be redirected to the owner&apos;s
-                              Facebook profile
-                            </p>
-                          ) : (
-                            <p>
-                              Contact number: {contact}{" "}
-                              {facebookProfile ?? "tite"}
-                            </p>
-                          )}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <ChatOwnerButton listingId={id} ownerId={ownerId} />
                   </div>
                 </div>
 
@@ -330,7 +308,7 @@ export const ListingView = async (
                     Property Features
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {features(props).map(({ id, icon, label }) => (
+                    {features(listing).map(({ id, icon, label }) => (
                       <div
                         key={id}
                         className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"

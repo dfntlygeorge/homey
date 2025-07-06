@@ -16,3 +16,5 @@ model Conversation {
     // Add unique constraint to prevent duplicate conversations
     @@unique([listingId, renterId, ownerId])
 }
+
+// required fields listingId, renterId, ownerId

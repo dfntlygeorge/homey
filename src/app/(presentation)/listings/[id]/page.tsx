@@ -22,9 +22,10 @@ export default async function ListingPage(props: PageProps) {
           },
         },
       },
+      user: true,
     },
   });
 
   if (!listing) notFound();
-  return <ListingView {...listing} />;
+  return <ListingView listing={listing} />;
 }
