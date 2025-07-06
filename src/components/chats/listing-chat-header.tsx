@@ -1,8 +1,18 @@
-import { Prisma, User } from "@prisma/client";
+"use client";
+
+import { Prisma, User, ReservationStatus } from "@prisma/client";
 import { Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { routes } from "@/config/routes"; // Adjust import path as needed
+import { Button } from "../ui/button";
+
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import {
+  checkReservationStatus,
+  reserveListingAction,
+} from "@/app/_actions/reserve";
 
 interface ListingChatHeaderProps {
   listing: Prisma.ListingGetPayload<{
@@ -31,6 +41,93 @@ export const ListingChatHeader = ({
 }: ListingChatHeaderProps) => {
   const isOwner = listing.userId === currentUserId;
   const firstImage = listing.images?.[0]?.url;
+
+  const [isReserving, setIsReserving] = useState(false);
+  const [reservationStatus, setReservationStatus] =
+    useState<ReservationStatus | null>(null);
+
+  // Check for existing reservation on mount
+  useEffect(() => {
+    const checkReservation = async () => {
+      try {
+        const result = await checkReservationStatus(listing.id, currentUserId);
+        if (result.success && result.reservation) {
+          setReservationStatus(result.reservation.status);
+        }
+      } catch (error) {
+        console.error("Error checking reservation:", error);
+      }
+    };
+
+    if (!isOwner) {
+      checkReservation();
+    }
+  }, [listing.id, currentUserId, isOwner]);
+
+  const handleReserveNow = async () => {
+    if (isReserving) return;
+
+    setIsReserving(true);
+
+    try {
+      const result = await reserveListingAction(listing.id, currentUserId);
+
+      if (result.success) {
+        setReservationStatus("PENDING");
+        toast.success("Reservation submitted successfully!");
+      } else {
+        toast.error(result.error || "Failed to create reservation");
+      }
+    } catch (error) {
+      console.error("Error reserving listing:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsReserving(false);
+    }
+  };
+
+  const getReservationButton = () => {
+    if (isOwner) return null;
+
+    if (reservationStatus === "PENDING") {
+      return (
+        <div className="px-3 py-1.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-md flex-shrink-0">
+          Reservation Pending
+        </div>
+      );
+    }
+
+    if (reservationStatus === "ACCEPTED") {
+      return (
+        <div className="px-3 py-1.5 bg-green-100 text-green-800 text-xs font-medium rounded-md flex-shrink-0">
+          Reservation Accepted
+        </div>
+      );
+    }
+
+    if (reservationStatus === "DECLINED") {
+      return (
+        <Button
+          onClick={handleReserveNow}
+          disabled={isReserving}
+          className="px-3 py-1.5 bg-zinc-900 text-white text-xs font-medium rounded-md hover:bg-zinc-800 transition-colors flex-shrink-0"
+        >
+          {isReserving ? "Reserving..." : "Reserve Again"}
+        </Button>
+      );
+    }
+
+    // Default state - no reservation
+    return (
+      <Button
+        onClick={handleReserveNow}
+        disabled={isReserving}
+        className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors flex-shrink-0"
+      >
+        {isReserving ? "Reserving..." : "Reserve Now"}
+      </Button>
+    );
+  };
 
   return (
     <div className="bg-white border-b border-zinc-200 p-4 flex-shrink-0">
@@ -93,15 +190,19 @@ export const ListingChatHeader = ({
           </div>
         </div>
 
-        {/* View Listing Button */}
-        {!isOwner && (
-          <Link
-            href={routes.listing(listing.id)}
-            className="px-3 py-1.5 bg-zinc-900 text-white text-xs font-medium rounded-md hover:bg-zinc-800 transition-colors flex-shrink-0"
-          >
-            View Listing
-          </Link>
-        )}
+        {/* Action Buttons */}
+        <div className="flex gap-2 items-center">
+          {!isOwner && (
+            <Button
+              className="px-3 py-1.5 bg-zinc-900 text-white text-xs font-medium rounded-md hover:bg-zinc-800 transition-colors flex-shrink-0"
+              asChild
+            >
+              <Link href={routes.listing(listing.id)}>View Listing</Link>
+            </Button>
+          )}
+
+          {getReservationButton()}
+        </div>
       </div>
     </div>
   );

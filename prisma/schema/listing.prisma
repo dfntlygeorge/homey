@@ -49,6 +49,7 @@ model Listing {
     notifications Notification[]
     reports       Report[]
     conversations Conversation[]
+    reservations  Reservation[]
 
     @@map("listings")
 }

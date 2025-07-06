@@ -1,0 +1,23 @@
+model Reservation {
+    id Int @id @default(autoincrement())
+
+    listingId Int
+    userId    String // The renter (student)
+    ownerId   String
+
+    status ReservationStatus @default(PENDING)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    listing Listing @relation(fields: [listingId], references: [id])
+    user    User    @relation("RenterReservations", fields: [userId], references: [id])
+    owner   User    @relation("OwnerReservations", fields: [ownerId], references: [id])
+}
+
+enum ReservationStatus {
+    PENDING
+    ACCEPTED
+    DECLINED
+}
