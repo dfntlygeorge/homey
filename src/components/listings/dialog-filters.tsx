@@ -16,20 +16,11 @@ import { Button } from "../ui/button";
 import { Settings2 } from "lucide-react";
 import { NativeSelect } from "../ui/native-select";
 import { cn, formatEnumValue } from "@/lib/utils";
-import {
-  CaretakerAvailability,
-  CurfewPolicy,
-  GenderPolicy,
-  KitchenAvailability,
-  LaundryAvailability,
-  PetPolicy,
-  RoomType,
-  UtilityInclusion,
-  WifiAvailability,
-} from "@prisma/client";
+import { GenderPolicy, RoomType } from "@prisma/client";
 import { SearchInput } from "../shared/search-input";
 import { RangeFilters } from "./range-filters";
 import { ProximityFilter } from "./proximity-filter";
+import { FilterCheckbox } from "./filter-checkbox";
 
 interface DialogFiltersProps extends SidebarProps {
   count: number;
@@ -85,6 +76,15 @@ export const DialogFilters = (props: DialogFiltersProps) => {
   ) => {
     const { name, value } = e.target;
     setQueryStates({ [name]: value || null });
+    router.refresh();
+  };
+
+  const handleCheckboxChange = (
+    name: string,
+    checked: boolean,
+    value: string
+  ) => {
+    setQueryStates({ [name]: checked ? value : null });
     router.refresh();
   };
 
@@ -190,94 +190,84 @@ export const DialogFilters = (props: DialogFiltersProps) => {
           </div>
 
           {/* Rules & Policies */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">
               Rules & Policies
             </h3>
 
-            <NativeSelect
-              label="Curfew Policy"
-              name="curfew"
-              value={queryStates.curfew || ""}
-              onChange={handleChange}
-              options={Object.values(CurfewPolicy).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+            <div className="space-y-2">
+              <FilterCheckbox
+                id="curfew"
+                label="Has Curfew"
+                checked={queryStates.curfew === "HAS_CURFEW"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("curfew", checked, "HAS_CURFEW")
+                }
+              />
 
-            <NativeSelect
-              label="Pet Policy"
-              name="pets"
-              value={queryStates.pets || ""}
-              onChange={handleChange}
-              options={Object.values(PetPolicy).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+              <FilterCheckbox
+                id="pets"
+                label="Pets Allowed"
+                checked={queryStates.pets === "ALLOWED"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("pets", checked, "ALLOWED")
+                }
+              />
+            </div>
           </div>
 
           {/* Amenities & Services */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">
               Amenities & Services
             </h3>
 
-            <NativeSelect
-              label="Kitchen Availability"
-              name="kitchen"
-              value={queryStates.kitchen || ""}
-              onChange={handleChange}
-              options={Object.values(KitchenAvailability).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+            <div className="space-y-2">
+              <FilterCheckbox
+                id="kitchen"
+                label="Kitchen Available"
+                checked={queryStates.kitchen === "AVAILABLE"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("kitchen", checked, "AVAILABLE")
+                }
+              />
 
-            <NativeSelect
-              label="Laundry Facilities"
-              name="laundry"
-              value={queryStates.laundry || ""}
-              onChange={handleChange}
-              options={Object.values(LaundryAvailability).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+              <FilterCheckbox
+                id="laundry"
+                label="Laundry Available"
+                checked={queryStates.laundry === "AVAILABLE"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("laundry", checked, "AVAILABLE")
+                }
+              />
 
-            <NativeSelect
-              label="WiFi Access"
-              name="wifi"
-              value={queryStates.wifi || ""}
-              onChange={handleChange}
-              options={Object.values(WifiAvailability).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+              <FilterCheckbox
+                id="wifi"
+                label="WiFi Available"
+                checked={queryStates.wifi === "AVAILABLE"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("wifi", checked, "AVAILABLE")
+                }
+              />
 
-            <NativeSelect
-              label="Caretaker Service"
-              name="caretaker"
-              value={queryStates.caretaker || ""}
-              onChange={handleChange}
-              options={Object.values(CaretakerAvailability).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+              <FilterCheckbox
+                id="caretaker"
+                label="Caretaker Available"
+                checked={queryStates.caretaker === "AVAILABLE"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("caretaker", checked, "AVAILABLE")
+                }
+              />
 
-            <NativeSelect
-              label="Utilities Included"
-              name="utilities"
-              value={queryStates.utilities || ""}
-              onChange={handleChange}
-              options={Object.values(UtilityInclusion).map((value) => ({
-                label: formatEnumValue(value),
-                value,
-              }))}
-            />
+              <FilterCheckbox
+                id="utilities"
+                label="Utilities Included"
+                checked={queryStates.utilities === "INCLUDED"}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("utilities", checked, "INCLUDED")
+                }
+              />
+            </div>
           </div>
 
           {/* Action Buttons */}

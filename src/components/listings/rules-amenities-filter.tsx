@@ -10,7 +10,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Settings2, X } from "lucide-react";
-import { Checkbox } from "../ui/checkbox";
+import { FilterCheckbox } from "./filter-checkbox";
 
 interface RulesAmenitiesModalProps {
   queryStates: {
@@ -123,37 +123,23 @@ export const RulesAmenitiesModal = ({
               Rules & Policies
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="curfew"
-                  checked={tempFilters.curfew}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("curfew", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="curfew"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Has Curfew
-                </label>
-              </div>
+              <FilterCheckbox
+                id="curfew-modal"
+                label="Has Curfew"
+                checked={tempFilters.curfew}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("curfew", checked)
+                }
+              />
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="pets"
-                  checked={tempFilters.pets}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("pets", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="pets"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Pets Allowed
-                </label>
-              </div>
+              <FilterCheckbox
+                id="pets-modal"
+                label="Pets Allowed"
+                checked={tempFilters.pets}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("pets", checked)
+                }
+              />
             </div>
           </div>
 
@@ -164,85 +150,50 @@ export const RulesAmenitiesModal = ({
               Amenities & Services
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="kitchen"
-                  checked={tempFilters.kitchen}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("kitchen", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="kitchen"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Kitchen Available
-                </label>
-              </div>
+              <FilterCheckbox
+                id="kitchen-modal"
+                label="Kitchen Available"
+                checked={tempFilters.kitchen}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("kitchen", checked)
+                }
+              />
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="laundry"
-                  checked={tempFilters.laundry}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("laundry", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="laundry"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Laundry Available
-                </label>
-              </div>
+              <FilterCheckbox
+                id="laundry-modal"
+                label="Laundry Available"
+                checked={tempFilters.laundry}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("laundry", checked)
+                }
+              />
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="wifi"
-                  checked={tempFilters.wifi}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("wifi", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="wifi"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  WiFi Available
-                </label>
-              </div>
+              <FilterCheckbox
+                id="wifi-modal"
+                label="WiFi Available"
+                checked={tempFilters.wifi}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("wifi", checked)
+                }
+              />
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="caretaker"
-                  checked={tempFilters.caretaker}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("caretaker", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="caretaker"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Caretaker Available
-                </label>
-              </div>
+              <FilterCheckbox
+                id="caretaker-modal"
+                label="Caretaker Available"
+                checked={tempFilters.caretaker}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("caretaker", checked)
+                }
+              />
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors">
-                <Checkbox
-                  id="utilities"
-                  checked={tempFilters.utilities}
-                  onCheckedChange={(checked) =>
-                    handleCheckboxChange("utilities", checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="utilities"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                >
-                  Utilities Included
-                </label>
-              </div>
+              <FilterCheckbox
+                id="utilities-modal"
+                label="Utilities Included"
+                checked={tempFilters.utilities}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("utilities", checked)
+                }
+              />
             </div>
           </div>
         </div>
