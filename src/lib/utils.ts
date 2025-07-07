@@ -208,3 +208,16 @@ export const formatRoomType = (roomType: string): string => {
     .toLowerCase()
     .replace(/\b\w/g, (l) => l.toUpperCase());
 };
+
+export function getStatusColor(status: string) {
+  switch (status) {
+    case "APPROVED":
+      return "bg-green-100 text-green-800";
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-800";
+    case "REJECTED":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-zinc-100 text-zinc-800";
+  }
+}
