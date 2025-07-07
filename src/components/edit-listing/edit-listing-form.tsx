@@ -98,8 +98,7 @@ export const EditListingForm = ({
       wifi,
       laundry,
       utilities,
-      ...(facebookProfile &&
-        facebookProfile.trim() !== "" && { facebookProfile }),
+      facebookProfile,
     }),
     [
       title,

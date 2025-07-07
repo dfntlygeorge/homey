@@ -5,13 +5,11 @@ import {
   UpdateListingSchema,
   UpdateListingType,
 } from "../_schemas/form.schema";
-import { FileSchema } from "../_schemas/file.schema";
 import prisma from "@/lib/prisma";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 // import { env } from "@/env";
 import { UploadedImage } from "@/context/edit-listing/images-context";
 import { v4 as uuidv4 } from "uuid";
-import { ZodError } from "zod";
 import { env } from "@/env";
 
 interface UpdateListingProps {
@@ -48,8 +46,33 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
     const updates = result.data;
 
-    const { images, ...rest } = updates;
+    const { images, address, longitude, latitude, ...rest } = updates;
 
+    // Handle address update if address fields are provided
+    if (address || longitude !== undefined || latitude !== undefined) {
+      // First, get the current listing to find the addressId
+      const currentListing = await prisma.listing.findUnique({
+        where: { id: listingId },
+        select: { addressId: true },
+      });
+
+      if (!currentListing) {
+        return {
+          success: false,
+          message: "Listing not found",
+        };
+      }
+
+      // Update the address record
+      await prisma.address.update({
+        where: { id: currentListing.addressId },
+        data: {
+          ...(address && { formattedAddress: address }),
+          ...(longitude !== undefined && { longitude }),
+          ...(latitude !== undefined && { latitude }),
+        },
+      });
+    }
     await prisma.listing.update({
       where: {
         id: listingId,
@@ -69,38 +92,39 @@ export const updateListingAction = async (props: UpdateListingProps) => {
       });
     }
 
-    const s3Client = new S3Client({
-      region: env.AWS_S3_REGION,
-      credentials: {
-        accessKeyId: env.AWS_S3_ACCESS_KEY_ID ?? "",
-        secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY ?? "",
-      },
-    });
+    if (imagesToUpload.length > 0) {
+      // Set up S3 client for image uploads
+      const s3Client = new S3Client({
+        region: env.AWS_S3_REGION,
+        credentials: {
+          accessKeyId: env.AWS_S3_ACCESS_KEY_ID,
+          secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY,
+        },
+      });
 
-    const imageUrls = [];
-    const filesToUpload = imagesToUpload.map((img) => img.file);
+      // Get the current highest order for existing images
+      const existingImages = await prisma.image.findMany({
+        where: { listingId },
+        select: { order: true },
+        orderBy: { order: "desc" },
+        take: 1,
+      });
 
-    console.log(
-      `Do we have an image? ${imagesToUpload.length ? "YESSS" : "NOOO"}`
-    );
+      const startingOrder =
+        existingImages.length > 0 ? existingImages[0].order + 1 : 0;
 
-    if (filesToUpload.length > 0) {
-      for (const image of filesToUpload) {
-        console.log("FOR LOOP IS RUNNING");
-        if (image instanceof File) {
+      // Handle image uploads in parallel
+      const uploadPromises = imagesToUpload.map(
+        async (uploadedPhoto, index) => {
           try {
-            // ✅ Validate using FileSchema
-            FileSchema.parse(image);
-
+            const image = uploadedPhoto.file;
             const fileExtension = image.name.split(".").pop();
             const uniqueFileName = `${listingId}/${uuidv4()}.${fileExtension}`;
-            const bucketName = process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME;
+            const bucketName = env.AWS_S3_BUCKET_NAME;
 
-            // Convert file to buffer for S3 upload
             const arrayBuffer = await image.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
 
-            // Upload to S3
             const command = new PutObjectCommand({
               Bucket: bucketName,
               Key: uniqueFileName,
@@ -110,37 +134,34 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
             await s3Client.send(command);
 
-            // Create the S3 URL
-            const imageUrl = `https://${bucketName}.s3.${process.env.NEXT_PUBLIC_AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
-            imageUrls.push(imageUrl);
-            console.log(imageUrl ?? "NOTHING");
+            const imageUrl = `https://${bucketName}.s3.${env.AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
 
-            // Create image record in database
-            await prisma.image.create({
-              data: {
-                url: imageUrl,
-                listingId,
-              },
-            });
-
-            console.log("Image uploaded:", imageUrl);
+            return {
+              url: imageUrl,
+              listingId,
+              order: startingOrder + index, // Maintain order for new images
+            };
           } catch (error) {
-            if (error instanceof ZodError) {
-              console.warn("File validation failed:", error.errors);
-              return {
-                success: false,
-                message: `Invalid image: ${error.errors[0].message}`,
-              };
-            } else {
-              console.error("Unexpected file validation/upload error:", error);
-              return {
-                success: false,
-                message: "Something went wrong during image upload",
-              };
-            }
+            console.error(
+              `Failed to upload image ${uploadedPhoto.file.name}:`,
+              error
+            );
+            throw new Error(
+              `Failed to upload image: ${uploadedPhoto.file.name}`
+            );
           }
         }
-      }
+      );
+
+      // Wait for all uploads to complete
+      const uploadResults = await Promise.all(uploadPromises);
+
+      // Batch insert all images to database
+      await prisma.image.createMany({
+        data: uploadResults,
+      });
+
+      console.log(`Successfully uploaded ${uploadResults.length} images`);
     }
 
     return {
