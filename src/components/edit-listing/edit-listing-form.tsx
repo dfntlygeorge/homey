@@ -6,47 +6,27 @@ import {
 } from "@/app/_schemas/form.schema";
 import { FileSchema } from "@/app/_schemas/file.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
-
 import { ListingWithImagesAndAddress } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { Form } from "../ui/form";
 import { useTransition, useMemo, useCallback, useState } from "react";
 import { updateListingAction } from "@/app/_actions/update-listing";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { toast } from "sonner";
-import { Input } from "../ui/input";
 import { generateSessionToken } from "@/lib/utils";
-import { FormInput } from "../ui/form-input";
-import { FormTextarea } from "../ui/form-textarea";
-import { FormSelect } from "../ui/form-select";
-import {
-  CaretakerAvailability,
-  CurfewPolicy,
-  GenderPolicy,
-  PetPolicy,
-  KitchenAvailability,
-  WifiAvailability,
-  LaundryAvailability,
-  UtilityInclusion,
-  RoomType,
-} from "@prisma/client";
-import { AddressAutocomplete } from "../create-listing/address-autocomplete";
 import { env } from "@/env";
-import { EnumCheckboxField } from "../ui/enum-checkbox";
 import { useImages } from "@/context/edit-listing/images-context";
 import { ZodError } from "zod";
 import { getChangedFields } from "@/lib/forms";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { EDIT_LISTING_STEPS } from "@/config/constants";
+import { StepBasicInfo } from "./step-basic-info";
+import { StepPricingAddress } from "./step-pricing-address";
+import { StepPolicies } from "./step-policies";
+import { EditListingProgressHeader } from "./edit-listing-progress-header";
+import { StepImages } from "./step-images";
 
 export const EditListingForm = ({
   listing,
@@ -126,6 +106,7 @@ export const EditListingForm = ({
     defaultValues: originalValues,
   });
 
+  // make a custom hook for this
   const handleAddressSelect = useCallback(
     async (suggestion: SearchBoxSuggestion) => {
       try {
@@ -237,238 +218,25 @@ export const EditListingForm = ({
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <div className="space-y-6">
-            <FormInput
-              control={form.control}
-              name="title"
-              label="Title"
-              placeholder="Ex. Spacious Dorm Room"
-              required
-            />
-
-            <FormTextarea
-              control={form.control}
-              name="description"
-              label="Description"
-              placeholder="Describe your property..."
-              rows={4}
-            />
-
-            <FormSelect
-              control={form.control}
-              name="roomType"
-              label="Room Type"
-              options={Object.values(RoomType).map((roomType) => ({
-                value: roomType,
-                label: roomType,
-              }))}
-              required
-            />
-          </div>
-        );
-
+        return <StepBasicInfo control={form.control} />;
       case 1:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                control={form.control}
-                name="rent"
-                label="Monthly Rent"
-                placeholder="5000"
-                type="number"
-                required
-              />
-
-              <FormInput
-                control={form.control}
-                name="slotsAvailable"
-                label="Available Slots"
-                placeholder="2"
-                type="number"
-                required
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="address">Complete Address</FormLabel>
-                  <FormControl>
-                    <AddressAutocomplete
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      placeholder="Start typing your address for suggestions..."
-                      onSelect={handleAddressSelect}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormInput
-              control={form.control}
-              name="contact"
-              label="Contact Info"
-              placeholder="09123456789"
-              type="tel"
-              required
-            />
-
-            <FormInput
-              control={form.control}
-              name="facebookProfile"
-              label="Facebook Profile"
-              placeholder="https://facebook.com/..."
-            />
-          </div>
+          <StepPricingAddress
+            control={form.control}
+            handleAddressSelect={handleAddressSelect}
+          />
         );
-
       case 2:
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <EnumCheckboxField
-                control={form.control}
-                name="genderPolicy"
-                label="Gender Policy"
-                enumValues={GenderPolicy}
-                description="Select the gender policy that applies"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="curfew"
-                label="Curfew Policy"
-                enumValues={CurfewPolicy}
-                description="Select the applicable curfew"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="caretaker"
-                label="Caretaker Availability"
-                enumValues={CaretakerAvailability}
-                description="Is a caretaker available?"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="pets"
-                label="Pet Policy"
-                enumValues={PetPolicy}
-                description="Are pets allowed?"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="kitchen"
-                label="Kitchen Availability"
-                enumValues={KitchenAvailability}
-                description="Is there access to a kitchen?"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="wifi"
-                label="Wi-Fi Availability"
-                enumValues={WifiAvailability}
-                description="Is Wi-Fi available?"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="laundry"
-                label="Laundry Availability"
-                enumValues={LaundryAvailability}
-                description="Is laundry available?"
-              />
-
-              <EnumCheckboxField
-                control={form.control}
-                name="utilities"
-                label="Utilities Inclusion"
-                enumValues={UtilityInclusion}
-                description="Which utilities are included?"
-              />
-            </div>
-          </div>
-        );
+        return <StepPolicies control={form.control} />;
 
       case 3:
         return (
-          <div className="space-y-6">
-            <FormField
-              control={form.control}
-              name="images"
-              render={() => (
-                <FormItem>
-                  <FormLabel htmlFor="images">Upload Images</FormLabel>
-                  <FormControl>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                        className="hidden"
-                        id="file-upload"
-                      />
-                      <label
-                        htmlFor="file-upload"
-                        className="cursor-pointer flex flex-col items-center space-y-2"
-                      >
-                        <div className="text-gray-400">
-                          <svg
-                            className="w-12 h-12 mx-auto"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                          </svg>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          <span className="font-medium text-blue-600">
-                            Click to upload
-                          </span>{" "}
-                          or drag and drop
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          PNG, JPG, GIF up to 10MB
-                        </div>
-                      </label>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Debug info - only show in development */}
-            {process.env.NODE_ENV === "development" && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs">
-                <strong>Changed fields:</strong>
-                <pre className="mt-2 overflow-auto">
-                  {JSON.stringify(
-                    getChangedFields(originalValues, form.watch()),
-                    null,
-                    2
-                  )}
-                </pre>
-              </div>
-            )}
-          </div>
+          <StepImages
+            control={form.control}
+            handleFileChange={handleFileChange}
+            originalValues={originalValues}
+            formWatch={form.watch}
+          />
         );
 
       default:
@@ -480,43 +248,7 @@ export const EditListingForm = ({
     <div className="w-1/2 p-6 bg-white">
       <div className="max-w-2xl mx-auto">
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {EDIT_LISTING_STEPS.map((step, index) => (
-              <div
-                key={index}
-                className={`flex items-center ${
-                  index < EDIT_LISTING_STEPS.length - 1 ? "flex-1" : ""
-                }`}
-              >
-                <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                    index <= currentStep
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-400"
-                  }`}
-                >
-                  {index + 1}
-                </div>
-                {index < EDIT_LISTING_STEPS.length - 1 && (
-                  <div
-                    className={`flex-1 h-0.5 mx-2 ${
-                      index < currentStep ? "bg-blue-600" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {EDIT_LISTING_STEPS[currentStep].title}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              {EDIT_LISTING_STEPS[currentStep].description}
-            </p>
-          </div>
-        </div>
+        <EditListingProgressHeader currentStep={currentStep} />
 
         {/* Form */}
         <Form {...form}>
