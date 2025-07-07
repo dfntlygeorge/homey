@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
+import { MessageCircleIcon } from "lucide-react";
 
 interface ChatOwnerButtonProps {
   listingId: number;
@@ -43,10 +44,10 @@ export const ChatOwnerButton = ({
     <Button
       onClick={handleContactOwner}
       disabled={isLoading}
-      variant={"ghost"}
-      className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200 disabled:opacity-50"
+      className="w-full flex items-center gap-2 text-sm"
     >
-      {isLoading ? "Connecting..." : "💬 Chat Owner"}
+      <MessageCircleIcon className="h-4 w-4" />
+      {isLoading ? "Connecting..." : "Send Message"}
     </Button>
   );
 };

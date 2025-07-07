@@ -1,3 +1,5 @@
+"use client";
+
 import {
   UtensilsIcon,
   WifiIcon,
@@ -8,22 +10,23 @@ import {
   WashingMachineIcon,
   UserCheckIcon,
   StarIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  UserIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { Listing, Prisma } from "@prisma/client";
-import { routes } from "@/config/routes";
-import { auth } from "@/auth";
 import { calculateAverageRating, cn, formatEnumValue } from "@/lib/utils";
 import { ListingCarousel } from "./listing-carousel";
 import { ListingMinimap } from "../shared/map";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { MapSkeleton } from "./skeleton/map-skeleton";
 import { ListingDetailsSkeleton } from "./skeleton/listing-details-skeleton";
 import { MoreListingActions } from "./more-listing-actions";
 import { ReviewsModal } from "../reviews/reviews-modal";
-import { ReviewPrompt } from "../reviews/review-prompt";
 import { ChatOwnerButton } from "./chat-owner-button";
+import { routes } from "@/config/routes";
 
 interface ListingViewProps {
   listing: Prisma.ListingGetPayload<{
@@ -49,7 +52,7 @@ const features = (listing: Listing) => [
     icon: (
       <UsersIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.genderPolicy === "MIXED"
             ? "text-blue-500"
             : listing.genderPolicy === "MALE_ONLY"
@@ -70,7 +73,7 @@ const features = (listing: Listing) => [
     icon: (
       <WashingMachineIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.laundry === "AVAILABLE" ? "text-green-600" : "text-gray-400"
         )}
       />
@@ -85,7 +88,7 @@ const features = (listing: Listing) => [
     icon: (
       <UserCheckIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.caretaker === "AVAILABLE"
             ? "text-purple-600"
             : "text-gray-400"
@@ -100,7 +103,7 @@ const features = (listing: Listing) => [
     icon: (
       <UtensilsIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.kitchen === "AVAILABLE" ? "text-yellow-600" : "text-gray-400"
         )}
       />
@@ -113,7 +116,7 @@ const features = (listing: Listing) => [
     icon: (
       <WifiIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.wifi === "AVAILABLE" ? "text-indigo-600" : "text-gray-400"
         )}
       />
@@ -125,7 +128,7 @@ const features = (listing: Listing) => [
     icon: (
       <BoltIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.utilities === "INCLUDED" ? "text-emerald-600" : "text-red-400"
         )}
       />
@@ -140,7 +143,7 @@ const features = (listing: Listing) => [
     icon: (
       <ClockIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.curfew === "HAS_CURFEW" ? "text-orange-600" : "text-gray-400"
         )}
       />
@@ -152,7 +155,7 @@ const features = (listing: Listing) => [
     icon: (
       <PawPrintIcon
         className={cn(
-          "h-6 w-6",
+          "h-5 w-5",
           listing.pets === "ALLOWED" ? "text-pink-500" : "text-gray-400"
         )}
       />
@@ -160,6 +163,7 @@ const features = (listing: Listing) => [
     label: listing.pets === "ALLOWED" ? "Pets Allowed" : "No Pets Allowed",
   },
 ];
+
 // Helper function to render stars
 const renderStars = (rating: number) => {
   const stars = [];
@@ -169,30 +173,70 @@ const renderStars = (rating: number) => {
   for (let i = 0; i < 5; i++) {
     if (i < fullStars) {
       stars.push(
-        <StarIcon key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+        <StarIcon key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
       );
     } else if (i === fullStars && hasHalfStar) {
       stars.push(
         <div key={i} className="relative">
-          <StarIcon className="h-5 w-5 text-gray-300" />
+          <StarIcon className="h-4 w-4 text-gray-300" />
           <div
             className="absolute inset-0 overflow-hidden"
             style={{ width: "50%" }}
           >
-            <StarIcon className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+            <StarIcon className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           </div>
         </div>
       );
     } else {
-      stars.push(<StarIcon key={i} className="h-5 w-5 text-gray-300" />);
+      stars.push(<StarIcon key={i} className="h-4 w-4 text-gray-300" />);
     }
   }
 
   return stars;
 };
 
-export const ListingView = async ({ listing }: ListingViewProps) => {
-  const session = await auth();
+// Description component with show more/less functionality
+const DescriptionSection = ({ description }: { description: string }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const CHAR_LIMIT = 200;
+
+  if (!description) return null;
+
+  const shouldTruncate = description.length > CHAR_LIMIT;
+  const displayText =
+    shouldTruncate && !isExpanded
+      ? description.substring(0, CHAR_LIMIT) + "..."
+      : description;
+
+  return (
+    <div className="border-b border-gray-100 pb-4 mb-4">
+      <h2 className="text-lg font-semibold text-gray-900 mb-2">
+        About This Place
+      </h2>
+      <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm">
+        {displayText}
+      </p>
+      {shouldTruncate && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 transition-colors"
+        >
+          {isExpanded ? (
+            <>
+              Show less <ChevronUpIcon className="h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Show more <ChevronDownIcon className="h-4 w-4" />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+};
+
+export const ListingView = ({ listing }: ListingViewProps) => {
   const { images, title, description, address, rent, roomType, id, user } =
     listing;
   const ownerId = user.id;
@@ -200,7 +244,7 @@ export const ListingView = async ({ listing }: ListingViewProps) => {
   const reviews = address.reviews || [];
   const averageRating = calculateAverageRating(reviews);
   const reviewCount = reviews.length;
-  const addressId = address.id; // for testing
+
   return (
     <div className="relative min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-6 lg:px-8">
@@ -226,41 +270,41 @@ export const ListingView = async ({ listing }: ListingViewProps) => {
           {/* Right Column - Property Details */}
           <div className="mt-8 lg:mt-0 lg:w-2/5">
             <Suspense fallback={<ListingDetailsSkeleton />}>
-              <div className="bg-white rounded-lg shadow-sm p-6 lg:p-8">
+              <div className="bg-white rounded-lg shadow-sm p-6">
                 {/* Property Header */}
-                <div className="border-b border-gray-100 pb-6 mb-6">
+                <div className="border-b border-gray-100 pb-4 mb-4">
                   <div className="flex justify-between items-start mb-3">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                    <h1 className="text-2xl font-bold text-gray-900">
                       {title}
                     </h1>
                     <MoreListingActions listingId={id} />
                   </div>
 
-                  <p className="text-gray-600 text-base mb-4 flex items-center">
+                  <p className="text-gray-600 text-sm mb-3 flex items-center">
                     📍 {address.formattedAddress}
                   </p>
 
                   {/* Price and Room Type */}
-                  <div className="flex items-baseline gap-3">
-                    <p className="text-3xl font-bold text-green-600">₱{rent}</p>
-                    <span className="text-gray-500">/month</span>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <p className="text-2xl font-bold text-green-600">₱{rent}</p>
+                    <span className="text-gray-500 text-sm">/month</span>
                   </div>
-                  <p className="text-lg text-gray-700 mt-2 font-medium">
+                  <p className="text-base text-gray-700 font-medium">
                     {formatEnumValue(roomType)}
                   </p>
                 </div>
 
                 {/* Ratings and Reviews Section */}
                 {reviewCount > 0 && (
-                  <div className="border-b border-gray-100 pb-6 mb-6">
-                    <div className="flex items-center gap-3 mb-3">
+                  <div className="border-b border-gray-100 pb-4 mb-4">
+                    <div className="flex items-center gap-2 mb-2">
                       <div className="flex items-center gap-1">
                         {renderStars(averageRating)}
                       </div>
-                      <span className="text-lg font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900">
                         {averageRating.toFixed(1)}
                       </span>
-                      <span className="text-gray-500">
+                      <span className="text-gray-500 text-sm">
                         ({reviewCount}{" "}
                         {reviewCount === 1 ? "review" : "reviews"})
                       </span>
@@ -273,45 +317,39 @@ export const ListingView = async ({ listing }: ListingViewProps) => {
                 )}
 
                 {/* Description */}
-                {description && (
-                  <div className="border-b border-gray-100 pb-6 mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                      About This Place
-                    </h2>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                      {description}
-                    </p>
-                  </div>
-                )}
+                <DescriptionSection description={description} />
 
-                {/* Action Buttons */}
-                <div className="border-b border-gray-100 pb-6 mb-6 space-y-4">
-                  <Link href={routes.reserve(id)}>
-                    <Button
-                      className="w-full py-4 text-lg font-bold uppercase tracking-wide hover:shadow-lg transition-all duration-200"
-                      title={!session ? "You need to sign in to reserve" : ""}
-                      size="lg"
-                    >
-                      Reserve Now
-                    </Button>
-                  </Link>
-
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-2">Not sure yet?</p>
-                    <ChatOwnerButton listingId={id} ownerId={ownerId} />
+                {/* Owner Actions */}
+                <div className="border-b border-gray-100 pb-4 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Contact Owner
+                  </h3>
+                  <div className="flex gap-3">
+                    <Link href={routes.profilePage(ownerId)} className="flex-1">
+                      <Button
+                        variant="outline"
+                        className="w-full flex items-center gap-2 text-sm"
+                      >
+                        <UserIcon className="h-4 w-4" />
+                        View Profile
+                      </Button>
+                    </Link>
+                    <div className="flex-1">
+                      <ChatOwnerButton listingId={id} ownerId={ownerId} />
+                    </div>
                   </div>
                 </div>
 
                 {/* Features Section */}
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  <h2 className="text-lg font-semibold text-gray-900 mb-3">
                     Property Features
                   </h2>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
                     {features(listing).map(({ id, icon, label }) => (
                       <div
                         key={id}
-                        className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
+                        className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
                       >
                         <div className="flex-shrink-0">{icon}</div>
                         <p className="text-sm font-medium text-gray-700 leading-tight">
@@ -326,9 +364,6 @@ export const ListingView = async ({ listing }: ListingViewProps) => {
           </div>
         </div>
       </div>
-
-      {/* FOR TESTING PURPOSES ONLY */}
-      <ReviewPrompt addressId={addressId} />
     </div>
   );
 };

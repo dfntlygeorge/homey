@@ -59,9 +59,6 @@ export default async function UserProfilePage(props: PageProps) {
 
   const averageRating = totalReviews > 0 ? totalRatingSum / totalReviews : 0;
 
-  console.log("Total reviews received:", totalReviews);
-  console.log("Average rating:", averageRating.toFixed(2));
-
   return (
     <UserProfileView
       user={user}

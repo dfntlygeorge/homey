@@ -13,4 +13,5 @@ export const routes = {
   manage: "/manage",
   editListing: (listingId: number) => `/manage/${listingId}/edit`,
   chat: (conversationId: number) => `/chats?id=${conversationId}`,
+  profilePage: (userId: string) => `/users/${userId}`,
 };

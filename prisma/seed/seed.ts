@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-// import { seedMessages } from "./message.seed";
 
 async function main() {
   console.log("UPDATING REVIEWS...");
