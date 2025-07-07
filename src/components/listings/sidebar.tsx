@@ -1,6 +1,6 @@
 "use client";
 
-import { cn, formatEnumValue } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
 import { RangeFilters } from "./range-filters";
 import { SidebarProps } from "@/config/types";
@@ -8,26 +8,18 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import { parseAsString, useQueryStates } from "nuqs";
 import { routes } from "@/config/routes";
-import {
-  CaretakerAvailability,
-  CurfewPolicy,
-  GenderPolicy,
-  KitchenAvailability,
-  LaundryAvailability,
-  PetPolicy,
-  RoomType,
-  UtilityInclusion,
-  WifiAvailability,
-} from "@prisma/client";
 import { NativeSelect } from "../ui/native-select";
 import { ProximityFilter } from "./proximity-filter";
 import { ArrowUpDown, Filter, X } from "lucide-react";
 import { EXCLUDED_KEYS, SORT_OPTIONS } from "@/config/constants";
+import { PropertyDetailsModal } from "./property-details-filter";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   const router = useRouter();
   const [filterCount, setFilterCount] = useState(0);
+  const [modalFilterCount, setModalFilterCount] = useState(0);
   const { _min, _max } = minMaxValues;
+
   const [queryStates, setQueryStates] = useQueryStates(
     {
       minRent: parseAsString.withDefault(""),
@@ -57,12 +49,30 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       searchParams as Record<string, string>
     ).filter(([key, value]) => !EXCLUDED_KEYS.includes(key) && value).length;
     setFilterCount(filterCount);
+
+    // Count modal-specific filters
+    const modalFilterKeys = [
+      "roomType",
+      "genderPolicy",
+      "curfew",
+      "laundry",
+      "caretaker",
+      "kitchen",
+      "wifi",
+      "pets",
+      "utilities",
+    ];
+    const modalCount = Object.entries(
+      searchParams as Record<string, string>
+    ).filter(([key, value]) => modalFilterKeys.includes(key) && value).length;
+    setModalFilterCount(modalCount);
   }, [searchParams]);
 
   const clearFilters = () => {
     const url = new URL(routes.listings, process.env.NEXT_PUBLIC_APP_URL);
     window.location.replace(url.toString());
     setFilterCount(0);
+    setModalFilterCount(0);
   };
 
   const handleChange = async (
@@ -84,6 +94,31 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
       longitude: params.longitude || null,
       radius: params.radius || null,
       address: params.address || null,
+    });
+    router.refresh();
+  };
+
+  const handleModalFiltersApply = (filters: {
+    roomType?: string;
+    genderPolicy?: string;
+    curfew?: string;
+    laundry?: string;
+    caretaker?: string;
+    kitchen?: string;
+    wifi?: string;
+    pets?: string;
+    utilities?: string;
+  }) => {
+    setQueryStates({
+      roomType: filters.roomType || null,
+      genderPolicy: filters.genderPolicy || null,
+      curfew: filters.curfew || null,
+      laundry: filters.laundry || null,
+      caretaker: filters.caretaker || null,
+      kitchen: filters.kitchen || null,
+      wifi: filters.wifi || null,
+      pets: filters.pets || null,
+      utilities: filters.utilities || null,
     });
     router.refresh();
   };
@@ -130,6 +165,8 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
             className="w-full rounded-lg border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
         </div>
+
+        {/* Sort Section */}
         <div className="p-6 border-b border-border">
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -187,137 +224,27 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
             </div>
           </div>
 
-          {/* Property Details */}
-          <div className="space-y-4">
+          {/* Property Details Modal Trigger */}
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <div className="h-1 w-1 rounded-full bg-primary"></div>
-              Property Details
+              More Filters
             </h3>
-            <div className="pl-3 space-y-4">
-              <NativeSelect
-                label="Room Type"
-                name="roomType"
-                value={queryStates.roomType || ""}
-                onChange={handleChange}
-                options={Object.values(RoomType).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="Gender Policy"
-                name="genderPolicy"
-                value={queryStates.genderPolicy || ""}
-                onChange={handleChange}
-                options={Object.values(GenderPolicy).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-            </div>
-          </div>
-
-          {/* Rules & Policies */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-primary"></div>
-              Rules & Policies
-            </h3>
-            <div className="pl-3 space-y-4">
-              <NativeSelect
-                label="Curfew Policy"
-                name="curfew"
-                value={queryStates.curfew || ""}
-                onChange={handleChange}
-                options={Object.values(CurfewPolicy).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="Pet Policy"
-                name="pets"
-                value={queryStates.pets || ""}
-                onChange={handleChange}
-                options={Object.values(PetPolicy).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-            </div>
-          </div>
-
-          {/* Amenities */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-primary"></div>
-              Amenities & Services
-            </h3>
-            <div className="pl-3 space-y-4">
-              <NativeSelect
-                label="Kitchen Availability"
-                name="kitchen"
-                value={queryStates.kitchen || ""}
-                onChange={handleChange}
-                options={Object.values(KitchenAvailability).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="Laundry Facilities"
-                name="laundry"
-                value={queryStates.laundry || ""}
-                onChange={handleChange}
-                options={Object.values(LaundryAvailability).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="WiFi Access"
-                name="wifi"
-                value={queryStates.wifi || ""}
-                onChange={handleChange}
-                options={Object.values(WifiAvailability).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="Caretaker Service"
-                name="caretaker"
-                value={queryStates.caretaker || ""}
-                onChange={handleChange}
-                options={Object.values(CaretakerAvailability).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
-              />
-
-              <NativeSelect
-                label="Utilities Included"
-                name="utilities"
-                value={queryStates.utilities || ""}
-                onChange={handleChange}
-                options={Object.values(UtilityInclusion).map((value) => ({
-                  label: formatEnumValue(value),
-                  value,
-                }))}
-                className="space-y-2"
+            <div className="pl-3">
+              <PropertyDetailsModal
+                queryStates={{
+                  roomType: queryStates.roomType,
+                  genderPolicy: queryStates.genderPolicy,
+                  curfew: queryStates.curfew,
+                  laundry: queryStates.laundry,
+                  caretaker: queryStates.caretaker,
+                  kitchen: queryStates.kitchen,
+                  wifi: queryStates.wifi,
+                  pets: queryStates.pets,
+                  utilities: queryStates.utilities,
+                }}
+                onApply={handleModalFiltersApply}
+                activeFiltersCount={modalFilterCount}
               />
             </div>
           </div>
