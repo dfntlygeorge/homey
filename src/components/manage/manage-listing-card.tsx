@@ -2,13 +2,22 @@
 
 import { Archive } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { ListingWithImages } from "@/config/types";
 import { cn } from "@/lib/utils";
 import { ListingDetails } from "./listing-details";
 import { ListingActions } from "./listing-actions";
+import { Prisma } from "@prisma/client";
 
 interface ManageListingCardProps {
-  listing: ListingWithImages;
+  listing: Prisma.ListingGetPayload<{
+    include: {
+      images: true;
+      reservations: {
+        include: {
+          user: true;
+        };
+      };
+    };
+  }>;
   isArchived?: boolean;
 }
 

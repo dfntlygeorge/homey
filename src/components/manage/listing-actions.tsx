@@ -22,7 +22,6 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { ListingWithImages } from "@/config/types";
 import { useState, useTransition } from "react";
 import { deleteListingAction } from "@/app/_actions/delete-listing";
 import { toast } from "sonner";
@@ -31,9 +30,20 @@ import { updateListingAvailabilityAction } from "@/app/_actions/update-listing-a
 import { cn } from "@/lib/utils";
 import { archiveListingAction } from "@/app/_actions/archive-listing";
 import { unarchiveListingAction } from "@/app/_actions/unarhive-listing";
+import { Prisma } from "@prisma/client";
+import { ManageReservationsButton } from "./manage-reservations-button";
 
 interface ListingActionsProps {
-  listing: ListingWithImages;
+  listing: Prisma.ListingGetPayload<{
+    include: {
+      images: true;
+      reservations: {
+        include: {
+          user: true;
+        };
+      };
+    };
+  }>;
   isArchived?: boolean;
   onArchiveToggle?: () => void;
 }
@@ -95,7 +105,6 @@ export function ListingActions({
       toast.error(response.message);
     }
   };
-
   return (
     <div className="flex gap-2">
       {/* Primary Action Button - Changes based on archive status */}
@@ -147,6 +156,9 @@ export function ListingActions({
       >
         <Share className="w-3 h-3" /> Share
       </Button>
+
+      {/* Manage Reservation Button */}
+      <ManageReservationsButton listing={listing} />
 
       {/* More Actions Dropdown */}
       <DropdownMenu>

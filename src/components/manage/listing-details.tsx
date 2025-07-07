@@ -2,11 +2,20 @@
 
 import { Eye } from "lucide-react";
 import Image from "next/image";
-import { ListingWithImages } from "@/config/types";
 import { cn, getStatusColor } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 
 interface ListingDetailsProps {
-  listing: ListingWithImages;
+  listing: Prisma.ListingGetPayload<{
+    include: {
+      images: true;
+      reservations: {
+        include: {
+          user: true;
+        };
+      };
+    };
+  }>;
   isArchived?: boolean;
 }
 

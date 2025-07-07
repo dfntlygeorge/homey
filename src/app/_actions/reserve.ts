@@ -281,6 +281,124 @@ export async function declineReservationAction(
   }
 }
 
+export async function acceptReservationByIdAction(reservationId: number) {
+  try {
+    // Get the reservation with listing details
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: reservationId },
+      include: { listing: true },
+    });
+
+    if (!reservation) {
+      return {
+        success: false,
+        error: "Reservation not found",
+      };
+    }
+
+    if (reservation.status !== "PENDING") {
+      return {
+        success: false,
+        error: "Reservation is not pending",
+      };
+    }
+
+    const listing = reservation.listing;
+
+    if (listing.slotsAvailable <= 0) {
+      return {
+        success: false,
+        error: "No slots available",
+      };
+    }
+
+    // Use transaction to update both reservation and listing
+    await prisma.$transaction(async (tx) => {
+      // Update reservation status to ACCEPTED
+      await tx.reservation.update({
+        where: { id: reservationId },
+        data: {
+          status: "ACCEPTED",
+          acceptedAt: new Date(),
+        },
+      });
+
+      // Update listing slots
+      const newSlotsAvailable = listing.slotsAvailable - 1;
+      const shouldMarkUnavailable = newSlotsAvailable <= 0;
+
+      await tx.listing.update({
+        where: { id: listing.id },
+        data: {
+          slotsAvailable: newSlotsAvailable,
+          isAvailable: shouldMarkUnavailable ? false : listing.isAvailable,
+        },
+      });
+    });
+
+    revalidatePath("/manage-listings");
+    revalidatePath("/chats");
+
+    return {
+      success: true,
+      message: "Reservation accepted successfully",
+    };
+  } catch (error) {
+    console.error("Error accepting reservation:", error);
+    return {
+      success: false,
+      error: "Failed to accept reservation",
+    };
+  }
+}
+
+export async function declineReservationByIdAction(reservationId: number) {
+  try {
+    const reservation = await prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
+
+    if (!reservation) {
+      return {
+        success: false,
+        error: "Reservation not found",
+      };
+    }
+
+    if (reservation.status !== "PENDING") {
+      return {
+        success: false,
+        error: "Reservation is not pending",
+      };
+    }
+
+    // Update reservation status to DECLINED (or delete if you prefer)
+    await prisma.reservation.update({
+      where: { id: reservationId },
+      data: { status: "DECLINED" },
+    });
+
+    // Alternative: Delete the reservation entirely
+    // await prisma.reservation.delete({
+    //   where: { id: reservationId },
+    // });
+
+    revalidatePath("/manage-listings");
+    revalidatePath("/chats");
+
+    return {
+      success: true,
+      message: "Reservation declined successfully",
+    };
+  } catch (error) {
+    console.error("Error declining reservation:", error);
+    return {
+      success: false,
+      error: "Failed to decline reservation",
+    };
+  }
+}
+
 // New function to check if review prompt should be shown
 export async function checkReviewPromptEligibility(
   listingId: number,

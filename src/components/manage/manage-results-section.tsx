@@ -1,10 +1,19 @@
 import { ManageResultsHeader } from "./manage-results-header";
 import { ManageNoResults } from "./manage-no-results";
 import { ManageListingsGrid } from "./manage-listings-grid";
-import { ListingWithImages } from "@/config/types";
+import { Prisma } from "@prisma/client";
 
 interface ManageResultsSectionProps {
-  listings: ListingWithImages[]; // Replace with your actual listing type
+  listings: Prisma.ListingGetPayload<{
+    include: {
+      reservations: {
+        include: {
+          user: true;
+        };
+      };
+      images: true;
+    };
+  }>[]; // Replace with your actual listing type
   isViewingArchived: boolean;
   hasFilters: boolean;
 }

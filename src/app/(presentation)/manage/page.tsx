@@ -65,6 +65,11 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
         take: 1,
         orderBy: { id: "asc" },
       },
+      reservations: {
+        include: {
+          user: true,
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });

@@ -1,8 +1,17 @@
 import { ManageListingCard } from "@/components/manage/manage-listing-card";
-import { ListingWithImages } from "@/config/types";
+import { Prisma } from "@prisma/client";
 
 interface ManageListingsGridProps {
-  listings: ListingWithImages[]; // Replace with your actual listing type
+  listings: Prisma.ListingGetPayload<{
+    include: {
+      reservations: {
+        include: {
+          user: true;
+        };
+      };
+      images: true;
+    };
+  }>[]; // Replace with your actual listing type
   isViewingArchived: boolean;
 }
 
