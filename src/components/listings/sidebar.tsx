@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, formatEnumValue } from "@/lib/utils";
 import { SearchInput } from "../shared/search-input";
 import { RangeFilters } from "./range-filters";
 import { SidebarProps } from "@/config/types";
@@ -10,9 +10,10 @@ import { parseAsString, useQueryStates } from "nuqs";
 import { routes } from "@/config/routes";
 import { NativeSelect } from "../ui/native-select";
 import { ProximityFilter } from "./proximity-filter";
+import { RulesAmenitiesModal } from "./rules-amenities-filter";
+import { GenderPolicy, RoomType } from "@prisma/client";
 import { ArrowUpDown, Filter, X } from "lucide-react";
 import { EXCLUDED_KEYS, SORT_OPTIONS } from "@/config/constants";
-import { PropertyDetailsModal } from "./property-details-filter";
 
 export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   const router = useRouter();
@@ -50,10 +51,8 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
     ).filter(([key, value]) => !EXCLUDED_KEYS.includes(key) && value).length;
     setFilterCount(filterCount);
 
-    // Count modal-specific filters
+    // Count modal-specific filters (only rules and amenities)
     const modalFilterKeys = [
-      "roomType",
-      "genderPolicy",
       "curfew",
       "laundry",
       "caretaker",
@@ -99,8 +98,6 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
   };
 
   const handleModalFiltersApply = (filters: {
-    roomType?: string;
-    genderPolicy?: string;
     curfew?: string;
     laundry?: string;
     caretaker?: string;
@@ -110,8 +107,6 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
     utilities?: string;
   }) => {
     setQueryStates({
-      roomType: filters.roomType || null,
-      genderPolicy: filters.genderPolicy || null,
       curfew: filters.curfew || null,
       laundry: filters.laundry || null,
       caretaker: filters.caretaker || null,
@@ -224,17 +219,48 @@ export const Sidebar = ({ minMaxValues, searchParams }: SidebarProps) => {
             </div>
           </div>
 
-          {/* Property Details Modal Trigger */}
+          {/* Property Details */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <div className="h-1 w-1 rounded-full bg-primary"></div>
+              Property Details
+            </h3>
+            <div className="pl-3 space-y-4">
+              <NativeSelect
+                label="Room Type"
+                name="roomType"
+                value={queryStates.roomType || ""}
+                onChange={handleChange}
+                options={Object.values(RoomType).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+
+              <NativeSelect
+                label="Gender Policy"
+                name="genderPolicy"
+                value={queryStates.genderPolicy || ""}
+                onChange={handleChange}
+                options={Object.values(GenderPolicy).map((value) => ({
+                  label: formatEnumValue(value),
+                  value,
+                }))}
+                className="space-y-2"
+              />
+            </div>
+          </div>
+
+          {/* Rules & Amenities Modal Trigger */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <div className="h-1 w-1 rounded-full bg-primary"></div>
               More Filters
             </h3>
             <div className="pl-3">
-              <PropertyDetailsModal
+              <RulesAmenitiesModal
                 queryStates={{
-                  roomType: queryStates.roomType,
-                  genderPolicy: queryStates.genderPolicy,
                   curfew: queryStates.curfew,
                   laundry: queryStates.laundry,
                   caretaker: queryStates.caretaker,
