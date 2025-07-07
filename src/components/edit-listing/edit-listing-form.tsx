@@ -122,7 +122,7 @@ export const EditListingForm = ({
 
   const form = useForm<UpdateListingType>({
     resolver: zodResolver(UpdateListingSchema),
-    mode: "onBlur",
+    mode: "all",
     defaultValues: originalValues,
   });
 
