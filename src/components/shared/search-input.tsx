@@ -47,10 +47,15 @@ export const SearchInput = (props: SearchInputProps) => {
   };
 
   return (
-    <form className="relative flex-1">
+    <form
+      className="relative flex-1"
+      onSubmit={(e) => {
+        e.preventDefault();
+      }}
+    >
       <SearchIcon className="absolute top-2.5 left-2.5 h-4 w-4 text-gray-500" />
       <Input
-        ref={inputRef} // attaches the ref to the input element, like an id.
+        ref={inputRef}
         defaultValue={q || ""}
         className={cn("pl-8", className)}
         onChange={onChange}
