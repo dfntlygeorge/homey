@@ -15,6 +15,7 @@ export default async function FavouritesPage() {
     where: { id: { in: favourites ? favourites.ids : [] } }, // where clause to filter the records.
     include: {
       images: { take: 1 }, // just take 1 since we dont have a carousel so it's useless to return all of them
+      address: true,
     },
   });
 
@@ -24,12 +25,20 @@ export default async function FavouritesPage() {
 
   return (
     <div className="container mx-auto min-h-[80dvh] px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">Your Saved Listings</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Your Saved Listings</h1>
+        {count > 0 && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            {count} saved {count === 1 ? "listing" : "listings"}
+          </p>
+        )}
+      </div>
+
       {count === 0 ? (
         <EmptyFavouritesMessage />
       ) : (
         <Suspense fallback={<FavouritesSkeleton />}>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
