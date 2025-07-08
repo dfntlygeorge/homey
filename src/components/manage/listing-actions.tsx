@@ -23,13 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { deleteListingAction } from "@/app/_actions/delete-listing";
+import { deleteListingAction } from "@/app/_actions/manage/delete-listing";
 import { toast } from "sonner";
 import { routes } from "@/config/routes";
-import { updateListingAvailabilityAction } from "@/app/_actions/update-listing-availability";
+import { updateListingAvailabilityAction } from "@/app/_actions/manage/update-listing-availability";
 import { cn } from "@/lib/utils";
-import { archiveListingAction } from "@/app/_actions/archive-listing";
-import { unarchiveListingAction } from "@/app/_actions/unarhive-listing";
+import { archiveListingAction } from "@/app/_actions/manage/archive-listing";
+import { unarchiveListingAction } from "@/app/_actions/manage/unarhive-listing";
 import { Prisma } from "@prisma/client";
 import { ManageReservationsButton } from "./manage-reservations-button";
 

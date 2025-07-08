@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Send } from "lucide-react";
-import { createMessage } from "@/app/_actions/create-message";
+import { createMessage } from "@/app/_actions/chats/create-message";
 import { socket } from "@/socket";
 import { Message } from "@prisma/client";
 

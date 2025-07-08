@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { ReportFormData, ReportFormSchema } from "../_schemas/report.schema";
+import { ReportFormData, ReportFormSchema } from "../../_schemas/report.schema";
 import prisma from "@/lib/prisma";
 
 export async function createReportAction(

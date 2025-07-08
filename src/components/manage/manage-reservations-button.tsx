@@ -12,12 +12,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  acceptReservationByIdAction,
-  declineReservationByIdAction,
-} from "@/app/_actions/reserve";
+
 import { toast } from "sonner";
 import { Prisma } from "@prisma/client";
+import { acceptReservationByIdAction } from "@/app/_actions/manage/accept-reservation";
+import { declineReservationByIdAction } from "@/app/_actions/manage/decline-reservation";
 
 interface ManageReservationsButtonProps {
   listing: Prisma.ListingGetPayload<{

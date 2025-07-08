@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
 import { useTransition, useMemo, useCallback, useState } from "react";
-import { updateListingAction } from "@/app/_actions/update-listing";
+import { updateListingAction } from "@/app/_actions/manage/update-listing";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { toast } from "sonner";

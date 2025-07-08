@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { formatEnumValue } from "@/lib/utils";
 import { useTransition } from "react";
-import { createListingAction } from "@/app/_actions/create-listing";
+import { createListingAction } from "@/app/_actions/manage/create-listing";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { routes } from "@/config/routes";

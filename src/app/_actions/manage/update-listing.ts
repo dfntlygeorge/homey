@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import {
   UpdateListingSchema,
   UpdateListingType,
-} from "../_schemas/form.schema";
+} from "../../_schemas/form.schema";
 import prisma from "@/lib/prisma";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 // import { env } from "@/env";

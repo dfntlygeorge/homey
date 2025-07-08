@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { ReservationStatus } from "@prisma/client";
 import { toast } from "sonner";
-import {
-  checkReservationStatus,
-  reserveListingAction,
-  checkOwnerReservationStatus,
-  acceptReservationAction,
-  declineReservationAction,
-} from "@/app/_actions/reserve";
+import { reserveListingAction } from "@/app/_actions/chats/reserve-listing";
+import { declineReservationAction } from "@/app/_actions/chats/decline-reservation";
+import { acceptReservationAction } from "@/app/_actions/chats/accept-reservation";
+import { checkOwnerReservationStatus } from "@/app/_actions/chats/check-owner-reservation-status";
+import { checkReservationStatus } from "@/app/_actions/chats/check-reservation-status";
 
 interface UseReservationStatusProps {
   listingId: number;

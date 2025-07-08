@@ -12,7 +12,7 @@ import { NotificationDropdown } from "./notification-dropdown";
 import {
   markAllAsReadAction,
   markAsReadAction,
-} from "@/app/_actions/notification";
+} from "@/app/_actions/shared/notification";
 import { Session } from "next-auth";
 import { Favourites } from "@/config/types";
 

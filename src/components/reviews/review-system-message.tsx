@@ -14,7 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { submitReviewAction } from "@/app/_actions/create-review";
+import { submitReviewAction } from "@/app/_actions/chats/create-review";
 
 interface ReviewSystemMessageProps {
   addressId: number;

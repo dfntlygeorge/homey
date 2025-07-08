@@ -6,7 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
-import { SignInAction, signOutAction } from "@/app/_actions/auth";
+import { SignInAction, signOutAction } from "@/app/_actions/shared/auth";
 
 interface SignInButtonProps {
   session: Session | null;

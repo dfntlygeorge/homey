@@ -5,12 +5,10 @@ import { MessageList } from "./message-list";
 import { ChatInput } from "./chat-input";
 import { useState, useEffect, useCallback } from "react";
 import { socket } from "@/socket";
-import { markMessagesAsSeen } from "@/app/_actions/mark-as-seen";
+import { markMessagesAsSeen } from "@/app/_actions/chats/mark-as-seen";
 import { ListingChatHeader } from "./listing-chat-header";
-import {
-  checkExistingReview,
-  checkReviewPromptEligibility,
-} from "@/app/_actions/reserve";
+import { checkReviewPromptEligibility } from "@/app/_actions/chats/check-review-prompt-eligibility";
+import { checkExistingReview } from "@/app/_actions/chats/check-existing-review";
 
 // System message type
 export interface SystemMessage {

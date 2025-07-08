@@ -24,7 +24,7 @@ import { REPORT_REASONS } from "@/config/constants";
 import { useForm } from "react-hook-form";
 import { ReportFormData, ReportFormSchema } from "@/app/_schemas/report.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createReportAction } from "@/app/_actions/create-report";
+import { createReportAction } from "@/app/_actions/listings/create-report";
 import { toast } from "sonner";
 
 export const MoreListingActions = ({ listingId }: { listingId: number }) => {

@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { toast } from "sonner";
-import { updateListingStatus } from "@/app/_actions/update-listing-status";
-import { createNotificationAction } from "@/app/_actions/notification";
+import { updateListingStatus } from "@/app/_actions/admin/update-listing-status";
+import { createNotificationAction } from "@/app/_actions/shared/notification";
 import { ListingStatus, NotificationType } from "@prisma/client";
 import {
   ListingWithImagesUserAndReports,

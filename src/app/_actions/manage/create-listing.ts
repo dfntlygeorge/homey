@@ -8,11 +8,11 @@ import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { env } from "@/env";
 
-import { moderateListingAction } from "./moderate-listing";
+import { moderateListingAction } from "../moderation/moderate-listing";
 import {
   CreateListingSchema,
   CreateListingType,
-} from "../_schemas/form.schema";
+} from "../../_schemas/form.schema";
 
 export const createListingAction = async (
   createListingData: CreateListingType

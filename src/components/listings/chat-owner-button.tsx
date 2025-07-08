@@ -1,6 +1,6 @@
 "use client";
 
-import { startConversationWithOwner } from "@/app/_actions/listing";
+import { startConversationWithOwner } from "@/app/_actions/chats/start-conversation";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
