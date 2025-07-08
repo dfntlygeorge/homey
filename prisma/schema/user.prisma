@@ -7,7 +7,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
 
-    role UserRole?
+    role UserRole @default(STUDENT)
 
     listings              Listing[]
     reviews               Review[]
