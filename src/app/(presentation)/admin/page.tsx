@@ -16,7 +16,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-export default async function ManageListingsPage(props: AwaitedPageProps) {
+export default async function AdminPage(props: AwaitedPageProps) {
   const session = await auth();
   if (!session) return <UnauthenticatedMessage />;
 
