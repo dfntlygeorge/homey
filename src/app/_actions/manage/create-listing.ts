@@ -13,6 +13,7 @@ import {
   CreateListingSchema,
   CreateListingType,
 } from "../../_schemas/form.schema";
+import { listingRatelimit } from "@/lib/rate-limit";
 
 export const createListingAction = async (
   createListingData: CreateListingType
@@ -25,6 +26,14 @@ export const createListingAction = async (
       return {
         success: false,
         message: "You must be logged in to create a listing",
+      };
+    }
+
+    const { success: successRateLimit } = await listingRatelimit.limit(userId);
+    if (!successRateLimit) {
+      return {
+        success: false,
+        message: "You can only create 1 listing every 10 minutes. Please wait.",
       };
     }
 

@@ -1,11 +1,7 @@
-// app/_actions/submit-review.ts
-
 "use server";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
-// TODO: use zod for better validation.
 export const submitReviewAction = async (
   addressId: number,
   rating: number,
