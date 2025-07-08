@@ -1,7 +1,7 @@
 "use client";
 
 import { Message, User } from "@prisma/client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { MessageBubble } from "./message-bubble";
 import { SystemMessageBubble } from "./system-message-bubble";
 import { formatMessageTimestamp } from "@/lib/message-utils";
@@ -36,6 +36,38 @@ export const MessageList = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Memoize and deduplicate messages to prevent key conflicts
+  const sortedMessages = useMemo(() => {
+    // Combine and sort all messages by creation time
+    const combineAndSortMessages = (): CombinedMessage[] => {
+      const userMessages: CombinedMessage[] = messages.map((msg) => ({
+        type: "user" as const,
+        data: msg,
+      }));
+
+      // Deduplicate system messages by ID to prevent duplicate keys
+      const uniqueSystemMessages = systemMessages.filter(
+        (msg, index, self) => index === self.findIndex((m) => m.id === msg.id)
+      );
+
+      const systemMessagesFormatted: CombinedMessage[] =
+        uniqueSystemMessages.map((msg) => ({
+          type: "system" as const,
+          data: msg,
+        }));
+
+      const allMessages = [...userMessages, ...systemMessagesFormatted];
+
+      return allMessages.sort((a, b) => {
+        const timeA = new Date(a.data.createdAt).getTime();
+        const timeB = new Date(b.data.createdAt).getTime();
+        return timeA - timeB;
+      });
+    };
+
+    return combineAndSortMessages();
+  }, [messages, systemMessages]);
+
   // Auto-scroll to bottom only if user is near the bottom
   useEffect(() => {
     const container = containerRef.current;
@@ -53,32 +85,7 @@ export const MessageList = ({
         block: "end",
       });
     }
-  }, [messages, systemMessages]);
-
-  // Combine and sort all messages by creation time
-  const combineAndSortMessages = (): CombinedMessage[] => {
-    const userMessages: CombinedMessage[] = messages.map((msg) => ({
-      type: "user" as const,
-      data: msg,
-    }));
-
-    const systemMessagesFormatted: CombinedMessage[] = systemMessages.map(
-      (msg) => ({
-        type: "system" as const,
-        data: msg,
-      })
-    );
-
-    const allMessages = [...userMessages, ...systemMessagesFormatted];
-
-    return allMessages.sort((a, b) => {
-      const timeA = new Date(a.data.createdAt).getTime();
-      const timeB = new Date(b.data.createdAt).getTime();
-      return timeA - timeB;
-    });
-  };
-
-  const sortedMessages = combineAndSortMessages();
+  }, [sortedMessages]);
 
   // Group messages by time threshold (30 minutes)
   const messageGroups: Array<{
@@ -144,11 +151,11 @@ export const MessageList = ({
 
           {/* Messages in this group */}
           <div className="space-y-2">
-            {group.messages.map((message) => {
+            {group.messages.map((message, messageIndex) => {
               if (message.type === "system") {
                 return (
                   <SystemMessageBubble
-                    key={`system-${message.data.id}`}
+                    key={`system-${groupIndex}-${messageIndex}-${message.data.id}`}
                     systemMessage={message.data}
                     onReviewSubmitted={onReviewSubmitted}
                     onDismiss={() => onDismissSystemMessage(message.data.id)}
@@ -167,7 +174,7 @@ export const MessageList = ({
 
               return (
                 <MessageBubble
-                  key={`user-${userMessage.id}`}
+                  key={`user-${groupIndex}-${messageIndex}-${userMessage.id}`}
                   message={userMessage}
                   isCurrentUser={userMessage.senderId === currentUserId}
                   otherUser={otherUser}
