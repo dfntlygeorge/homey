@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Circle, Check, ExternalLink } from "lucide-react";
+import { Bell, Circle, Check, ExternalLink, Calendar } from "lucide-react";
 import { formatTimestamp } from "@/lib/utils";
 
 interface NotificationDropdownProps {
@@ -115,10 +115,8 @@ export const NotificationDropdown = (props: NotificationDropdownProps) => {
     switch (type) {
       case NotificationType.LISTING:
         return <ExternalLink className="h-3 w-3 text-blue-500" />;
-      case NotificationType.MESSAGE:
-        return <Circle className="h-3 w-3 text-green-500" />;
-      case NotificationType.ALERT:
-        return <Circle className="h-3 w-3 text-red-500" />;
+      case NotificationType.RESERVATION:
+        return <Calendar className="h-3 w-3 text-green-500" />;
       default:
         return <Circle className="h-3 w-3 text-gray-500" />;
     }

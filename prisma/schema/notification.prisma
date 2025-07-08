@@ -17,7 +17,6 @@ model Notification {
 
 enum NotificationType {
     LISTING
-    MESSAGE
-    ALERT
+    RESERVATION
     SYSTEM
 }
