@@ -1,8 +1,21 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function acceptReservationByIdAction(reservationId: number) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     // Get the reservation with listing details
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
@@ -20,6 +33,13 @@ export async function acceptReservationByIdAction(reservationId: number) {
       return {
         success: false,
         error: "Reservation is not pending",
+      };
+    }
+
+    if (reservation.ownerId !== currentUser.id) {
+      return {
+        success: false,
+        error: "Unauthorized",
       };
     }
 

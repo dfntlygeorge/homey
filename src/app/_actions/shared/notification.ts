@@ -24,8 +24,22 @@ export async function createNotificationAction(
   // Revalidate to refresh server components
   revalidatePath("/");
 }
-
 export async function markAsReadAction(notificationId: number) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) notFound();
+
+  // Check that the notification belongs to this user
+  const notification = await prisma.notification.findUnique({
+    where: { id: notificationId },
+    select: { userId: true },
+  });
+
+  if (!notification || notification.userId !== userId) {
+    console.error("Unauthorized attempt to mark notification as read");
+    notFound();
+  }
+
   await prisma.notification.update({
     where: {
       id: notificationId,
@@ -35,7 +49,6 @@ export async function markAsReadAction(notificationId: number) {
     },
   });
 
-  // Revalidate to refresh server components
   revalidatePath("/");
 }
 
@@ -53,6 +66,5 @@ export async function markAllAsReadAction() {
     },
   });
 
-  // Revalidate to refresh server components
   revalidatePath("/");
 }

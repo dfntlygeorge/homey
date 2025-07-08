@@ -6,7 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
-import { SignInAction, signOutAction } from "@/app/_actions/shared/auth";
+import { signInAction, signOutAction } from "@/app/_actions/shared/auth";
 
 interface SignInButtonProps {
   session: Session | null;
@@ -56,7 +56,7 @@ export default function SignInButton(props: SignInButtonProps) {
     );
   }
   return (
-    <form action={SignInAction} className="inline">
+    <form action={signInAction} className="inline">
       <button type="submit" className={className}>
         Sign In
       </button>

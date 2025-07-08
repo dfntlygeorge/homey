@@ -1,8 +1,18 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function declineReservationByIdAction(reservationId: number) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },
     });

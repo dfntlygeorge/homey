@@ -46,6 +46,7 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
     const updates = result.data;
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { images, address, longitude, latitude, ...rest } = updates;
 
     // Handle address update if address fields are provided

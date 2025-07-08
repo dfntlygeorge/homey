@@ -6,6 +6,7 @@ import { callGemini } from "@/lib/gemini";
 import prisma from "@/lib/prisma";
 import { ListingStatus } from "@prisma/client";
 import { moderateImageFromS3 } from "./rekognition";
+import { env } from "@/env";
 
 export const moderateListingAction = async (listingId: number) => {
   console.log("moderateListingAction was called");
@@ -54,11 +55,7 @@ export const moderateListingAction = async (listingId: number) => {
     const results = await Promise.all(
       listing.images.map(async (image) => {
         const keyName = new URL(image.url).pathname.slice(1);
-        return await moderateImageFromS3(
-          process.env.AWS_S3_BUCKET_NAME!,
-          keyName,
-          50
-        );
+        return await moderateImageFromS3(env.AWS_S3_BUCKET_NAME!, keyName, 50);
       })
     );
 
