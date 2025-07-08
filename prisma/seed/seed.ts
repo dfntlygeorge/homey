@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
 
 async function main() {
-  console.log("UPDATING REVIEWS...");
+  console.log("DELETING NOTIFICATIONS...");
 
-  await prisma.review.deleteMany();
+  await prisma.notification.deleteMany();
 
   console.log("SUCCESSFUL");
 }

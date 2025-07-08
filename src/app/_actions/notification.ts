@@ -10,7 +10,7 @@ export async function createNotificationAction(
   userId: string,
   message: string,
   type: NotificationType,
-  listingId: number
+  listingId?: number
 ) {
   await prisma.notification.create({
     data: {
