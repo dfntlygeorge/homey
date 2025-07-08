@@ -1,3 +1,6 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function checkOwnerReservationStatus(
@@ -6,6 +9,18 @@ export async function checkOwnerReservationStatus(
   renterId: string
 ) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (
+      !currentUser ||
+      (currentUser.id !== ownerId && currentUser.id !== renterId)
+    ) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
     const reservation = await prisma.reservation.findFirst({
       where: {
         listingId,

@@ -1,3 +1,6 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -8,7 +11,16 @@ export async function declineReservationAction(
   renterId: string
 ) {
   try {
-    // Find the pending reservation between owner and renter
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser || currentUser.id !== ownerId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     const reservation = await prisma.reservation.findFirst({
       where: {
         listingId,
@@ -25,7 +37,6 @@ export async function declineReservationAction(
       };
     }
 
-    // Update reservation status to DECLINED
     await prisma.reservation.update({
       where: { id: reservation.id },
       data: { status: "DECLINED" },
@@ -33,12 +44,12 @@ export async function declineReservationAction(
 
     const listing = await prisma.listing.findUnique({
       where: { id: listingId },
-      select: { slotsAvailable: true, isAvailable: true, title: true },
+      select: { title: true },
     });
 
     await prisma.notification.create({
       data: {
-        userId: renterId, // notifcation for the owner
+        userId: renterId,
         message: `Your reservation request for "${listing?.title}" has been declined.`,
         type: NotificationType.RESERVATION,
       },
@@ -46,7 +57,6 @@ export async function declineReservationAction(
 
     console.log("DECLINED RESERVATION:", reservation.id);
 
-    // Revalidate the page to update the UI
     revalidatePath("/chats");
 
     return {

@@ -1,3 +1,6 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
@@ -8,6 +11,15 @@ export async function acceptReservationAction(
   renterId: string
 ) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser || currentUser.id !== ownerId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
     // Find the pending reservation between owner and renter
     const reservation = await prisma.reservation.findFirst({
       where: {

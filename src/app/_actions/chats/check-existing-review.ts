@@ -1,7 +1,19 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function checkExistingReview(addressId: number, userId: string) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser || currentUser.id !== userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
     const existingReview = await prisma.review.findFirst({
       where: {
         addressId,

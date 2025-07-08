@@ -1,3 +1,6 @@
+"use server";
+
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function checkReviewPromptEligibility(
@@ -5,6 +8,16 @@ export async function checkReviewPromptEligibility(
   userId: string
 ) {
   try {
+    const session = await auth();
+    const currentUser = session?.user;
+
+    if (!currentUser || currentUser.id !== userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
+
     const reservation = await prisma.reservation.findFirst({
       where: {
         listingId,

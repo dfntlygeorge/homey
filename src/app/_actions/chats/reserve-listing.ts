@@ -1,11 +1,21 @@
 "use server";
 
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function reserveListingAction(listingId: number, userId: string) {
+export async function reserveListingAction(listingId: number) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return {
+        success: false,
+        error: "Unauthorized",
+      };
+    }
     // Check if user already has a reservation for this listing
     const existingReservation = await prisma.reservation.findFirst({
       where: {

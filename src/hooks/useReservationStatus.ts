@@ -65,7 +65,7 @@ export const useReservationStatus = ({
     setIsReserving(true);
 
     try {
-      const result = await reserveListingAction(listingId, currentUserId);
+      const result = await reserveListingAction(listingId);
 
       if (result.success) {
         setReservationStatus("PENDING");
