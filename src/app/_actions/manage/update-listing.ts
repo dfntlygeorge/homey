@@ -8,6 +8,7 @@ import {
 import prisma from "@/lib/prisma";
 import { UploadedImage } from "@/context/edit-listing/images-context";
 import { updateImagesAction } from "./update-listing-images";
+import { moderateListingAction } from "../moderation/moderate-listing";
 
 interface UpdateListingProps {
   listingId: number;
@@ -87,9 +88,14 @@ export const updateListingAction = async (props: UpdateListingProps) => {
       userId,
     });
 
+    moderateListingAction(listingId).catch((e) => {
+      console.error("Error running background moderation:", e);
+    });
+
     return {
       success: true,
-      message: "Updated successfully",
+      message:
+        "Updated successfully. Your listing is now under review and will be visible once approved.",
     };
   } catch (error) {
     console.error("Error in updating the listing: ", error);

@@ -10,7 +10,7 @@ export default async function ListingPage(props: PageProps) {
   if (!id) notFound();
 
   const listing = await prisma.listing.findUnique({
-    where: { id },
+    where: { id, status: "APPROVED", isArchived: false, isAvailable: true },
     include: {
       images: true,
       address: {
