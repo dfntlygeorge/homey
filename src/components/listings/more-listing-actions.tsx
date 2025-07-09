@@ -56,9 +56,19 @@ export const MoreListingActions = ({ listingId }: { listingId: number }) => {
     setIsSubmitting(true);
 
     try {
-      await createReportAction(data, listingId);
+      const response = await createReportAction(data, listingId);
+
+      if (!response?.success) {
+        setIsSubmitting(false);
+        toast.error(
+          response?.message || "Failed to submit report. Please try again."
+        );
+        return;
+      }
+
       setIsSubmitting(false);
       setIsSubmitted(true);
+      toast.success("Report submitted successfully!");
 
       // Auto-close modal after success
       setTimeout(() => {
@@ -68,7 +78,7 @@ export const MoreListingActions = ({ listingId }: { listingId: number }) => {
       }, 2000);
     } catch (error) {
       setIsSubmitting(false);
-      toast.error("Error in reporting the lisitng");
+      toast.error("An unexpected error occurred while submitting the report.");
       console.error("Error submitting report:", error);
     }
   };

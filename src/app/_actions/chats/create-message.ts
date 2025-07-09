@@ -1,9 +1,9 @@
-// @/lib/actions/message-actions.ts
 "use server";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { messageRatelimit } from "@/lib/rate-limit";
 
 export async function createMessage(
   conversationId: number,
@@ -19,6 +19,14 @@ export async function createMessage(
 
     const senderId = session.user.id;
 
+    // Rate limit check
+    const { success } = await messageRatelimit.limit(senderId);
+    if (!success) {
+      return {
+        error: "You're sending messages too fast. Please slow down.",
+      };
+    }
+
     // Validate that the conversation exists and the user is part of it
     const conversation = await prisma.conversation.findFirst({
       where: {
@@ -29,6 +37,19 @@ export async function createMessage(
 
     if (!conversation) {
       return { error: "Conversation not found or unauthorized" };
+    }
+
+    const allowedReceiverId =
+      conversation.renterId === senderId
+        ? conversation.ownerId
+        : conversation.renterId;
+
+    if (receiverId !== allowedReceiverId) {
+      return { error: "Invalid receiver" };
+    }
+
+    if (!text.trim() || text.trim().length > 2000) {
+      return { error: "Invalid message length" };
     }
 
     // Create the message

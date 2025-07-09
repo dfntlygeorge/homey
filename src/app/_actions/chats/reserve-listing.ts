@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { reservationRatelimit } from "@/lib/rate-limit";
 import { NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
@@ -14,6 +15,15 @@ export async function reserveListingAction(listingId: number) {
       return {
         success: false,
         error: "Unauthorized",
+      };
+    }
+
+    const { success } = await reservationRatelimit.limit(userId);
+    if (!success) {
+      return {
+        success: false,
+        error:
+          "You can only send up to 3 reservation requests per hour. Please try again later.",
       };
     }
     // Check if user already has a reservation for this listing

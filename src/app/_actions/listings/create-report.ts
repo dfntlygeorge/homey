@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { ReportFormData, ReportFormSchema } from "../../_schemas/report.schema";
 import prisma from "@/lib/prisma";
+import { reportRatelimit } from "@/lib/rate-limit";
 
 export async function createReportAction(
   formData: ReportFormData,
@@ -17,6 +18,16 @@ export async function createReportAction(
         success: false,
         message: "You need an account to report a listing",
       };
+
+    // Check rate limit
+    const { success: successRateLimit } = await reportRatelimit.limit(userId);
+    if (!successRateLimit) {
+      return {
+        success: false,
+        message:
+          "You have reached the maximum number of reports allowed today. Please try again tomorrow.",
+      };
+    }
 
     const { data, success, error } = ReportFormSchema.safeParse(formData);
 

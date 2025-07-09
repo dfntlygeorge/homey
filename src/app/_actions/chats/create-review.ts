@@ -2,6 +2,8 @@
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import { reviewRatelimit } from "@/lib/rate-limit";
+
 export const submitReviewAction = async (
   addressId: number,
   rating: number,
@@ -18,6 +20,15 @@ export const submitReviewAction = async (
       };
     }
 
+    // Rate limiting
+    const { success } = await reviewRatelimit.limit(userId);
+    if (!success) {
+      return {
+        success: false,
+        message: "You can only submit one review per minute. Please wait.",
+      };
+    }
+
     // Validate rating
     if (rating < 1 || rating > 5) {
       return {
@@ -26,18 +37,18 @@ export const submitReviewAction = async (
       };
     }
 
-    // Validate comment
-    if (!comment.trim()) {
-      return {
-        success: false,
-        message: "Comment is required",
-      };
-    }
-
-    if (comment.trim().length < 10) {
+    // Validate and sanitize comment
+    const cleanedComment = comment.trim().replace(/\s+/g, " ");
+    if (cleanedComment.length < 10) {
       return {
         success: false,
         message: "Comment must be at least 10 characters long",
+      };
+    }
+    if (/http|www|\.com|\.net/i.test(cleanedComment)) {
+      return {
+        success: false,
+        message: "Links are not allowed in comments",
       };
     }
 
@@ -53,7 +64,7 @@ export const submitReviewAction = async (
       };
     }
 
-    // Check if user has already reviewed this address
+    // Check if user already reviewed
     const existingReview = await prisma.review.findFirst({
       where: {
         userId,
@@ -68,19 +79,15 @@ export const submitReviewAction = async (
       };
     }
 
-    // Create the review
+    // Create review
     const review = await prisma.review.create({
       data: {
         userId,
         addressId,
         rating,
-        comment: comment.trim(),
+        comment: cleanedComment,
       },
     });
-
-    // Optionally revalidate paths that might display reviews
-    // revalidatePath(`/listings/${addressId}`);
-    // revalidatePath("/");
 
     return {
       success: true,

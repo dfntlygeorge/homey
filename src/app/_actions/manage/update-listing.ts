@@ -6,11 +6,8 @@ import {
   UpdateListingType,
 } from "../../_schemas/form.schema";
 import prisma from "@/lib/prisma";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-// import { env } from "@/env";
 import { UploadedImage } from "@/context/edit-listing/images-context";
-import { v4 as uuidv4 } from "uuid";
-import { env } from "@/env";
+import { updateImagesAction } from "./update-listing-images";
 
 interface UpdateListingProps {
   listingId: number;
@@ -83,87 +80,12 @@ export const updateListingAction = async (props: UpdateListingProps) => {
       },
     });
 
-    // Delete removed images
-    if (deletedImageIds && deletedImageIds.length > 0) {
-      await prisma.image.deleteMany({
-        where: {
-          id: { in: deletedImageIds },
-          listingId, // Optional: extra safety
-        },
-      });
-    }
-
-    if (imagesToUpload.length > 0) {
-      // Set up S3 client for image uploads
-      const s3Client = new S3Client({
-        region: env.AWS_S3_REGION,
-        credentials: {
-          accessKeyId: env.AWS_S3_ACCESS_KEY_ID,
-          secretAccessKey: env.AWS_S3_SECRET_ACCESS_KEY,
-        },
-      });
-
-      // Get the current highest order for existing images
-      const existingImages = await prisma.image.findMany({
-        where: { listingId },
-        select: { order: true },
-        orderBy: { order: "desc" },
-        take: 1,
-      });
-
-      const startingOrder =
-        existingImages.length > 0 ? existingImages[0].order + 1 : 0;
-
-      // Handle image uploads in parallel
-      const uploadPromises = imagesToUpload.map(
-        async (uploadedPhoto, index) => {
-          try {
-            const image = uploadedPhoto.file;
-            const fileExtension = image.name.split(".").pop();
-            const uniqueFileName = `${listingId}/${uuidv4()}.${fileExtension}`;
-            const bucketName = env.AWS_S3_BUCKET_NAME;
-
-            const arrayBuffer = await image.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-
-            const command = new PutObjectCommand({
-              Bucket: bucketName,
-              Key: uniqueFileName,
-              Body: buffer,
-              ContentType: image.type,
-            });
-
-            await s3Client.send(command);
-
-            const imageUrl = `https://${bucketName}.s3.${env.AWS_S3_REGION}.amazonaws.com/${uniqueFileName}`;
-
-            return {
-              url: imageUrl,
-              listingId,
-              order: startingOrder + index, // Maintain order for new images
-            };
-          } catch (error) {
-            console.error(
-              `Failed to upload image ${uploadedPhoto.file.name}:`,
-              error
-            );
-            throw new Error(
-              `Failed to upload image: ${uploadedPhoto.file.name}`
-            );
-          }
-        }
-      );
-
-      // Wait for all uploads to complete
-      const uploadResults = await Promise.all(uploadPromises);
-
-      // Batch insert all images to database
-      await prisma.image.createMany({
-        data: uploadResults,
-      });
-
-      console.log(`Successfully uploaded ${uploadResults.length} images`);
-    }
+    await updateImagesAction({
+      listingId,
+      deletedImageIds,
+      imagesToUpload,
+      userId,
+    });
 
     return {
       success: true,
