@@ -9,6 +9,7 @@ import { endpoints } from "@/config/endpoints";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { routes } from "@/config/routes";
+import { HTTPError } from "ky";
 
 interface FavouriteButtonProps {
   setIsFavourite: (isFavourite: boolean) => void;
@@ -36,7 +37,9 @@ export const FavouriteButton = (props: FavouriteButtonProps) => {
     }
 
     try {
-      const { ids } = await api.post<{ ids: number[] }>(endpoints.favourites, {
+      const { ids } = await api.post<{
+        ids: number[];
+      }>(endpoints.favourites, {
         json: { id },
       });
 
@@ -50,6 +53,20 @@ export const FavouriteButton = (props: FavouriteButtonProps) => {
 
       setTimeout(() => router.refresh(), 250);
     } catch (error) {
+      if (error instanceof HTTPError) {
+        if (error.response.status === 401) {
+          toast.info("Please sign in to save listings");
+          return;
+        } else if (error.response.status === 429) {
+          toast.error("Rate limit exceeded. Please try again later.");
+          return;
+        } else {
+          toast.error("Failed to update favourite. Please try again.");
+          return;
+        }
+      }
+
+      // This will only run if it's not an HTTPError
       console.error("Failed to update favourite:", error);
       toast.error("Failed to update favourite. Please try again.");
     }

@@ -1,6 +1,8 @@
 import { validateIdSchema } from "@/app/_schemas/id.schema";
+import { auth } from "@/auth";
 import { routes } from "@/config/routes";
 import { Favourites } from "@/config/types";
+import { favouriteRateLimit } from "@/lib/rate-limit";
 import { redis } from "@/lib/redis-store";
 import { setSourceId } from "@/lib/source-id";
 import { revalidatePath } from "next/cache";
@@ -8,6 +10,32 @@ import { NextRequest, NextResponse } from "next/server";
 
 // this runs when a post request is sent to this api route.
 export const POST = async (req: NextRequest) => {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId!) {
+    return NextResponse.json(
+      {
+        error: "Login to save a listing",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
+  const { success } = await favouriteRateLimit.limit(userId);
+
+  if (!success) {
+    return NextResponse.json(
+      {
+        error: "Rate limit, slow down kid.",
+      },
+      {
+        status: 429,
+      }
+    );
+  }
   // NextRequest gives access to the request data.
   const body = await req.json(); // reads the request body and parsed/converts it to a javascript object
 

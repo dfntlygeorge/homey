@@ -42,3 +42,8 @@ export const availabilityRatelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(10, "10m"),
   analytics: true,
 });
+export const favouriteRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(15, "30m"),
+  analytics: true,
+});
