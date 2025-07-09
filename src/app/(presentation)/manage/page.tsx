@@ -9,6 +9,7 @@ import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { ListingStatus } from "@prisma/client";
 import { startOfToday, startOfWeek, startOfMonth } from "date-fns";
+import { ManageDialogFilters } from "@/components/manage/manage-dialog-filter";
 
 export default async function ManageListingsPage(props: AwaitedPageProps) {
   const session = await auth();
@@ -127,14 +128,20 @@ export default async function ManageListingsPage(props: AwaitedPageProps) {
             pendingListings={pendingListings}
             totalViews={totalViews}
           />
+          <div className="flex justify-between items-center">
+            {(activeCount > 0 || archivedCount > 0) && (
+              <ManageViewToggle
+                activeCount={activeCount}
+                archivedCount={archivedCount}
+                isViewingArchived={isViewingArchived}
+              />
+            )}
 
-          {(activeCount > 0 || archivedCount > 0) && (
-            <ManageViewToggle
-              activeCount={activeCount}
+            <ManageDialogFilters
+              searchParams={searchParams}
               archivedCount={archivedCount}
-              isViewingArchived={isViewingArchived}
             />
-          )}
+          </div>
 
           <ManageResultsSection
             listings={listings}
