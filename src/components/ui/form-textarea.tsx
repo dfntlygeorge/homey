@@ -1,4 +1,4 @@
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -7,25 +7,24 @@ import {
   FormMessage,
 } from "./form";
 import { Textarea } from "./textarea";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
 
-interface FormTextareaProps {
-  control: Control;
-  name: keyof UpdateListingType;
+interface FormTextareaProps<T extends FieldValues> {
+  control: Control<T>;
+  name: FieldPath<T>;
   label: string;
   placeholder?: string;
   rows?: number;
   required?: boolean;
 }
 
-export const FormTextarea = ({
+export const FormTextarea = <T extends FieldValues>({
   control,
   name,
   label,
   placeholder,
   rows = 3,
   required = false,
-}: FormTextareaProps) => {
+}: FormTextareaProps<T>) => {
   return (
     <FormField
       control={control}

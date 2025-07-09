@@ -16,14 +16,6 @@ import { CarouselSkeleton } from "../listings/skeleton/carousel-skeleton";
 import { UploadedImage } from "@/context/edit-listing/images-context";
 import { X } from "lucide-react";
 
-// // Using the actual shape of your Image type
-// type DatabaseImage = {
-//   id: number;
-//   url: string;
-//   listingId: number;
-//   createdAt: Date;
-// };
-
 interface PreviewImagesProps {
   existingImages: PrismaImage[];
   newImages: UploadedImage[];

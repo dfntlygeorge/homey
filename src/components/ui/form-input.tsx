@@ -1,4 +1,4 @@
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -7,25 +7,24 @@ import {
   FormMessage,
 } from "./form";
 import { Input } from "./input";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
 
-interface FormInputProps {
-  control: Control;
-  name: keyof UpdateListingType;
+interface FormInputProps<T extends FieldValues> {
+  control: Control<T>;
+  name: FieldPath<T>;
   label: string;
   placeholder?: string;
   type?: "text" | "number" | "email" | "tel";
   required?: boolean;
 }
 
-export const FormInput = ({
+export const FormInput = <T extends FieldValues>({
   control,
   name,
   label,
   placeholder,
   type = "text",
   required = false,
-}: FormInputProps) => {
+}: FormInputProps<T>) => {
   return (
     <FormField
       control={control}

@@ -9,28 +9,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { getChangedFields } from "@/lib/forms";
-import { Control } from "react-hook-form";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-type StepImagesProps = {
-  control: Control<UpdateListingType>;
+interface StepImagesProps<T extends FieldValues> {
+  control: Control<T>;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  originalValues: UpdateListingType;
-  formWatch: () => UpdateListingType;
-};
+  originalValues?: T;
+  formWatch?: () => T;
+}
 
-export const StepImages = ({
+export const StepImages = <T extends FieldValues>({
   control,
   handleFileChange,
   originalValues,
   formWatch,
-}: StepImagesProps) => {
+}: StepImagesProps<T>) => {
   return (
     <div className="space-y-6">
       <FormField
         control={control}
-        name="images"
-        render={() => (
+        name={"images" as FieldPath<T>}
+        render={({ field }) => (
           <FormItem>
             <FormLabel htmlFor="images">Upload Images</FormLabel>
             <FormControl>
@@ -39,7 +38,11 @@ export const StepImages = ({
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={handleFileChange}
+                  onChange={(e) => {
+                    handleFileChange(e);
+                    // Update the form field value to trigger validation
+                    field.onChange(e.target.files);
+                  }}
                   className="hidden"
                   id="file-upload"
                 />
@@ -80,18 +83,20 @@ export const StepImages = ({
       />
 
       {/* Debug info - only show in development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs">
-          <strong>Changed fields:</strong>
-          <pre className="mt-2 overflow-auto">
-            {JSON.stringify(
-              getChangedFields(originalValues, formWatch()),
-              null,
-              2
-            )}
-          </pre>
-        </div>
-      )}
+      {process.env.NODE_ENV === "development" &&
+        originalValues &&
+        formWatch && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs">
+            <strong>Changed fields:</strong>
+            <pre className="mt-2 overflow-auto">
+              {JSON.stringify(
+                getChangedFields(originalValues, formWatch()),
+                null,
+                2
+              )}
+            </pre>
+          </div>
+        )}
     </div>
   );
 };

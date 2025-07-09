@@ -1,35 +1,36 @@
 "use client";
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { RoomType } from "@prisma/client";
 import { FormInput } from "@/components/ui/form-input";
 import { FormTextarea } from "@/components/ui/form-textarea";
 import { FormSelect } from "@/components/ui/form-select";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
 
-export function StepBasicInfo({
+interface StepBasicInfoProps<T extends FieldValues> {
+  control: Control<T>;
+}
+
+export function StepBasicInfo<T extends FieldValues>({
   control,
-}: {
-  control: Control<UpdateListingType>;
-}) {
+}: StepBasicInfoProps<T>) {
   return (
     <div className="space-y-6">
       <FormInput
         control={control}
-        name="title"
+        name={"title" as FieldPath<T>}
         label="Title"
         placeholder="Ex. Spacious Dorm Room"
         required
       />
       <FormTextarea
         control={control}
-        name="description"
+        name={"description" as FieldPath<T>}
         label="Description"
         placeholder="Describe your property..."
         rows={4}
       />
       <FormSelect
         control={control}
-        name="roomType"
+        name={"roomType" as FieldPath<T>}
         label="Room Type"
         options={Object.values(RoomType).map((type) => ({
           value: type,

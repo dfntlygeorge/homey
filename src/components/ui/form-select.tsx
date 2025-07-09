@@ -1,4 +1,4 @@
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import {
   FormControl,
   FormField,
@@ -13,30 +13,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./select";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
 
 interface SelectOption {
   value: string;
   label: string;
 }
 
-interface FormSelectProps {
-  control: Control;
-  name: keyof UpdateListingType;
+interface FormSelectProps<T extends FieldValues> {
+  control: Control<T>;
+  name: FieldPath<T>;
   label: string;
   placeholder?: string;
   options: SelectOption[];
   required?: boolean;
 }
 
-export const FormSelect = ({
+export const FormSelect = <T extends FieldValues>({
   control,
   name,
   label,
   placeholder = "Select an option",
   options,
   required = false,
-}: FormSelectProps) => {
+}: FormSelectProps<T>) => {
   return (
     <FormField
       control={control}

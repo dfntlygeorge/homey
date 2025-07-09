@@ -1,17 +1,16 @@
 "use client";
 
 import {
-  UpdateListingSchema,
-  UpdateListingType,
+  CreateListingSchema,
+  CreateListingType,
 } from "@/app/_schemas/form.schema";
 import { FileSchema } from "@/app/_schemas/file.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
-import { ListingWithImagesAndAddress } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
-import { useTransition, useMemo, useCallback, useState } from "react";
-import { updateListingAction } from "@/app/_actions/manage/update-listing";
+import { useTransition, useCallback, useState } from "react";
+import { createListingAction } from "@/app/_actions/manage/create-listing";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
 import { toast } from "sonner";
@@ -19,94 +18,48 @@ import { generateSessionToken } from "@/lib/utils";
 import { env } from "@/env";
 import { useImages } from "@/context/edit-listing/images-context";
 import { ZodError } from "zod";
-import { getChangedFields } from "@/lib/forms";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
-import { EDIT_LISTING_STEPS } from "@/config/constants";
+import { EDIT_LISTING_STEPS as CREATE_LISTING_STEPS } from "@/config/constants";
 import { StepBasicInfo } from "../shared/step-basic-info";
 import { StepPricingAddress } from "../shared/step-pricing-address";
 import { StepPolicies } from "../shared/step-policies";
-import { EditListingProgressHeader } from "./edit-listing-progress-header";
 import { StepImages } from "../shared/step-images";
+import { CreateListingProgressHeader } from "./create-listing-progress-header";
 
-export const EditListingForm = ({
-  listing,
-}: {
-  listing: ListingWithImagesAndAddress;
-}) => {
+export const CreateListingForm = () => {
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
-  const { addImage, imagesChanged, removedImageIds, getNewImages } =
-    useImages();
+  const { addImage, getNewImages } = useImages();
 
-  const {
-    title,
-    description,
-    roomType,
-    rent,
-    slotsAvailable,
-    address,
-    contact,
-    genderPolicy,
-    curfew,
-    caretaker,
-    pets,
-    kitchen,
-    wifi,
-    laundry,
-    utilities,
-    facebookProfile,
-    id,
-  } = listing;
+  const defaultValues: CreateListingType = {
+    title: "",
+    description: "",
+    roomType: "STUDIO",
+    rent: 0,
+    slotsAvailable: 1,
+    address: "",
+    longitude: 0,
+    latitude: 0,
+    contact: "",
+    genderPolicy: "MIXED",
+    curfew: "NO_CURFEW",
+    caretaker: "NOT_AVAILABLE",
+    pets: "NOT_ALLOWED",
+    kitchen: "NOT_AVAILABLE",
+    wifi: "NOT_AVAILABLE",
+    laundry: "NOT_AVAILABLE",
+    utilities: "NOT_INCLUDED",
+    facebookProfile: "",
+    images: [],
+  };
 
-  const originalValues: UpdateListingType = useMemo(
-    () => ({
-      title,
-      description,
-      roomType,
-      rent,
-      slotsAvailable,
-      address: address.formattedAddress,
-      longitude: address.longitude,
-      latitude: address.latitude,
-      contact,
-      genderPolicy,
-      curfew,
-      caretaker,
-      pets,
-      kitchen,
-      wifi,
-      laundry,
-      utilities,
-      facebookProfile,
-    }),
-    [
-      title,
-      description,
-      roomType,
-      rent,
-      slotsAvailable,
-      address,
-      contact,
-      genderPolicy,
-      curfew,
-      caretaker,
-      pets,
-      kitchen,
-      wifi,
-      laundry,
-      utilities,
-      facebookProfile,
-    ]
-  );
-
-  const form = useForm<UpdateListingType>({
-    resolver: zodResolver(UpdateListingSchema),
+  const form = useForm<CreateListingType>({
+    resolver: zodResolver(CreateListingSchema),
     mode: "all",
-    defaultValues: originalValues,
+    defaultValues,
   });
 
-  // make a custom hook for this
   const handleAddressSelect = useCallback(
     async (suggestion: SearchBoxSuggestion) => {
       try {
@@ -135,7 +88,6 @@ export const EditListingForm = ({
     },
     [form]
   );
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
@@ -155,56 +107,51 @@ export const EditListingForm = ({
       }
     }
 
+    // Update the form field to include all images for validation
+    const newImages = getNewImages();
+    form.setValue(
+      "images",
+      newImages.map((image) => image.file)
+    );
+
     e.target.value = "";
   };
 
-  const onSubmit = (data: UpdateListingType) => {
+  const onSubmit = (data: CreateListingType) => {
     console.log("🔥 Submitting form with data:", data);
 
     startTransition(async () => {
       try {
-        const changedFields = getChangedFields(originalValues, data);
         const newImages = getNewImages();
-        const deletedImageIds = removedImageIds;
 
-        const hasImageChanged = imagesChanged();
-        console.log(
-          `Did image changed? ${hasImageChanged ? "YESSSS" : "NOOOO"}`
-        );
-
-        if (Object.keys(changedFields).length === 0 && !hasImageChanged) {
-          toast.info("No changes detected");
-          return;
-        }
+        // Add images to form data
+        const formDataWithImages = {
+          ...data,
+          images: newImages.map((image) => image.file),
+        };
 
         console.log("WOULD SEND THE FOLLOWING DETAILS TO THE SERVER: ");
-        console.log("IMAGES TO UPLOAD(FILES): ");
-        console.log("IMAGES TO DELETE(IDS): ", deletedImageIds);
+        console.log("FORM DATA: ", formDataWithImages);
 
-        const result = await updateListingAction({
-          listingId: id,
-          formData: changedFields,
-          deletedImageIds,
-          imagesToUpload: newImages,
-        });
+        const result = await createListingAction(formDataWithImages);
 
-        console.log("✅ Update result:", result);
+        console.log("✅ Create result:", result);
 
         if (result.success) {
-          toast.success("Listing updated successfully!");
-          router.push(routes.listing(id));
+          toast.success("Listing created successfully!");
+          router.push(routes.listings);
         } else {
-          toast.error(result.message || "Failed to update listing");
+          toast.error(result.message || "Failed to create listing");
         }
       } catch (error) {
-        console.error("❌ Error updating listing:", error);
-        toast.error("An error occurred while updating the listing");
+        console.error("❌ Error creating listing:", error);
+        toast.error("An error occurred while creating the listing");
       }
     });
   };
 
   const nextStep = () => {
-    if (currentStep < EDIT_LISTING_STEPS.length - 1) {
+    if (currentStep < CREATE_LISTING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -218,24 +165,22 @@ export const EditListingForm = ({
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return <StepBasicInfo<UpdateListingType> control={form.control} />;
+        return <StepBasicInfo<CreateListingType> control={form.control} />;
       case 1:
         return (
-          <StepPricingAddress<UpdateListingType>
+          <StepPricingAddress<CreateListingType>
             control={form.control}
             handleAddressSelect={handleAddressSelect}
           />
         );
       case 2:
-        return <StepPolicies<UpdateListingType> control={form.control} />;
+        return <StepPolicies<CreateListingType> control={form.control} />;
 
       case 3:
         return (
-          <StepImages<UpdateListingType>
+          <StepImages<CreateListingType>
             control={form.control}
             handleFileChange={handleFileChange}
-            originalValues={originalValues}
-            formWatch={form.watch}
           />
         );
 
@@ -248,7 +193,7 @@ export const EditListingForm = ({
     <div className="w-1/2 p-6 bg-white">
       <div className="max-w-2xl mx-auto">
         {/* Progress Steps */}
-        <EditListingProgressHeader currentStep={currentStep} />
+        <CreateListingProgressHeader currentStep={currentStep} />
 
         {/* Form */}
         <Form {...form}>
@@ -275,14 +220,14 @@ export const EditListingForm = ({
                 Previous
               </button>
 
-              {currentStep === EDIT_LISTING_STEPS.length - 1 ? (
+              {currentStep === CREATE_LISTING_STEPS.length - 1 ? (
                 <button
                   type="submit"
                   disabled={isPending}
                   className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {isPending ? "Updating..." : "Update Listing"}
+                  {isPending ? "Creating..." : "Create Listing"}
                 </button>
               ) : (
                 <button

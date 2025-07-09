@@ -1,5 +1,5 @@
 "use client";
-import { Control } from "react-hook-form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { FormInput } from "@/components/ui/form-input";
 import {
   FormField,
@@ -9,22 +9,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { AddressAutocomplete } from "../create-listing/address-autocomplete";
-import { UpdateListingType } from "@/app/_schemas/form.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
 
-export function StepPricingAddress({
+interface StepPricingAddressProps<T extends FieldValues> {
+  control: Control<T>;
+  handleAddressSelect: (suggestion: SearchBoxSuggestion) => void;
+}
+
+export function StepPricingAddress<T extends FieldValues>({
   control,
   handleAddressSelect,
-}: {
-  control: Control<UpdateListingType>;
-  handleAddressSelect: (suggestion: SearchBoxSuggestion) => void;
-}) {
+}: StepPricingAddressProps<T>) {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <FormInput
           control={control}
-          name="rent"
+          name={"rent" as FieldPath<T>}
           label="Monthly Rent"
           placeholder="5000"
           type="number"
@@ -32,7 +33,7 @@ export function StepPricingAddress({
         />
         <FormInput
           control={control}
-          name="slotsAvailable"
+          name={"slotsAvailable" as FieldPath<T>}
           label="Available Slots"
           placeholder="2"
           type="number"
@@ -42,7 +43,7 @@ export function StepPricingAddress({
 
       <FormField
         control={control}
-        name="address"
+        name={"address" as FieldPath<T>}
         render={({ field }) => (
           <FormItem>
             <FormLabel htmlFor="address">Complete Address</FormLabel>
@@ -62,7 +63,7 @@ export function StepPricingAddress({
 
       <FormInput
         control={control}
-        name="contact"
+        name={"contact" as FieldPath<T>}
         label="Contact Info"
         placeholder="09123456789"
         type="tel"
@@ -70,7 +71,7 @@ export function StepPricingAddress({
       />
       <FormInput
         control={control}
-        name="facebookProfile"
+        name={"facebookProfile" as FieldPath<T>}
         label="Facebook Profile"
         placeholder="https://facebook.com/..."
       />
