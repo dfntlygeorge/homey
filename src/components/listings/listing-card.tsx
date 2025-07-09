@@ -8,10 +8,12 @@ import { routes } from "@/config/routes";
 import { getDistanceBetweenPoints } from "@/lib/proximity-filter";
 import { MapPin, BadgeDollarSign, Bed, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { FavouriteButton } from "./favourite-button";
 import { formatEnumValue, formatPrice } from "@/lib/utils";
+import { startConversationWithOwner } from "@/app/_actions/chats/start-conversation";
+import { toast } from "sonner";
 
 interface ListingCardProps {
   listing: ListingWithImagesAndAddress;
@@ -20,6 +22,8 @@ interface ListingCardProps {
 }
 
 export const ListingCard = (props: ListingCardProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const { listing, favourites, searchParams } = props;
   const {
     id,
@@ -49,6 +53,26 @@ export const ListingCard = (props: ListingCardProps) => {
     address.latitude,
     address.longitude
   );
+
+  const handleContactOwner = async () => {
+    setIsLoading(true);
+
+    try {
+      const result = await startConversationWithOwner(id, listing.userId);
+
+      if (result && !result.success) {
+        toast.error(result.message);
+      } else if (result && result.conversationId) {
+        // Now do client-side redirect
+        router.push(routes.chat(result.conversationId));
+      }
+    } catch (error) {
+      console.error("Error contacting owner:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // hides non-favourite cards on the favourites page
   useEffect(() => {
@@ -149,11 +173,12 @@ export const ListingCard = (props: ListingCardProps) => {
               <div className="mt-auto pt-1 flex flex-col sm:flex-row gap-2">
                 <Button
                   className="flex-1 h-9"
-                  asChild
-                  variant="outline"
+                  onClick={handleContactOwner}
+                  disabled={isLoading}
                   size="sm"
+                  variant={"outline"}
                 >
-                  <Link href={routes.reserve(id)}>Reserve Now</Link>
+                  {isLoading ? "Connecting..." : "Message"}
                 </Button>
                 <Button className="flex-1 h-9" asChild size="sm">
                   <Link href={routes.listing(id)}>View Details</Link>

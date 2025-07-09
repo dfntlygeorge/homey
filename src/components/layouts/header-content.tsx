@@ -55,21 +55,22 @@ export const PublicHeaderContent = ({
           className="group font-heading text-foreground hover:text-primary rounded px-3 py-2 text-base font-semibold uppercase transition-all duration-300 ease-in-out cursor-pointer"
         />
       </nav>
-      <Button
-        asChild
-        variant="link"
-        size="icon"
-        className="group relative inline-block"
-      >
+
+      <Button asChild variant="ghost" size="icon" className="group relative">
         <Link href={routes.favourites}>
-          <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-200 ease-in-out group-hover:bg-pink-500">
-            <HeartIcon className="text-primary h-6 w-6 group-hover:fill-white group-hover:text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-100/60 dark:hover:bg-red-900/40">
+            <HeartIcon className="h-4 w-4 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-red-500 group-hover:fill-red-500" />
           </div>
-          <div className="group-hover:bg-primary absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white">
-            <span className="text-xs">{favourites?.ids.length ?? 0}</span>
-          </div>
+          {(favourites?.ids.length ?? 0) > 0 && (
+            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white">
+              <span className="text-xs font-medium">
+                {favourites?.ids.length ?? 0}
+              </span>
+            </div>
+          )}
         </Link>
       </Button>
+
       <NotificationDropdown
         notifications={notifications}
         onNotificationClick={markAsReadAction}

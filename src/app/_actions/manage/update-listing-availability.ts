@@ -22,14 +22,13 @@ export const updateListingAvailabilityAction = async (
     }
 
     const { success } = await availabilityRatelimit.limit(userId);
-    console.log("Checked availability rate limit");
 
     if (!success) {
       console.log("Rate limit exceeded");
       return {
         success: false,
         message:
-          "You’ve reached the limit for changing availability. Please try again later.",
+          "You've reached the limit for changing availability. Please try again later.",
       };
     }
 
