@@ -9,7 +9,7 @@ import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
-import { useTransition, useCallback, useState } from "react";
+import { useTransition, useCallback, useState, useEffect } from "react";
 import { createListingAction } from "@/app/_actions/manage/create-listing";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
@@ -60,6 +60,16 @@ export const CreateListingForm = () => {
     defaultValues,
   });
 
+  // Update form images field whenever images context changes
+  useEffect(() => {
+    const newImages = getNewImages();
+    form.setValue(
+      "images",
+      newImages.map((image) => image.file),
+      { shouldValidate: true }
+    );
+  }, [getNewImages, form]);
+
   const handleAddressSelect = useCallback(
     async (suggestion: SearchBoxSuggestion) => {
       try {
@@ -88,6 +98,7 @@ export const CreateListingForm = () => {
     },
     [form]
   );
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
 
@@ -107,13 +118,7 @@ export const CreateListingForm = () => {
       }
     }
 
-    // Update the form field to include all images for validation
-    const newImages = getNewImages();
-    form.setValue(
-      "images",
-      newImages.map((image) => image.file)
-    );
-
+    // This will be handled by the useEffect above
     e.target.value = "";
   };
 
@@ -150,9 +155,47 @@ export const CreateListingForm = () => {
     });
   };
 
-  const nextStep = () => {
+  // Get fields for each step
+  const getStepFields = (step: number): (keyof CreateListingType)[] => {
+    switch (step) {
+      case 0:
+        return ["title", "description", "roomType"];
+      case 1:
+        return ["rent", "slotsAvailable", "address", "contact"];
+      case 2:
+        return [
+          "genderPolicy",
+          "curfew",
+          "caretaker",
+          "pets",
+          "kitchen",
+          "wifi",
+          "laundry",
+          "utilities",
+          "facebookProfile",
+        ];
+      case 3:
+        return ["images"];
+      default:
+        return [];
+    }
+  };
+
+  // Validate current step before proceeding
+  const validateCurrentStep = async () => {
+    const stepFields = getStepFields(currentStep);
+    const isValid = await form.trigger(stepFields);
+    return isValid;
+  };
+
+  const nextStep = async () => {
     if (currentStep < CREATE_LISTING_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const isValid = await validateCurrentStep();
+      if (isValid) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        toast.error("Please fill in all required fields before proceeding");
+      }
     }
   };
 
@@ -175,18 +218,25 @@ export const CreateListingForm = () => {
         );
       case 2:
         return <StepPolicies<CreateListingType> control={form.control} />;
-
       case 3:
         return (
           <StepImages<CreateListingType>
             control={form.control}
             handleFileChange={handleFileChange}
+            formWatch={form.watch}
+            originalValues={defaultValues}
           />
         );
-
       default:
         return null;
     }
+  };
+
+  // Check if current step is valid (for styling purposes)
+  const isCurrentStepValid = () => {
+    const stepFields = getStepFields(currentStep);
+    const errors = form.formState.errors;
+    return stepFields.every((field) => !errors[field]);
   };
 
   return (
@@ -223,7 +273,7 @@ export const CreateListingForm = () => {
               {currentStep === CREATE_LISTING_STEPS.length - 1 ? (
                 <button
                   type="submit"
-                  disabled={isPending}
+                  disabled={isPending || !isCurrentStepValid()}
                   className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4 mr-2" />

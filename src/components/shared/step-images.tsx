@@ -41,7 +41,10 @@ export const StepImages = <T extends FieldValues>({
                   onChange={(e) => {
                     handleFileChange(e);
                     // Update the form field value to trigger validation
-                    field.onChange(e.target.files);
+                    const filesArray = e.target.files
+                      ? Array.from(e.target.files)
+                      : [];
+                    field.onChange(filesArray);
                   }}
                   className="hidden"
                   id="file-upload"

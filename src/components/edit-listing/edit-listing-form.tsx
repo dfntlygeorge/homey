@@ -6,11 +6,16 @@ import {
 } from "@/app/_schemas/form.schema";
 import { FileSchema } from "@/app/_schemas/file.schema";
 import { SearchBoxSuggestion } from "@/config/types/autocomplete-address.type";
-import { ListingWithImagesAndAddress } from "@/config/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "../ui/form";
-import { useTransition, useMemo, useCallback, useState } from "react";
+import {
+  useTransition,
+  useMemo,
+  useCallback,
+  useState,
+  useEffect,
+} from "react";
 import { updateListingAction } from "@/app/_actions/manage/update-listing";
 import { useRouter } from "next/navigation";
 import { routes } from "@/config/routes";
@@ -27,6 +32,7 @@ import { StepPricingAddress } from "../shared/step-pricing-address";
 import { StepPolicies } from "../shared/step-policies";
 import { EditListingProgressHeader } from "./edit-listing-progress-header";
 import { StepImages } from "../shared/step-images";
+import { ListingWithImagesAndAddress } from "@/config/types";
 
 export const EditListingForm = ({
   listing,
@@ -36,8 +42,13 @@ export const EditListingForm = ({
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
-  const { addImage, imagesChanged, removedImageIds, getNewImages } =
-    useImages();
+  const {
+    addImage,
+    imagesChanged,
+    removedImageIds,
+    getNewImages,
+    existingImages,
+  } = useImages();
 
   const {
     title,
@@ -105,6 +116,25 @@ export const EditListingForm = ({
     mode: "all",
     defaultValues: originalValues,
   });
+
+  // Update form images field to reflect current image state for validation
+  useEffect(() => {
+    const newImages = getNewImages();
+
+    const allImages = [
+      ...existingImages.map((img) => ({ id: img.id, url: img.url })),
+      ...newImages.map((img) => ({ file: img.file })),
+    ];
+
+    if (allImages.length === 0) {
+      form.setError("images", {
+        type: "manual",
+        message: "Please upload at least one image",
+      });
+    } else {
+      form.clearErrors("images");
+    }
+  }, [existingImages, getNewImages, form]);
 
   // make a custom hook for this
   const handleAddressSelect = useCallback(
@@ -203,9 +233,64 @@ export const EditListingForm = ({
     });
   };
 
-  const nextStep = () => {
+  // Get fields for each step
+  const getStepFields = (step: number): (keyof UpdateListingType)[] => {
+    switch (step) {
+      case 0:
+        return ["title", "description", "roomType"];
+      case 1:
+        return ["rent", "slotsAvailable", "address", "contact"];
+      case 2:
+        return [
+          "genderPolicy",
+          "curfew",
+          "caretaker",
+          "pets",
+          "kitchen",
+          "wifi",
+          "laundry",
+          "utilities",
+          "facebookProfile",
+        ];
+      case 3:
+        // For images, we need to check if there are any existing or new images
+        return [];
+      default:
+        return [];
+    }
+  };
+
+  // Validate current step before proceeding
+  const validateCurrentStep = async () => {
+    const stepFields = getStepFields(currentStep);
+
+    // Special validation for images step
+    if (currentStep === 3) {
+      const newImages = getNewImages();
+      const hasImages = existingImages.length > 0 || newImages.length > 0;
+
+      if (!hasImages) {
+        form.setError("images", {
+          type: "manual",
+          message: "Please upload at least one image",
+        });
+        return false;
+      }
+      return true;
+    }
+
+    const isValid = await form.trigger(stepFields);
+    return isValid;
+  };
+
+  const nextStep = async () => {
     if (currentStep < EDIT_LISTING_STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const isValid = await validateCurrentStep();
+      if (isValid) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        toast.error("Please fill in all required fields before proceeding");
+      }
     }
   };
 
@@ -228,7 +313,6 @@ export const EditListingForm = ({
         );
       case 2:
         return <StepPolicies<UpdateListingType> control={form.control} />;
-
       case 3:
         return (
           <StepImages<UpdateListingType>
@@ -238,10 +322,24 @@ export const EditListingForm = ({
             formWatch={form.watch}
           />
         );
-
       default:
         return null;
     }
+  };
+
+  // Check if current step is valid (for styling purposes)
+  const isCurrentStepValid = () => {
+    const stepFields = getStepFields(currentStep);
+    const errors = form.formState.errors;
+
+    // For images step, check if there are any images
+    if (currentStep === 3) {
+      const newImages = getNewImages();
+      const hasImages = existingImages.length > 0 || newImages.length > 0;
+      return hasImages && !errors.images;
+    }
+
+    return stepFields.every((field) => !errors[field]);
   };
 
   return (
@@ -268,7 +366,7 @@ export const EditListingForm = ({
                 className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                   currentStep === 0
                     ? "text-gray-400 cursor-not-allowed"
-                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    : "text-gray-7080 bg-white border border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
@@ -278,7 +376,7 @@ export const EditListingForm = ({
               {currentStep === EDIT_LISTING_STEPS.length - 1 ? (
                 <button
                   type="submit"
-                  disabled={isPending}
+                  disabled={isPending || !isCurrentStepValid()}
                   className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Save className="w-4 h-4 mr-2" />
