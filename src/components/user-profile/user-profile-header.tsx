@@ -3,13 +3,25 @@ import { Card, CardContent } from "../ui/card";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
 import { Calendar, CheckCircle } from "lucide-react";
-import { HATDOG } from "@/config/types";
 import { StarRating } from "./star-rating";
-import { ContactSection } from "./contact-section";
 import { UserStats } from "./user-stats";
+import { Prisma } from "@prisma/client";
 
 interface UserProfileHeaderProps {
-  user: HATDOG & {
+  user: Prisma.UserGetPayload<{
+    include: {
+      listings: {
+        include: {
+          images: true;
+          address: {
+            include: {
+              reviews: true;
+            };
+          };
+        };
+      };
+    };
+  }> & {
     _count: {
       listings: number;
     };
@@ -85,11 +97,6 @@ export const UserProfileHeader = ({
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Contact Section */}
-            <div className="w-full">
-              <ContactSection user={user} />
             </div>
           </div>
         </CardContent>

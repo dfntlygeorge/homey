@@ -22,61 +22,7 @@ export type ListingWithImagesAndAddress = Prisma.ListingGetPayload<{
     address: true;
   };
 }>;
-export type ListingWithImagesAndAddressAndReviews = Prisma.ListingGetPayload<{
-  include: {
-    images: true;
-    address: {
-      include: {
-        reviews: {
-          include: {
-            user: true;
-          };
-        };
-      };
-    };
-  };
-}>;
-export type UserWithListingsAndReviews = Prisma.UserGetPayload<{
-  include: {
-    listings: {
-      include: {
-        images: true;
-      };
-    };
-    reviews: true;
-  };
-}>;
-export type HATDOG = Prisma.UserGetPayload<{
-  include: {
-    listings: {
-      include: {
-        images: true;
-        address: {
-          include: {
-            reviews: true;
-          };
-        };
-      };
-    };
-  };
-}>;
 
-// export type ReviewWithListingTitle = Prisma.ReviewGetPayload<{
-//   include: {
-//     listing: {
-//       select: {
-//         title: true;
-//       };
-//     };
-//   };
-// }>;
-
-export type ListingWithImagesAndUser = Prisma.ListingGetPayload<{
-  include: {
-    images: true;
-    user: true;
-  };
-}>;
 export type ListingWithImagesUserAndReports = Prisma.ListingGetPayload<{
   include: {
     images: true;

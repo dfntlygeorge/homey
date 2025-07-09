@@ -1,11 +1,24 @@
 "use client";
 
-import { HATDOG } from "@/config/types";
 import { UserProfileHeader } from "./user-profile-header";
 import { UserListings } from "./user-listings";
+import { Prisma } from "@prisma/client";
 
 interface UserProfileViewProps {
-  user: HATDOG & {
+  user: Prisma.UserGetPayload<{
+    include: {
+      listings: {
+        include: {
+          images: true;
+          address: {
+            include: {
+              reviews: true;
+            };
+          };
+        };
+      };
+    };
+  }> & {
     _count: {
       listings: number;
     };

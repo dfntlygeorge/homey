@@ -24,6 +24,7 @@ export default async function UserProfilePage(props: PageProps) {
         where: {
           status: "APPROVED", // Only show approved listings
           isArchived: false,
+          isAvailable: true,
         },
         orderBy: {
           createdAt: "desc",
