@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import { ListingFormStep } from "@/config/types";
 import { Home, Plus, Sparkles, Archive } from "lucide-react";
 
 interface NoListingsMessageProps {
@@ -51,7 +50,7 @@ export function NoListingsMessage({ hasArchived }: NoListingsMessageProps) {
                 </Button>
               </Link>
             ) : (
-              <Link href={routes.createListing(ListingFormStep.WELCOME)}>
+              <Link href={routes.createListing}>
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3 text-lg font-semibold"

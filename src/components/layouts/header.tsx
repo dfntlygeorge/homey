@@ -1,7 +1,4 @@
 import { auth } from "@/auth";
-import { getSourceId } from "@/lib/source-id";
-import { Favourites } from "@/config/types";
-import { redis } from "@/lib/redis-store";
 import prisma from "@/lib/prisma";
 import { ClientHeaderWrapper } from "./client-header-wrapper";
 
@@ -15,14 +12,13 @@ export const PublicHeader = async () => {
       <ClientHeaderWrapper
         initialNotifications={[]}
         session={null} // Pass null session
-        favourites={null}
+        unreadMessageCount={null}
       />
     );
   }
 
   // For authenticated users, fetch their data
-  const sourceId = await getSourceId();
-  const favourites = await redis.get<Favourites>(sourceId ?? "");
+
   const notifications = await prisma.notification.findMany({
     where: {
       userId,
@@ -32,11 +28,19 @@ export const PublicHeader = async () => {
     },
   });
 
+  const unreadMessagesCount = await prisma.message.count({
+    where: {
+      receiverId: userId,
+      isDelivered: true,
+      isSeen: false,
+    },
+  });
+
   return (
     <ClientHeaderWrapper
       initialNotifications={notifications}
       session={session}
-      favourites={favourites}
+      unreadMessageCount={unreadMessagesCount}
     />
   );
 };

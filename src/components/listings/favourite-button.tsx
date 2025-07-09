@@ -58,7 +58,7 @@ export const FavouriteButton = (props: FavouriteButtonProps) => {
           toast.info("Please sign in to save listings");
           return;
         } else if (error.response.status === 429) {
-          toast.error("Rate limit exceeded. Please try again later.");
+          toast.error("Slow down kid.");
           return;
         } else {
           toast.error("Failed to update favourite. Please try again.");

@@ -1,5 +1,5 @@
 import { routes } from "./routes";
-import { ListingFormStep, ListingWithAddress } from "./types";
+import { ListingWithAddress } from "./types";
 
 export const navLinks = [
   {
@@ -11,21 +11,6 @@ export const navLinks = [
     id: 2,
     href: routes.listings,
     label: "Listings",
-  },
-  {
-    id: 3,
-    href: routes.admin,
-    label: "Admin",
-  },
-  {
-    id: 4,
-    href: routes.createListing(ListingFormStep.WELCOME),
-    label: "Create Listing",
-  },
-  {
-    id: 5,
-    href: routes.manage,
-    label: "Manage",
   },
 ];
 

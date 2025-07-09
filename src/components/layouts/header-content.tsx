@@ -3,10 +3,8 @@
 import { navLinks } from "@/config/constants";
 import { routes } from "@/config/routes";
 import Link from "next/link";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
-import { HeartIcon, HouseIcon, MenuIcon } from "lucide-react";
-import SignInButton from "../ui/sign-in-button";
+import { HouseIcon, MessageCircleIcon } from "lucide-react";
 import { Notification } from "@prisma/client";
 import { NotificationDropdown } from "./notification-dropdown";
 import {
@@ -14,20 +12,21 @@ import {
   markAsReadAction,
 } from "@/app/_actions/shared/notification";
 import { Session } from "next-auth";
-import { Favourites } from "@/config/types";
+import UserAvatarDropdown from "../ui/user-avatar-dropdown";
+import { MobileNavigation } from "./mobile-navigation";
 
 interface PublicHeaderContentProps {
   notifications: Notification[];
   session: Session | null;
-  favourites: Favourites | null;
   onNotificationUpdate: (notifications: Notification[]) => void;
+  unreadMessageCount: number | null;
 }
 
 export const PublicHeaderContent = ({
   notifications,
   session,
-  favourites,
   onNotificationUpdate,
+  unreadMessageCount,
 }: PublicHeaderContentProps) => {
   return (
     <header className="flex h-16 items-center justify-between gap-x-6 bg-transparent pl-4 pr-4 md:pr-8">
@@ -50,26 +49,7 @@ export const PublicHeaderContent = ({
             {link.label}
           </Link>
         ))}
-        <SignInButton
-          session={session}
-          className="group font-heading text-foreground hover:text-primary rounded px-3 py-2 text-base font-semibold uppercase transition-all duration-300 ease-in-out cursor-pointer"
-        />
       </nav>
-
-      <Button asChild variant="ghost" size="icon" className="group relative">
-        <Link href={routes.favourites}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-red-100/60 dark:hover:bg-red-900/40">
-            <HeartIcon className="h-4 w-4 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-red-500 group-hover:fill-red-500" />
-          </div>
-          {(favourites?.ids.length ?? 0) > 0 && (
-            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white">
-              <span className="text-xs font-medium">
-                {favourites?.ids.length ?? 0}
-              </span>
-            </div>
-          )}
-        </Link>
-      </Button>
 
       <NotificationDropdown
         notifications={notifications}
@@ -77,32 +57,26 @@ export const PublicHeaderContent = ({
         onMarkAllAsRead={markAllAsReadAction}
         onNotificationUpdate={onNotificationUpdate}
       />
+      {/* navigates to /chats */}
+      <Button asChild variant="ghost" size="icon" className="group relative">
+        <Link href={routes.chats}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
+            <MessageCircleIcon className="h-5 w-5 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-blue-500 group-hover:fill-blue-500" />
+          </div>
+          {(unreadMessageCount ?? 0) > 0 && (
+            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
+              <span className="text-xs font-medium">{unreadMessageCount}</span>
+            </div>
+          )}
+        </Link>
+      </Button>
+
+      <UserAvatarDropdown
+        session={session}
+        className="group font-heading text-foreground hover:text-primary rounded px-3 py-2 text-base font-semibold uppercase transition-all duration-300 ease-in-out cursor-pointer hidden md:flex"
+      />
       {/* mobile navbar */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="link" size="icon" className="border-none md:hidden">
-            <MenuIcon className="text-primary h-6 w-6" />
-            <SheetTitle className="sr-only">Toggle nav menu</SheetTitle>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-full max-w-xs bg-white p-4">
-          <nav className="grid gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.id}
-                className="flex items-center gap-2 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-                href={link.href}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <SignInButton
-              session={session}
-              className="flex items-center gap-2 py-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-            />
-          </nav>
-        </SheetContent>
-      </Sheet>
+      <MobileNavigation session={session} />
     </header>
   );
 };

@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, Circle, Check, ExternalLink, Calendar } from "lucide-react";
 import { formatTimestamp } from "@/lib/utils";
@@ -128,17 +127,18 @@ export const NotificationDropdown = (props: NotificationDropdownProps) => {
         <Button
           variant="ghost"
           size="icon"
-          className="relative"
+          className="group relative"
           disabled={isPending}
         >
-          <Bell className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
+            <Bell className="h-5 w-5 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-blue-500 group-hover:fill-blue-500" />
+          </div>
           {unreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-            >
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </Badge>
+            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
+              <span className="text-xs font-medium">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            </div>
           )}
         </Button>
       </DropdownMenuTrigger>
