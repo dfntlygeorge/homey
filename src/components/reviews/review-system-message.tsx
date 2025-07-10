@@ -39,6 +39,7 @@ export function ReviewSystemMessage({
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +57,12 @@ export function ReviewSystemMessage({
     setIsSubmitting(true);
 
     try {
-      const result = await submitReviewAction(addressId, rating, comment);
+      const result = await submitReviewAction(
+        addressId,
+        rating,
+        comment,
+        isAnonymous
+      );
 
       if (result.success) {
         toast.success("Review submitted successfully!");
@@ -219,6 +225,25 @@ export function ReviewSystemMessage({
                               rows={4}
                               className="resize-none"
                             />
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id="anonymous"
+                              checked={isAnonymous}
+                              onChange={(e) => setIsAnonymous(e.target.checked)}
+                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <Label
+                              htmlFor="anonymous"
+                              className="text-sm cursor-pointer relative group"
+                              title="Your name and profile information will not be shown with this review"
+                            >
+                              Submit anonymously
+                              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                Your name and profile won&apos;t be shown
+                              </span>
+                            </Label>
                           </div>
                           <div className="flex justify-end space-x-2">
                             <Button

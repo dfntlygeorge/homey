@@ -7,7 +7,8 @@ import { reviewRatelimit } from "@/lib/rate-limit";
 export const submitReviewAction = async (
   addressId: number,
   rating: number,
-  comment: string
+  comment: string,
+  isAnonymous: boolean
 ) => {
   try {
     const session = await auth();
@@ -86,6 +87,7 @@ export const submitReviewAction = async (
         addressId,
         rating,
         comment: cleanedComment,
+        isAnonymous,
       },
     });
 

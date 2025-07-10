@@ -206,7 +206,6 @@ export const ReviewsModal = ({ reviews, averageRating }: ReviewsModalProps) => {
               </Select>
             </div>
           </div>
-
           {/* Reviews List */}
           <div className="space-y-6">
             {currentReviews.map((review) => (
@@ -216,16 +215,31 @@ export const ReviewsModal = ({ reviews, averageRating }: ReviewsModalProps) => {
               >
                 <div className="flex items-start gap-4">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={review.user.image || undefined} />
+                    <AvatarImage
+                      src={
+                        review.isAnonymous
+                          ? undefined
+                          : review.user.image || undefined
+                      }
+                    />
                     <AvatarFallback>
-                      {getInitials(review.user.name, review.user.email)}
+                      {review.isAnonymous
+                        ? "A"
+                        : getInitials(review.user.name, review.user.email)}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h4 className="font-semibold text-gray-900">
-                        {review.user.name || "Anonymous User"}
+                      <h4 className="font-semibold text-gray-900 relative group">
+                        {review.isAnonymous
+                          ? "Anonymous User"
+                          : review.user.name || "Anonymous User"}
+                        {review.isAnonymous && (
+                          <span className="absolute -top-8 left-0 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                            Verified guest - stayed here
+                          </span>
+                        )}
                       </h4>
                       <Badge variant="secondary" className="text-xs">
                         {formatDate(review.createdAt)}
