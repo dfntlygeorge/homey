@@ -1,8 +1,13 @@
+import { auth } from "@/auth";
 import { CreateListingForm } from "@/components/create-listing/create-listing-form";
+import { CreateListingUnauthenticated } from "@/components/create-listing/unauthenticated-message";
 import { ImagePreviewWrapper } from "@/components/edit-listing/image-preview-wrapper";
 import { ImagesProvider } from "@/context/edit-listing/images-context";
 
 export default async function CreateListingPage() {
+  const session = await auth();
+
+  if (!session) return <CreateListingUnauthenticated />;
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">

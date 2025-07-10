@@ -9,8 +9,25 @@ export async function middleware(req: NextRequest) {
 
   const isAdmin = userRole === "ADMIN";
 
+  // Admin route protection
   if (!isAdmin && pathname.startsWith(routes.admin)) {
     console.log("Redirecting non-admin to listings");
+    return NextResponse.redirect(new URL("/listings", req.url));
+  }
+
+  // Protected routes for authenticated users only
+  const isProtectedRoute =
+    pathname.startsWith("/chats") ||
+    (pathname.startsWith("/manage/") && pathname !== "/manage") ||
+    pathname === "/listings/new";
+
+  if (!session && isProtectedRoute) {
+    console.log("Redirecting unauthenticated user to listings");
+    return NextResponse.redirect(new URL("/listings", req.url));
+  }
+
+  if (session && pathname === "/auth/sign-in") {
+    console.log("OKAY KA NA IH");
     return NextResponse.redirect(new URL("/listings", req.url));
   }
 
@@ -18,5 +35,11 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin"],
+  matcher: [
+    "/admin/:path*",
+    "/manage/:path*",
+    "/chats/:path*",
+    "/auth/sign-in",
+    "/listings/new",
+  ],
 };

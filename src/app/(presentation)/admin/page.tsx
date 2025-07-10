@@ -18,7 +18,12 @@ import {
 
 export default async function AdminPage(props: AwaitedPageProps) {
   const session = await auth();
-  if (!session) return <UnauthenticatedMessage />;
+
+  const isAdmin = session && session.user?.role === "ADMIN";
+
+  if (!isAdmin) {
+    return <UnauthenticatedMessage />;
+  }
 
   const searchParams = await props.searchParams;
 

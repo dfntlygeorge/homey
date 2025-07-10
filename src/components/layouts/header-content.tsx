@@ -51,25 +51,35 @@ export const PublicHeaderContent = ({
         ))}
       </nav>
 
-      <NotificationDropdown
-        notifications={notifications}
-        onNotificationClick={markAsReadAction}
-        onMarkAllAsRead={markAllAsReadAction}
-        onNotificationUpdate={onNotificationUpdate}
-      />
-      {/* navigates to /chats */}
-      <Button asChild variant="ghost" size="icon" className="group relative">
-        <Link href={routes.chats}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
-            <MessageCircleIcon className="h-5 w-5 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-blue-500 group-hover:fill-blue-500" />
-          </div>
-          {(unreadMessageCount ?? 0) > 0 && (
-            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
-              <span className="text-xs font-medium">{unreadMessageCount}</span>
-            </div>
-          )}
-        </Link>
-      </Button>
+      {session && (
+        <>
+          <NotificationDropdown
+            notifications={notifications}
+            onNotificationClick={markAsReadAction}
+            onMarkAllAsRead={markAllAsReadAction}
+            onNotificationUpdate={onNotificationUpdate}
+          />
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="group relative"
+          >
+            <Link href={routes.chats}>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200 hover:bg-blue-100/60 dark:hover:bg-blue-900/40">
+                <MessageCircleIcon className="h-5 w-5 text-gray-600 transition-all duration-200 ease-in-out group-hover:text-blue-500 group-hover:fill-blue-500" />
+              </div>
+              {(unreadMessageCount ?? 0) > 0 && (
+                <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-500 text-white">
+                  <span className="text-xs font-medium">
+                    {unreadMessageCount}
+                  </span>
+                </div>
+              )}
+            </Link>
+          </Button>
+        </>
+      )}
 
       <UserAvatarDropdown
         session={session}
