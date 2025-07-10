@@ -19,24 +19,17 @@ app.prepare().then(() => {
   });
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
-
     // Join user to their own room for private messaging
     socket.on("join_conversation", (conversationId) => {
       socket.join(`conversation_${conversationId}`);
-      console.log(`User ${socket.id} joined conversation ${conversationId}`);
     });
 
     socket.on("send_message", (data) => {
-      console.log("Server received message:", data);
-
       // Broadcast to all users in the conversation (including sender)
       io.to(`conversation_${data.conversationId}`).emit("new_message", data);
     });
 
     socket.on("mark_messages_seen", (data) => {
-      console.log("Messages marked as seen:", data);
-
       // Broadcast to all users in the conversation that messages have been seen
       io.to(`conversation_${data.conversationId}`).emit("messages_seen", {
         conversationId: data.conversationId,
@@ -45,9 +38,7 @@ app.prepare().then(() => {
       });
     });
 
-    socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-    });
+    socket.on("disconnect", () => {});
   });
 
   httpServer
@@ -55,7 +46,5 @@ app.prepare().then(() => {
       console.error(err);
       process.exit(1);
     })
-    .listen(port, () => {
-      console.log(`> Ready on http://${hostname}:${port}`);
-    });
+    .listen(port, () => {});
 });

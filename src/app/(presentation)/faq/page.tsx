@@ -34,19 +34,19 @@ const FAQ_DATA: FAQSection[] = [
         id: "reserve-listing",
         question: "How do I reserve a listing?",
         answer:
-          'Click the "Reserve Now" button on a listing. Note: The reservation flow is still under development, so it\'s currently a placeholder action.',
+          "Reservations are handled through in-app messaging. First, message the owner to discuss details. Once you agree, you can proceed with reserving through the chat.",
       },
       {
         id: "payment-required",
-        question: "Do I need to pay to reserve a listing?",
+        question: "Do I need to pay when reserving?",
         answer:
-          "No. There is currently no payment step involved in the app. You can coordinate directly with the listing owner after reserving.",
+          "No payments are handled on the platform. All payments or financial arrangements are discussed and finalized directly with the owner off-platform. We simply help you connect.",
       },
       {
         id: "after-reserve",
-        question: "What happens after I reserve?",
+        question: "What happens after I reserve a listing?",
         answer:
-          "Not final. You may receive confirmation and contact details. Finalizing the reservation is currently done off-platform by communicating with the owner.",
+          "After you and the owner agree in the chat, you handle all next steps directly with them. The platform does not manage confirmations or payments at this time.",
       },
     ],
   },
@@ -59,25 +59,25 @@ const FAQ_DATA: FAQSection[] = [
         id: "post-listing",
         question: "How do I post my own listing?",
         answer:
-          'Sign in, click "Add Listing", and fill out the required details. Once submitted, your listing will be reviewed by the admin.',
+          'Sign in to your account, click "Create Listing", and fill out the required details. Once submitted, your listing will be reviewed by an admin before going live.',
       },
       {
         id: "listing-visibility",
         question: "Why isn't my listing visible yet?",
         answer:
-          "Listings must be approved by an admin before going public. You'll receive a notification once your listing is approved or rejected.",
+          "All listings are reviewed and approved by an admin first. You will receive a notification once your listing has been approved or rejected.",
       },
       {
         id: "edit-listing",
-        question: "Can I edit or delete my listing later?",
+        question: "Can I edit or delete my listing?",
         answer:
-          "Yes. You can edit, archive, or delete your listing anytime from your account dashboard.",
+          "Yes! You can edit, delete, archive, or mark your listing as unavailable anytime from your Manage Listings page.",
       },
       {
         id: "archive-listing",
         question: "What does archiving a listing do?",
         answer:
-          "Archiving a listing hides it from the public. You can unarchive it later to make it visible again.",
+          "Archiving hides your listing from the public. You can unarchive it or mark it as available again whenever you’re ready.",
       },
     ],
   },
@@ -90,19 +90,19 @@ const FAQ_DATA: FAQSection[] = [
         id: "report-listing",
         question: "How do I report a suspicious or fake listing?",
         answer:
-          'Click the ••• menu on a listing and select "Report listing." Choose a reason and optionally provide more details.',
+          'Click the ••• (three-dot) menu on a listing and select "Report listing." Choose a reason, and you can decide whether to add additional details or not.',
       },
       {
         id: "anonymous-report",
-        question: "Will my report be anonymous?",
+        question: "Can I report anonymously?",
         answer:
-          "Yes. The listing owner will not be notified who reported the listing.",
+          "Yes. When reporting, you can choose to remain anonymous if you'd prefer.",
       },
       {
         id: "after-report",
         question: "What happens after I report a listing?",
         answer:
-          "The report will be sent to the admin panel for moderation. Admins will review and take action if needed. You won't receive a follow-up notification for now.",
+          "Your report is sent to our admin team for review. They will investigate and take appropriate action if needed. Currently, you won't receive follow-up notifications.",
       },
     ],
   },
@@ -115,19 +115,19 @@ const FAQ_DATA: FAQSection[] = [
         id: "account-required",
         question: "Do I need an account to use the app?",
         answer:
-          "No — you can browse listings without signing in. However, to post, report, reserve, or save a listing, you'll need an account.",
+          "You can browse listings without signing in. However, you'll need an account to post, report, reserve, or save listings.",
       },
       {
         id: "save-listing",
         question: "Can I save or favorite a listing?",
         answer:
-          "Yes. Just click the heart icon on any listing to add it to your saved list. You must be signed in.",
+          "Yes! Click the heart icon on any listing to add it to your saved list. You need to be signed in to use this feature.",
       },
       {
         id: "verify-account",
         question: "Can I verify my account or listing?",
         answer:
-          "Not yet. We plan to implement account and listing verification in the future, especially for property managers or owners.",
+          "Not yet. We plan to introduce verification in the future, especially for property managers and owners.",
       },
     ],
   },
@@ -138,15 +138,15 @@ const FAQ_DATA: FAQSection[] = [
     faqs: [
       {
         id: "contact-owner",
-        question: "How do I contact the owner of a listing?",
+        question: "How do I contact a listing owner?",
         answer:
-          "Each listing includes either a Facebook profile link or a contact number so you can message or call the owner directly.",
+          'Each listing includes a "Message Owner" button. When you click it, you’ll be redirected to the chat page to start a conversation with the owner directly.',
       },
       {
         id: "in-app-messaging",
-        question: "Can I message the owner inside the app?",
+        question: "Can I message owners inside the app?",
         answer:
-          "Not yet. In-app messaging is not currently available, but it is planned for a future update.",
+          "Yes! You can use in-app messaging to discuss and coordinate directly with listing owners.",
       },
     ],
   },
