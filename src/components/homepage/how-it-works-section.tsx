@@ -5,7 +5,7 @@ const steps = [
     icon: <Search className="h-8 w-8 text-primary" />,
     title: "Browse Listings",
     description:
-      "Explore verified listings with filters for price, location, and more.",
+      "Explore reviewed listings with filters for price, location, and more.",
   },
   {
     icon: <ClipboardList className="h-8 w-8 text-primary" />,
@@ -15,9 +15,9 @@ const steps = [
   },
   {
     icon: <CalendarCheck className="h-8 w-8 text-primary" />,
-    title: "Reserve Easily",
+    title: "Chat & Reserve",
     description:
-      "Book a slot or reach out to the landlord directly — no hassle.",
+      "Chat with the landlord, then reserve your spot once you agree.",
   },
 ];
 
@@ -27,8 +27,8 @@ export const HowItWorksSection = () => {
       <div className="container mx-auto px-4 text-center">
         <h2 className="text-3xl font-bold mb-4">How It Works</h2>
         <p className="text-muted-foreground mb-12 max-w-2xl mx-auto">
-          Finding your next boarding house shouldn&apos;t be stressful.
-          Here&apos;s how easy it is:
+          Finding your next place shouldn&apos;t be stressful. Here&apos;s how
+          easy it is:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {steps.map((step, index) => (

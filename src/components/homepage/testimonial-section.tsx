@@ -5,21 +5,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 const testimonials = [
   {
     name: "Jessa Mae",
-    school: "UP Baguio – BS Psychology",
+    school: "UP Baguio - BS Psychology",
     quote:
-      "I finally found a safe and affordable boarding house — with Wi-Fi and a kitchen!",
+      "I finally found a safe, affordable place — and it even has Wi-Fi and a kitchen!",
     image: "https://picsum.photos/200/300?blur",
   },
   {
     name: "Mark Angelo",
-    school: "SLU – Engineering Student",
+    school: "SLU - Engineering Student",
     quote:
-      "What I love is the transparency. No hidden fees, and I reserved online in minutes.",
+      "What I love is the transparency — the listings are real, and I knew exactly what to expect.",
     image: "https://picsum.photos/200/301?blur",
   },
+
   {
     name: "Karen",
-    school: "UB – Nursing",
+    school: "UB - Nursing",
     quote:
       "The caretaker is super nice, and the no-curfew policy is perfect for my night shifts.",
     image: "https://picsum.photos/200/302?blur",
@@ -32,7 +33,7 @@ export const TestimonialSection = () => {
       <div className="container px-4 mx-auto text-center">
         <h2 className="text-3xl font-bold mb-4">What Students Say</h2>
         <p className="text-muted-foreground max-w-xl mx-auto mb-12">
-          Real feedback from boarders who found their place with us.
+          Real feedback from students who found their place with us.
         </p>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial, idx) => (
@@ -63,6 +64,10 @@ export const TestimonialSection = () => {
             </Card>
           ))}
         </div>
+        <p className="text-xs text-muted-foreground mt-4 max-w-xl mx-auto">
+          *These testimonials are sample UI content to illustrate what reviews
+          might look like. Actual student reviews coming soon!
+        </p>
       </div>
     </section>
   );

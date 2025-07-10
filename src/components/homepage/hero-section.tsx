@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
-import { ListingFormStep } from "@/config/types";
 import Link from "next/link";
 
 export const HeroSection = () => {
@@ -19,11 +18,10 @@ export const HeroSection = () => {
       {/* Content */}
       <div className="relative z-10 max-w-3xl px-6 text-center">
         <h1 className="text-4xl font-bold md:text-6xl leading-tight">
-          Find Safe & Verified <br className="hidden lg:block" /> Boarding
-          Houses in Baguio
+          Find Trusted & Reviewed Rentals in Baguio
         </h1>
         <p className="mt-4 text-lg text-gray-200 md:text-xl">
-          Safe. Affordable. Verified by students like you.
+          Safe. Affordable. Reviewed and trusted by fellow students.
         </p>
 
         {/* CTA Buttons */}
@@ -36,7 +34,7 @@ export const HeroSection = () => {
               Browse Listings
             </Button>
           </Link>
-          <Link href={routes.createListing(ListingFormStep.WELCOME)}>
+          <Link href={routes.createListing}>
             <Button
               variant="outline"
               size="lg"
