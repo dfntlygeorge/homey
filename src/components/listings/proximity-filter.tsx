@@ -6,6 +6,7 @@ import { AddressAutocomplete } from "../create-listing/address-autocomplete";
 import { NativeSelect } from "../ui/native-select";
 import { AwaitedPageProps } from "@/config/types";
 import { ListingMinimap } from "../shared/map";
+import { toast } from "sonner";
 
 interface ProximityFilterProps extends AwaitedPageProps {
   onLocationChange: (params: {
@@ -67,7 +68,6 @@ export const ProximityFilter = (props: ProximityFilterProps) => {
     const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
     if (!accessToken) {
-      console.error("Mapbox access token is not configured");
       return null;
     }
 
@@ -91,8 +91,8 @@ export const ProximityFilter = (props: ProximityFilterProps) => {
       }
 
       return null;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error retrieving coordinates:", error);
       return null;
     }
   };
@@ -115,11 +115,10 @@ export const ProximityFilter = (props: ProximityFilterProps) => {
           mapbox_id: suggestion.mapbox_id,
         });
       } else {
-        console.error("Could not retrieve coordinates for selected location");
+        toast.error("Could not retrieve coordinates for selected location");
       }
-    } catch (error) {
-      console.error("Error processing location selection:", error);
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {}
   };
 
   const handleApplyFilter = () => {

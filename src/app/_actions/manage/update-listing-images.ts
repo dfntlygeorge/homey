@@ -88,11 +88,8 @@ export async function updateImagesAction(props: UpdateImagesProps) {
               listingId,
               order: startingOrder + index,
             };
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
-            console.error(
-              `Failed to upload image ${uploadedPhoto.file.name}:`,
-              error
-            );
             throw new Error(
               `Failed to upload image: ${uploadedPhoto.file.name}`
             );
@@ -107,13 +104,11 @@ export async function updateImagesAction(props: UpdateImagesProps) {
       await prisma.image.createMany({
         data: uploadResults,
       });
-
-      console.log(`Successfully uploaded ${uploadResults.length} images`);
     }
 
     return { success: true };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error updating images:", error);
     return { success: false, message: "Failed to update images" };
   }
 }

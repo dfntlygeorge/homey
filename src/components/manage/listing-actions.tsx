@@ -72,8 +72,8 @@ export function ListingActions({
         } else {
           toast.error(response.message);
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error("Error updating availability: ", error);
         toast.error("Something went wrong while updating availability.");
       }
     });
@@ -101,8 +101,8 @@ export function ListingActions({
           toast.error(response.message);
         }
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error(error);
       toast.error("Something went wrong");
     } finally {
       setIsArchiving(false);
@@ -121,8 +121,8 @@ export function ListingActions({
       } else {
         toast.error(response.message);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error deleting listing: ", error);
       toast.error("Something went wrong while deleting the listing.");
     } finally {
       setIsDeleting(false);

@@ -37,7 +37,6 @@ export const createListingAction = async (
       CreateListingSchema.safeParse(createListingData);
 
     if (!success) {
-      console.error("Validation Failed", error.message);
       return {
         success: false,
         message: error.message,
@@ -56,8 +55,6 @@ export const createListingAction = async (
       })
     ).id;
 
-    console.log("ADDRESS CREATED: ", addressId);
-
     // Create the listing in the database
     const listing = await prisma.listing.create({
       data: {
@@ -67,22 +64,17 @@ export const createListingAction = async (
       },
     });
 
-    console.log("LISTING CREATED: ", listing);
-
     await uploadListingImagesAction(listing.id, images, userId);
     revalidatePath("/listings");
-    console.log("MODERATING THE LISTING:");
-    moderateListingAction(listing.id).catch((e) => {
-      console.error("Error running background moderation:", e);
-    });
+    moderateListingAction(listing.id).catch(() => {});
 
     return {
       success: true,
       message: "Listing created successfully",
       listingId: listing.id,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error creating listing:", error);
     return {
       success: false,
       message: "Failed to create listing. Please try again.",

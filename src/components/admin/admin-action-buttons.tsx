@@ -13,8 +13,8 @@ export const AdminActionButtons = ({ listing }: { listing: Listing }) => {
       } else {
         toast.error(res.message);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error approving listing:", error);
       toast.error("An unexpected error occurred while approving the listing.");
     }
   };
@@ -27,8 +27,8 @@ export const AdminActionButtons = ({ listing }: { listing: Listing }) => {
       } else {
         toast.error(res.message);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error rejecting listing:", error);
       toast.error("An unexpected error occurred while rejecting the listing.");
     }
   };

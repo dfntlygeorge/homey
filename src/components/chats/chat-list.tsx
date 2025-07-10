@@ -25,7 +25,6 @@ interface ChatListProps {
 export const ChatList = ({ conversations, currentUserId }: ChatListProps) => {
   const router = useRouter();
   const pathname = usePathname();
-  console.log(pathname);
 
   const isChatPage = pathname.startsWith("/chats/") && pathname !== "/chats";
 

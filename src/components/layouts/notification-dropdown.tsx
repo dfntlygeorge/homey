@@ -71,11 +71,11 @@ export const NotificationDropdown = (props: NotificationDropdownProps) => {
         } else {
           router.push("/");
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // Revert optimistic update on error
         setNotifications(props.notifications);
         onNotificationUpdate?.(props.notifications);
-        console.error("Failed to mark notification as read:", error);
       }
     });
 
@@ -99,11 +99,11 @@ export const NotificationDropdown = (props: NotificationDropdownProps) => {
     startTransition(async () => {
       try {
         await onMarkAllAsRead?.();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         // Revert optimistic update on error
         setNotifications(props.notifications);
         onNotificationUpdate?.(props.notifications);
-        console.error("Failed to mark all notifications as read:", error);
       }
     });
 

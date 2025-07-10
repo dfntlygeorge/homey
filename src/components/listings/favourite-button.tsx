@@ -67,7 +67,6 @@ export const FavouriteButton = (props: FavouriteButtonProps) => {
       }
 
       // This will only run if it's not an HTTPError
-      console.error("Failed to update favourite:", error);
       toast.error("Failed to update favourite. Please try again.");
     }
   };

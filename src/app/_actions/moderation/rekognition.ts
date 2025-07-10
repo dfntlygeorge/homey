@@ -50,8 +50,8 @@ export async function moderateImageFromS3(
           ? Math.max(...moderationLabels.map((label) => label.Confidence ?? 0))
           : 0,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error moderating image:", error);
     throw new Error("Failed to moderate image");
   }
 }

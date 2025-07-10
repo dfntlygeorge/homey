@@ -36,7 +36,6 @@ export async function markAsReadAction(notificationId: number) {
   });
 
   if (!notification || notification.userId !== userId) {
-    console.error("Unauthorized attempt to mark notification as read");
     notFound();
   }
 

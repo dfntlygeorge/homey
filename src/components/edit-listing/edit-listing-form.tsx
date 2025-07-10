@@ -159,9 +159,8 @@ export const EditListingForm = ({
             form.setValue("latitude", latitude);
           }
         }
-      } catch (error) {
-        console.error("Error fetching coordinates:", error);
-      }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {}
     },
     [form]
   );
@@ -189,8 +188,6 @@ export const EditListingForm = ({
   };
 
   const onSubmit = (data: UpdateListingType) => {
-    console.log("🔥 Submitting form with data:", data);
-
     startTransition(async () => {
       try {
         const changedFields = getChangedFields(originalValues, data);
@@ -198,18 +195,11 @@ export const EditListingForm = ({
         const deletedImageIds = removedImageIds;
 
         const hasImageChanged = imagesChanged();
-        console.log(
-          `Did image changed? ${hasImageChanged ? "YESSSS" : "NOOOO"}`
-        );
 
         if (Object.keys(changedFields).length === 0 && !hasImageChanged) {
           toast.info("No changes detected");
           return;
         }
-
-        console.log("WOULD SEND THE FOLLOWING DETAILS TO THE SERVER: ");
-        console.log("IMAGES TO UPLOAD(FILES): ");
-        console.log("IMAGES TO DELETE(IDS): ", deletedImageIds);
 
         const result = await updateListingAction({
           listingId: id,
@@ -218,16 +208,14 @@ export const EditListingForm = ({
           imagesToUpload: newImages,
         });
 
-        console.log("✅ Update result:", result);
-
         if (result.success) {
           toast.success("Listing updated successfully!");
           router.push(routes.listing(id));
         } else {
           toast.error(result.message || "Failed to update listing");
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error("❌ Error updating listing:", error);
         toast.error("An error occurred while updating the listing");
       }
     });

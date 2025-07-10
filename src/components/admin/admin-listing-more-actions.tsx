@@ -35,8 +35,8 @@ export function AdminListingMoreActions({
         listing.id
       );
       toast.success("Status reset to pending");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error resetting status:", error);
       toast.error("Failed to reset status");
     }
   };

@@ -32,8 +32,8 @@ export function AdminListingActionButtons({
         listing.id
       );
       toast.success("Listing approved successfully");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error approving listing:", error);
       toast.error("Failed to approve listing");
     } finally {
       setIsPending(false);
@@ -51,8 +51,8 @@ export function AdminListingActionButtons({
         listing.id
       );
       toast.success("Listing rejected");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error rejecting listing:", error);
       toast.error("Failed to reject listing");
     } finally {
       setIsPending(false);

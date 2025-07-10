@@ -33,9 +33,8 @@ export const deleteListingAction = async (listingId: number) => {
       success: true,
       message: "Deleted successfully",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error in deleting listing: ", error);
-
     return {
       success: false,
       message: "Failed to delete listing. Please try again.",

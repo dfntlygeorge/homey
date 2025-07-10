@@ -42,8 +42,8 @@ app.prepare().then(() => {
   });
 
   httpServer
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .once("error", (err) => {
-      console.error(err);
       process.exit(1);
     })
     .listen(port, () => {});

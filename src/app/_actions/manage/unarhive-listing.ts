@@ -46,8 +46,8 @@ export const unarchiveListingAction = async (listingId: number) => {
       success: true,
       message: "Listing restored successfully",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error unarchiving listing:", error);
     return {
       success: false,
       message: "Failed to restore listing. Please try again.",

@@ -48,8 +48,8 @@ export async function checkReviewPromptEligibility(
       showPrompt,
       reservationId: reservation.id,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error checking review prompt eligibility:", error);
     return {
       success: false,
       error: "Failed to check review prompt eligibility",

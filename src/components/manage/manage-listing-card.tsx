@@ -28,7 +28,6 @@ export function ManageListingCard({
   const handleArchiveToggle = () => {
     // This callback can be used to trigger any parent component updates
     // For example, refreshing the listing data or removing from current view
-    console.log("Archive status toggled for listing:", listing.id);
   };
 
   return (

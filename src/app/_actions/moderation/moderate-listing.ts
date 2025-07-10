@@ -9,7 +9,6 @@ import { moderateImageFromS3 } from "./rekognition";
 import { env } from "@/env";
 
 export const moderateListingAction = async (listingId: number) => {
-  console.log("moderateListingAction was called");
   // Prepare text moderation promise
   const listing = await prisma.listing.findUnique({
     where: {
@@ -23,15 +22,12 @@ export const moderateListingAction = async (listingId: number) => {
 
   if (!listing) return;
 
-  console.log("THESE IS A LISTING: ", listing.title);
-
   const textModerationPromise = (async () => {
     const prompt = MODERATION_PROMPT(listing);
     const response = await callGemini(prompt);
 
     if (!response.text) {
       // fallback if no text
-      console.log("GEMINI ERROR?");
       return { action: "manual_review", reason: "No AI response" };
     }
 
@@ -43,9 +39,8 @@ export const moderateListingAction = async (listingId: number) => {
     try {
       const moderation: ModerationResponse = JSON.parse(cleaned);
       return moderation;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      console.error(err);
-      console.error("Failed to parse Gemini response:", cleaned);
       return { action: "manual_review", reason: "Invalid AI response" };
     }
   })();
@@ -81,18 +76,11 @@ export const moderateListingAction = async (listingId: number) => {
     imageModeration.hasInappropriateImage
   ) {
     newStatus = "REJECTED";
-    console.log("DETAILS");
-    console.log(textModeration.action);
-    console.log(imageModeration.hasInappropriateImage);
-    console.log(imageModeration);
   } else if (
     textModeration.action === "approve" &&
     !imageModeration.hasInappropriateImage
   ) {
     newStatus = "APPROVED";
-    console.log("DETAILS");
-    console.log(textModeration.action);
-    console.log(imageModeration.hasInappropriateImage);
   }
 
   // Update listing

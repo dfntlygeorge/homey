@@ -53,8 +53,8 @@ export function ManageReservationsButton({
       } else {
         toast.error(result.error);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error in accepting reservation", error);
       toast.error("Failed to accept reservation");
     } finally {
       setLoadingStates((prev) => ({ ...prev, [reservationId]: false }));
@@ -70,8 +70,8 @@ export function ManageReservationsButton({
       } else {
         toast.error(result.error);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error in declining reservation", error);
       toast.error("Failed to decline reservation");
     } finally {
       setLoadingStates((prev) => ({ ...prev, [reservationId]: false }));

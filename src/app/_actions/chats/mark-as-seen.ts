@@ -30,8 +30,8 @@ export async function markMessagesAsSeen(conversationId: number) {
       seenByUserId: userId,
       seenAt: new Date(),
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error marking messages as seen:", error);
     return { error: "Failed to mark messages as seen" };
   }
 }

@@ -89,8 +89,6 @@ export async function acceptReservationAction(
         type: NotificationType.RESERVATION,
       },
     });
-    console.log("ACCEPTED RESERVATION:", reservation.id);
-    console.log("UPDATED LISTING SLOTS:", listing.slotsAvailable - 1);
 
     // Revalidate the page to update the UI
     revalidatePath("/chats");
@@ -99,8 +97,8 @@ export async function acceptReservationAction(
       success: true,
       message: "Reservation accepted successfully",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error accepting reservation:", error);
     return {
       success: false,
       error: "Failed to accept reservation",

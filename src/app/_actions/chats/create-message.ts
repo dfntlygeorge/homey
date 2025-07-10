@@ -76,8 +76,8 @@ export async function createMessage(
     revalidatePath("/chats");
 
     return { success: true, message };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error creating message:", error);
     return { error: "Failed to send message" };
   }
 }

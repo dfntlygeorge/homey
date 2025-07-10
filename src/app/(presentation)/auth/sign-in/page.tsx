@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 export default async function SignInPage() {
   const session = await auth();
   if (session) redirect(routes.listings);
-  console.log(session);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

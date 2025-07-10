@@ -42,7 +42,6 @@ export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
 
     const accessToken = env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
     if (!accessToken) {
-      console.error("Mapbox access token is not configured");
       return;
     }
 
@@ -93,8 +92,8 @@ export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
       setSuggestions(formattedSuggestions);
       setShowSuggestions(true);
       setActiveSuggestionIndex(-1);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error fetching address suggestions:", error);
       setSuggestions([]);
       toast.error("Something went wrong", {
         description:
@@ -160,7 +159,7 @@ export const AddressAutocomplete = (props: AddressAutocompleteProps) => {
     }
   };
 
-  const handleInputBlur = (e: React.FocusEvent) => {
+  const handleInputBlur = () => {
     setTimeout(() => {
       setShowSuggestions(false);
       setActiveSuggestionIndex(-1);

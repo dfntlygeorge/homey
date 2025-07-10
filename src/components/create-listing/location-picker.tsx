@@ -33,18 +33,17 @@ export const LocationPicker = ({
           const { latitude, longitude } = position.coords;
           const address = await reverseGeocode(latitude, longitude);
           onAddressChange({ address, latitude, longitude });
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
           toast.error("Failed to get address from coordinates.");
-          console.error("Geocoding error:", err);
         } finally {
           setIsLoading(false);
         }
       },
-      (error) => {
+      () => {
         toast.error(
           "Failed to get your location. Please enable location services."
         );
-        console.error("Geolocation error:", error);
         setIsLoading(false);
       },
       {

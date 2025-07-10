@@ -75,9 +75,8 @@ export const ChatWindow = ({
           seenAt: result.seenAt,
         });
       }
-    } catch (error) {
-      console.error("Error marking messages as seen:", error);
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {}
   }, [conversation.id, currentUserId]);
 
   // Check review prompt eligibility
@@ -126,9 +125,8 @@ export const ChatWindow = ({
           }
         }
       }
-    } catch (error) {
-      console.error("Error checking review prompt:", error);
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {}
   }, [
     isRenter,
     conversation.listing.id,
@@ -250,8 +248,6 @@ export const ChatWindow = ({
       seenByUserId: string;
       seenAt: Date;
     }) => {
-      console.log("Received messages_seen event:", data);
-
       if (data.conversationId === conversation.id) {
         setMessages((prev) =>
           prev.map((msg) => {

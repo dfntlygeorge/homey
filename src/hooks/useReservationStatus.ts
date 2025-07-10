@@ -49,8 +49,9 @@ export const useReservationStatus = ({
             setReservationStatus(result.reservation.status);
           }
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error("Error checking reservation:", error);
+        toast.error("Error checking reservation");
       } finally {
         setIsLoadingStatus(false);
       }
@@ -76,8 +77,8 @@ export const useReservationStatus = ({
       } else {
         toast.error(result.error || "Failed to create reservation");
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error reserving listing:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsReserving(false);
@@ -105,8 +106,8 @@ export const useReservationStatus = ({
       } else {
         toast.error(result.error || "Failed to decline reservation");
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error declining reservation:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsDeclining(false);
@@ -134,8 +135,8 @@ export const useReservationStatus = ({
       } else {
         toast.error(result.error || "Failed to accept reservation");
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error accepting reservation:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsAccepting(false);

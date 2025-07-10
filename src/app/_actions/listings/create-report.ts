@@ -32,7 +32,6 @@ export async function createReportAction(
     const { data, success, error } = ReportFormSchema.safeParse(formData);
 
     if (!success) {
-      console.error("Validation Failed", error.message);
       return {
         success: false,
         message: error.message,
@@ -47,7 +46,6 @@ export async function createReportAction(
       },
     });
   } catch (error) {
-    console.log({ error });
     if (error instanceof Error) {
       return { success: false, message: error.message };
     }

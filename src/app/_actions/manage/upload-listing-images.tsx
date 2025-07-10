@@ -65,14 +65,12 @@ export async function uploadListingImagesAction(
       data: uploadResults,
     });
 
-    console.log(`✅ Uploaded ${uploadResults.length} images`);
-
     return {
       success: true,
       message: `Successfully uploaded ${uploadResults.length} images`,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error uploading images:", error);
     return {
       success: false,
       message: "Failed to upload images. Please try again later.",

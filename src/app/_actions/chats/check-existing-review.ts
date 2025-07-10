@@ -31,8 +31,8 @@ export async function checkExistingReview(addressId: number, userId: string) {
       hasReview: !!existingReview,
       review: existingReview,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error checking existing review:", error);
     return {
       success: false,
       error: "Failed to check existing review",

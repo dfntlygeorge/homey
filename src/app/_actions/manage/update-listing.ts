@@ -30,12 +30,9 @@ export const updateListingAction = async (props: UpdateListingProps) => {
 
     const { listingId, formData, deletedImageIds, imagesToUpload } = props;
 
-    console.log("FORM DATA: ", formData);
-
     const result = UpdateListingSchema.safeParse(formData);
 
     if (!result.success) {
-      console.error("Validation Failed", result.error.message);
       return {
         success: false,
         message: result.error.message,
@@ -88,17 +85,15 @@ export const updateListingAction = async (props: UpdateListingProps) => {
       userId,
     });
 
-    moderateListingAction(listingId).catch((e) => {
-      console.error("Error running background moderation:", e);
-    });
+    moderateListingAction(listingId).catch(() => {});
 
     return {
       success: true,
       message:
         "Updated successfully. Your listing is now under review and will be visible once approved.",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error in updating the listing: ", error);
     return {
       success: false,
       message: "Could not update the listing. Try again later.",

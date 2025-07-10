@@ -44,7 +44,6 @@ export default async function UserProfilePage(props: PageProps) {
   });
 
   if (!user) {
-    console.log("NOT FOUND");
     notFound();
   }
 

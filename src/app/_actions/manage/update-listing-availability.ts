@@ -24,15 +24,12 @@ export const updateListingAvailabilityAction = async (
     const { success } = await availabilityRatelimit.limit(userId);
 
     if (!success) {
-      console.log("Rate limit exceeded");
       return {
         success: false,
         message:
           "You've reached the limit for changing availability. Please try again later.",
       };
     }
-
-    console.log("Updating availability status...");
 
     await prisma.listing.update({
       where: {
@@ -43,8 +40,6 @@ export const updateListingAvailabilityAction = async (
       },
     });
 
-    console.log("Update successful");
-
     revalidatePath(routes.manage);
 
     return {
@@ -53,9 +48,8 @@ export const updateListingAvailabilityAction = async (
         isAvailable ? "available" : "unavailable"
       }.`,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error updating listing availability:", error);
-
     return {
       success: false,
       message:

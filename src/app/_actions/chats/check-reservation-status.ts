@@ -59,8 +59,8 @@ export async function checkReservationStatus(
       success: true,
       reservation: reservation || null,
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error checking reservation status:", error);
     return {
       success: false,
       error: "Failed to check reservation status",

@@ -16,7 +16,6 @@ export interface FilteredListingsResult {
 function buildClassifiedFilterQuery(
   searchParams: AwaitedPageProps["searchParams"] | undefined
 ): Prisma.ListingWhereInput {
-  console.log("searchParams", searchParams);
   const { data } = ListingFilterSchema.safeParse(searchParams);
   if (!data) return {};
 

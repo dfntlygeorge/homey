@@ -31,9 +31,8 @@ export const archiveListingAction = async (listingId: number) => {
       success: true,
       message: "Listing archived successfully",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error archiving listing:", error);
-
     return {
       success: false,
       message: "Failed to archive listing. Please try again.",

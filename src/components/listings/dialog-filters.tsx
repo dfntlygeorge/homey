@@ -103,8 +103,6 @@ export const DialogFilters = (props: DialogFiltersProps) => {
     router.refresh();
   };
 
-  console.log("Is this compoennt running?");
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>

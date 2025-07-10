@@ -78,8 +78,8 @@ export const SystemMessageBubble = ({
       } else {
         toast.error(result.message);
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log("ERROR IN SUBMITTING THE REVIEW: ", error);
       toast.error("Failed to submit review. Please try again.");
     } finally {
       setIsSubmitting(false);

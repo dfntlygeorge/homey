@@ -51,8 +51,8 @@ export async function declineReservationByIdAction(reservationId: number) {
       success: true,
       message: "Reservation declined successfully",
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error declining reservation:", error);
     return {
       success: false,
       error: "Failed to decline reservation",

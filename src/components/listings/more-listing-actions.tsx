@@ -76,10 +76,10 @@ export const MoreListingActions = ({ listingId }: { listingId: number }) => {
         setIsSubmitted(false);
         form.reset();
       }, 2000);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setIsSubmitting(false);
       toast.error("An unexpected error occurred while submitting the report.");
-      console.error("Error submitting report:", error);
     }
   };
 

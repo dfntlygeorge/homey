@@ -92,9 +92,8 @@ export const CreateListingForm = () => {
             form.setValue("latitude", latitude);
           }
         }
-      } catch (error) {
-        console.error("Error fetching coordinates:", error);
-      }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {}
     },
     [form]
   );
@@ -123,8 +122,6 @@ export const CreateListingForm = () => {
   };
 
   const onSubmit = (data: CreateListingType) => {
-    console.log("🔥 Submitting form with data:", data);
-
     startTransition(async () => {
       try {
         const newImages = getNewImages();
@@ -135,12 +132,7 @@ export const CreateListingForm = () => {
           images: newImages.map((image) => image.file),
         };
 
-        console.log("WOULD SEND THE FOLLOWING DETAILS TO THE SERVER: ");
-        console.log("FORM DATA: ", formDataWithImages);
-
         const result = await createListingAction(formDataWithImages);
-
-        console.log("✅ Create result:", result);
 
         if (result.success) {
           toast.success("Listing created successfully!");
@@ -148,8 +140,8 @@ export const CreateListingForm = () => {
         } else {
           toast.error(result.message || "Failed to create listing");
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.error("❌ Error creating listing:", error);
         toast.error("An error occurred while creating the listing");
       }
     });

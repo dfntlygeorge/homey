@@ -89,7 +89,6 @@ export async function reserveListingAction(listingId: number) {
           updatedAt: new Date(),
         },
       });
-      console.log("UPDATED DECLINED RESERVATION TO PENDING:", reservation.id);
     } else {
       // Create a new reservation
       reservation = await prisma.reservation.create({
@@ -100,7 +99,6 @@ export async function reserveListingAction(listingId: number) {
           status: "PENDING",
         },
       });
-      console.log("CREATED NEW RESERVATION:", reservation.id);
     }
 
     await prisma.notification.create({
@@ -110,11 +108,6 @@ export async function reserveListingAction(listingId: number) {
         type: NotificationType.RESERVATION,
       },
     });
-
-    console.log("RESERVED THE LISTING UNDER OWNER: ", listing.userId);
-    console.log("WHO RESERVED IT? ", userId);
-    console.log("WHAT LISTING IS RESERVED: ", listingId);
-    console.log("WHAT IS THE STATUS: ", "PENDING");
 
     // Revalidate the page to update the UI
     revalidatePath("/chats");
@@ -126,8 +119,8 @@ export async function reserveListingAction(listingId: number) {
         status: reservation.status,
       },
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error creating reservation:", error);
     return {
       success: false,
       error: "Failed to create reservation",

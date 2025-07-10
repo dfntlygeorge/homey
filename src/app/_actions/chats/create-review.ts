@@ -101,8 +101,8 @@ export const submitReviewAction = async (
         createdAt: review.createdAt,
       },
     };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Error submitting review:", error);
     return {
       success: false,
       message: "Failed to submit review. Please try again.",

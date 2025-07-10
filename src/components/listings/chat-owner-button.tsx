@@ -32,8 +32,8 @@ export const ChatOwnerButton = ({
         // Now do client-side redirect
         router.push(routes.chat(result.conversationId));
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.error("Error contacting owner:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
