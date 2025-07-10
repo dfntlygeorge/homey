@@ -7,6 +7,7 @@ import prisma from "@/lib/prisma";
 import { ListingStatus } from "@prisma/client";
 import { moderateImageFromS3 } from "./rekognition";
 import { env } from "@/env";
+import { fallbackTextModeration } from "@/lib/manual-moderation";
 
 export const moderateListingAction = async (listingId: number) => {
   // Prepare text moderation promise
@@ -24,24 +25,32 @@ export const moderateListingAction = async (listingId: number) => {
 
   const textModerationPromise = (async () => {
     const prompt = MODERATION_PROMPT(listing);
-    const response = await callGemini(prompt);
-
-    if (!response.text) {
-      // fallback if no text
-      return { action: "manual_review", reason: "No AI response" };
-    }
-
-    const cleaned = response.text
-      .replace(/```json\s*/g, "")
-      .replace(/```/g, "")
-      .trim();
 
     try {
-      const moderation: ModerationResponse = JSON.parse(cleaned);
-      return moderation;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      return { action: "manual_review", reason: "Invalid AI response" };
+      const response = await callGemini(prompt);
+
+      if (!response.text) {
+        // Use fallback if no text response
+        return fallbackTextModeration(listing);
+      }
+
+      const cleaned = response.text
+        .replace(/```json\s*/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      try {
+        const moderation: ModerationResponse = JSON.parse(cleaned);
+        return moderation;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (parseErr) {
+        // Use fallback if JSON parsing fails
+        return fallbackTextModeration(listing);
+      }
+    } catch (geminiErr) {
+      // Use fallback if Gemini API fails entirely
+      console.error("Gemini API failed, using fallback moderation:", geminiErr);
+      return fallbackTextModeration(listing);
     }
   })();
 
