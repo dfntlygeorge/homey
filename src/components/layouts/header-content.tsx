@@ -4,7 +4,7 @@ import { navLinks } from "@/config/constants";
 import { routes } from "@/config/routes";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { HouseIcon, MessageCircleIcon } from "lucide-react";
+import { MessageCircleIcon } from "lucide-react";
 import { Notification } from "@prisma/client";
 import { NotificationDropdown } from "./notification-dropdown";
 import {
@@ -14,6 +14,7 @@ import {
 import { Session } from "next-auth";
 import UserAvatarDropdown from "../ui/user-avatar-dropdown";
 import { MobileNavigation } from "./mobile-navigation";
+import Image from "next/image";
 
 interface PublicHeaderContentProps {
   notifications: Notification[];
@@ -35,8 +36,13 @@ export const PublicHeaderContent = ({
           href={routes.home}
           className="group font-heading text-foreground hover:text-primary rounded px-3 py-2 text-base font-semibold uppercase transition-all duration-300 ease-in-out flex items-center gap-2"
         >
-          <HouseIcon className="size-5" />
-          Homey
+          <Image
+            src={"/brand-icon.png"}
+            alt="Hestia logo"
+            width={26}
+            height={26}
+          />
+          Hestia
         </Link>
       </div>
       <nav className="hidden md:flex">

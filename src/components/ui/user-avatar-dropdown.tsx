@@ -134,16 +134,17 @@ export default function UserAvatarDropdown(props: UserAvatarDropdownProps) {
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
-
-          <DropdownMenuItem asChild>
-            <Link
-              href={routes.admin}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <Shield className="w-4 h-4" />
-              Admin Login
-            </Link>
-          </DropdownMenuItem>
+          {session.user?.role === "ADMIN" && (
+            <DropdownMenuItem asChild>
+              <Link
+                href={routes.admin}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Shield className="w-4 h-4" />
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
 
