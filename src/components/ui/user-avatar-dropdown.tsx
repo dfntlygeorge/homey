@@ -147,16 +147,11 @@ export default function UserAvatarDropdown(props: UserAvatarDropdownProps) {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem asChild>
-            <form action={signOutAction} className="w-full">
-              <button
-                type="submit"
-                className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </button>
-            </form>
+          <DropdownMenuItem onSelect={() => signOutAction()}>
+            <div className="w-full flex items-center gap-2 text-red-600 hover:text-red-700 cursor-pointer">
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
