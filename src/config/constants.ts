@@ -12,6 +12,11 @@ export const navLinks = [
     href: routes.listings,
     label: "Listings",
   },
+  {
+    id: 3,
+    href: routes.faq,
+    label: "Faq",
+  },
 ];
 
 export const LISTINGS_PER_PAGE = 3;

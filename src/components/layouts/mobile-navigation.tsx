@@ -14,6 +14,7 @@ import {
   LogOut,
   Home,
   Building2,
+  HelpCircle,
 } from "lucide-react";
 import { navLinks } from "@/config/constants";
 import { signInAction, signOutAction } from "@/app/_actions/shared/auth";
@@ -30,7 +31,8 @@ export const MobileNavigation = ({ session }: MobileNavigationProps) => {
   const getNavIcon = (href: string) => {
     if (href.includes("home")) return <Home className="w-5 h-5" />;
     if (href.includes("listings")) return <Building2 className="w-5 h-5" />;
-    return <Home className="w-5 h-5" />;
+    if (href.includes("faq")) return <HelpCircle className="w-5 h-5" />;
+    return <Home className="w-5 h-5" />; // default fallback
   };
 
   return (
@@ -74,7 +76,7 @@ export const MobileNavigation = ({ session }: MobileNavigationProps) => {
               </div>
             </div>
           ) : (
-            <div className="p-6 border-b bg-gray-50">
+            <div className="p-6 border-b bg-gray-50 mt-4">
               <form action={signInAction} className="w-full">
                 <Button type="submit" className="w-full">
                   Sign In

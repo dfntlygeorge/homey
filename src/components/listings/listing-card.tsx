@@ -170,7 +170,7 @@ export const ListingCard = (props: ListingCardProps) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="mt-auto pt-1 flex flex-col sm:flex-row gap-2">
+              <div className="mt-auto pt-1 flex  gap-2">
                 <Button
                   className="flex-1 h-9"
                   onClick={handleContactOwner}

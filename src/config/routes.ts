@@ -13,4 +13,5 @@ export const routes = {
   chat: (conversationId: number) => `/chats?id=${conversationId}`,
   profilePage: (userId: string) => `/users/${userId}`,
   chats: "/chats",
+  faq: "/faq",
 };
