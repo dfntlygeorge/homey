@@ -5,13 +5,13 @@ import { UnauthenticatedMessage } from "@/components/manage/unauthenticated-mess
 import { ManageHeader } from "@/components/manage/manage-header";
 import { ManageViewToggle } from "@/components/manage/manage-view-toggle";
 import { ManageResultsSection } from "@/components/manage/manage-results-section";
-import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
+import { DateRangeFilter, PageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { ListingStatus } from "@prisma/client";
 import { startOfToday, startOfWeek, startOfMonth } from "date-fns";
 import { ManageDialogFilters } from "@/components/manage/manage-dialog-filter";
 
-export default async function ManageListingsPage(props: AwaitedPageProps) {
+export default async function ManageListingsPage(props: PageProps) {
   const session = await auth();
   if (!session) return <UnauthenticatedMessage />;
 

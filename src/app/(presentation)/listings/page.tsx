@@ -4,14 +4,14 @@ import { ListingsContainer } from "@/components/listings/listings-container";
 import { Sidebar } from "@/components/listings/sidebar";
 import { CustomPagination } from "@/components/shared/custom-pagination";
 import { routes } from "@/config/routes";
-import { AwaitedPageProps, Favourites } from "@/config/types";
+import { Favourites, PageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { redis } from "@/lib/redis-store";
 import { getSourceId } from "@/lib/source-id";
 import { getFilteredListingsWithCount } from "@/lib/listing-filter";
 import { Suspense } from "react";
 
-export default async function ListingsPage(props: AwaitedPageProps) {
+export default async function ListingsPage(props: PageProps) {
   const searchParams = await props.searchParams;
 
   // Run ALL queries in parallel

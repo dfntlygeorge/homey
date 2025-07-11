@@ -1,6 +1,6 @@
 import { EditListingForm } from "@/components/edit-listing/edit-listing-form";
 import { ImagePreviewWrapper } from "@/components/edit-listing/image-preview-wrapper";
-import { AwaitedPageProps } from "@/config/types";
+import { PageProps } from "@/config/types";
 import { ImagesProvider } from "@/context/edit-listing/images-context";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth"; // Adjust import path as needed
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { routes } from "@/config/routes";
 import { Lock, ChevronRight } from "lucide-react";
 
-export default async function EditListingPage(props: AwaitedPageProps) {
+export default async function EditListingPage(props: PageProps) {
   const session = await auth();
 
   // Check if user is authenticated

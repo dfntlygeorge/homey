@@ -3,7 +3,7 @@ import { AdminListingCard } from "@/components/admin/admin-listing-card";
 import { ManageSidebar } from "@/components/manage/manage-sidebar";
 import { NoListingsMessage } from "@/components/manage/no-listings-message";
 import { UnauthenticatedMessage } from "@/components/manage/unauthenticated-message";
-import { AwaitedPageProps, DateRangeFilter } from "@/config/types";
+import { DateRangeFilter, PageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
 import { getStatusLabel } from "@/lib/utils";
 import { ListingStatus, Prisma } from "@prisma/client";
@@ -16,7 +16,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-export default async function AdminPage(props: AwaitedPageProps) {
+export default async function AdminPage(props: PageProps) {
   const session = await auth();
 
   const isAdmin = session && session.user?.role === "ADMIN";

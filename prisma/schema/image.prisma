@@ -3,7 +3,7 @@ model Image {
     url String
 
     listingId Int     @map("listing_id")
-    listing   Listing @relation(fields: [listingId], references: [id])
+    listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
     order     Int
 
     createdAt DateTime @default(now()) @map("created_at")
