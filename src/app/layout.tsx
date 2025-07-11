@@ -21,7 +21,6 @@ export const metadata: Metadata = {
   description:
     "Hestia helps you easily discover and connect with trusted rentals and boarding houses in Baguio City.",
   manifest: "/site.webmanifest", // ✅ remove /public — it's automatically served from public
-  themeColor: "#000000", // adjust if you have a brand color
   openGraph: {
     title: "Hestia — Find Your Perfect Rental in Baguio",
     description:
