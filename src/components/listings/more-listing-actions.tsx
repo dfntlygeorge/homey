@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag, Heart, Share, MoreVertical } from "lucide-react";
+import { Flag, Heart, Copy, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,6 +80,38 @@ export const MoreListingActions = ({
     }
   };
 
+  const handleCopyLink = async () => {
+    try {
+      // Get the current URL and construct the listing link
+      const currentUrl = window.location.origin;
+      const listingUrl = `${currentUrl}/listings/${listingId}`; // Adjust this path based on your routing structure
+
+      await navigator.clipboard.writeText(listingUrl);
+      toast.success("Link copied to clipboard!");
+      setIsDropdownOpen(false);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Fallback for browsers that don't support clipboard API
+      try {
+        const textArea = document.createElement("textarea");
+        const currentUrl = window.location.origin;
+        const listingUrl = `${currentUrl}/listings/${listingId}`;
+
+        textArea.value = listingUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        toast.success("Link copied to clipboard!");
+        setIsDropdownOpen(false);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (fallbackError) {
+        toast.error("Failed to copy link. Please try again.");
+      }
+    }
+  };
+
   const handleReportClick = () => {
     setIsDropdownOpen(false);
     setIsReportModalOpen(true);
@@ -114,9 +146,12 @@ export const MoreListingActions = ({
               <Flag className="h-4 w-4 mr-2" />
               Report listing
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-gray-600 cursor-pointer">
-              <Share className="h-4 w-4 mr-2" />
-              Share listing
+            <DropdownMenuItem
+              className="text-gray-600 cursor-pointer"
+              onClick={handleCopyLink}
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy link
             </DropdownMenuItem>
             <DropdownMenuItem
               className={`cursor-pointer ${
