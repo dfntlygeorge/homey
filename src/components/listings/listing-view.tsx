@@ -44,6 +44,7 @@ interface ListingViewProps {
       user: true;
     };
   }>;
+  isFavourite: boolean;
 }
 
 const features = (listing: Listing) => [
@@ -236,7 +237,7 @@ const DescriptionSection = ({ description }: { description: string }) => {
   );
 };
 
-export const ListingView = ({ listing }: ListingViewProps) => {
+export const ListingView = ({ listing, isFavourite }: ListingViewProps) => {
   const { images, title, description, address, rent, roomType, id, user } =
     listing;
   const ownerId = user.id;
@@ -277,7 +278,10 @@ export const ListingView = ({ listing }: ListingViewProps) => {
                     <h1 className="text-2xl font-bold text-gray-900">
                       {title}
                     </h1>
-                    <MoreListingActions listingId={id} />
+                    <MoreListingActions
+                      listingId={id}
+                      isFavourite={isFavourite}
+                    />
                   </div>
 
                   <p className="text-gray-600 text-sm mb-3 flex items-center">

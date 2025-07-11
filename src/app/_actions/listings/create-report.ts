@@ -29,6 +29,22 @@ export async function createReportAction(
       };
     }
 
+    // Check if user has already reported this listing
+    const existingReport = await prisma.report.findFirst({
+      where: {
+        userId,
+        listingId,
+      },
+    });
+
+    if (existingReport) {
+      return {
+        success: false,
+        message: "You have already reported this listing.",
+      };
+    }
+
+    // Validate form data
     const { data, success, error } = ReportFormSchema.safeParse(formData);
 
     if (!success) {
@@ -38,6 +54,9 @@ export async function createReportAction(
       };
     }
 
+    console.log("DID VALIDATION FAILED? ", "NO");
+
+    // Create report
     await prisma.report.create({
       data: {
         listingId,
@@ -45,6 +64,11 @@ export async function createReportAction(
         ...data,
       },
     });
+
+    return {
+      success: true,
+      message: "Submitted successfully",
+    };
   } catch (error) {
     if (error instanceof Error) {
       return { success: false, message: error.message };

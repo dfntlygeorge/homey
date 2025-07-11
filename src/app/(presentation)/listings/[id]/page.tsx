@@ -1,11 +1,14 @@
 import { ListingView } from "@/components/listings/listing-view";
-import { PageProps } from "@/config/types";
+import { Favourites, PageProps } from "@/config/types";
 import prisma from "@/lib/prisma";
+import { redis } from "@/lib/redis-store";
+import { getSourceId } from "@/lib/source-id";
 import { notFound } from "next/navigation";
 
 export default async function ListingPage(props: PageProps) {
   const params = await props.params;
   const id = Number(params?.id);
+  const sourceId = await getSourceId();
 
   if (!id) notFound();
 
@@ -27,5 +30,8 @@ export default async function ListingPage(props: PageProps) {
   });
 
   if (!listing) notFound();
-  return <ListingView listing={listing} />;
+  const favourites = await redis.get<Favourites>(sourceId ?? "");
+  const isFavourite = favourites?.ids.includes(listing.id);
+  console.log(isFavourite);
+  return <ListingView listing={listing} isFavourite={isFavourite || false} />;
 }
