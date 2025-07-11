@@ -6,7 +6,6 @@ import {
   Trash2,
   MoreHorizontal,
   Share,
-  RotateCcw,
   Pause,
   Play,
   Loader2,
@@ -32,6 +31,13 @@ import { archiveListingAction } from "@/app/_actions/manage/archive-listing";
 import { Prisma } from "@prisma/client";
 import { ManageReservationsButton } from "./manage-reservations-button";
 import { unarchiveListingAction } from "@/app/_actions/manage/unarhive-listing";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface ListingActionsProps {
   listing: Prisma.ListingGetPayload<{
@@ -57,6 +63,8 @@ export function ListingActions({
   const [isPending, startTransition] = useTransition();
   const [isArchiving, setIsArchiving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleAvailableToggle = () => {
     startTransition(async () => {
@@ -118,6 +126,7 @@ export function ListingActions({
 
       if (response.success) {
         toast.success(response.message);
+        setShowDeleteDialog(false);
       } else {
         toast.error(response.message);
       }
@@ -127,6 +136,13 @@ export function ListingActions({
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  const handleDeleteClick = () => {
+    setDropdownOpen(false); // Close dropdown first
+    setTimeout(() => {
+      setShowDeleteDialog(true); // Then open dialog
+    }, 100);
   };
 
   const handleShareListing = () => {
@@ -216,7 +232,7 @@ export function ListingActions({
       <ManageReservationsButton listing={listing} />
 
       {/* More Actions Dropdown */}
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="px-2">
             <MoreHorizontal className="w-3 h-3" />
@@ -224,19 +240,6 @@ export function ListingActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          {!isArchived && (
-            <>
-              <DropdownMenuItem>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Renew Post
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Pause className="w-4 h-4 mr-2" />
-                Mark as Pending
-              </DropdownMenuItem>
-            </>
-          )}
-
           <DropdownMenuItem asChild>
             <Link href={routes.listing(listing.id)}>
               <Eye className="w-4 h-4 mr-2" />
@@ -281,9 +284,41 @@ export function ListingActions({
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="text-red-600" disabled={isDeleting}>
-            <button
-              className="flex items-center cursor-pointer w-full disabled:cursor-not-allowed"
+          {/* Delete Button - Now properly handled */}
+          <DropdownMenuItem
+            onClick={handleDeleteClick}
+            className="text-red-600 cursor-pointer"
+            disabled={isDeleting}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Listing
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Delete Confirmation Dialog - Now separate from dropdown */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Listing</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete this listing? <br />
+            <strong>
+              All conversations, reservations and related data will also be
+              deleted.
+            </strong>
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
               onClick={handleDeleteListing}
               disabled={isDeleting}
             >
@@ -293,15 +328,12 @@ export function ListingActions({
                   Deleting...
                 </>
               ) : (
-                <>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete Listing
-                </>
+                "Delete"
               )}
-            </button>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

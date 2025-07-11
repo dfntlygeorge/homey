@@ -232,7 +232,7 @@ export const CreateListingForm = () => {
   };
 
   return (
-    <div className="w-1/2 p-6 bg-white">
+    <div className="w-full md:w-1/2 p-6 bg-white">
       <div className="max-w-2xl mx-auto">
         {/* Progress Steps */}
         <CreateListingProgressHeader currentStep={currentStep} />

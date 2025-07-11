@@ -4,7 +4,7 @@ model Conversation {
     renterId  String
     ownerId   String
 
-    listing Listing @relation(fields: [listingId], references: [id])
+    listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
     renter  User    @relation("RenterConversations", fields: [renterId], references: [id])
     owner   User    @relation("OwnerConversations", fields: [ownerId], references: [id])
 

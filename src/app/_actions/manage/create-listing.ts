@@ -10,6 +10,8 @@ import {
 } from "../../_schemas/form.schema";
 import { listingRatelimit } from "@/lib/rate-limit";
 import { uploadListingImagesAction } from "./upload-listing-images";
+import { calculateSimilarity, normalizeAddress } from "@/lib/utils";
+import { SIMILARITY_THRESHOLD } from "@/config/constants";
 
 export const createListingAction = async (
   createListingData: CreateListingType
@@ -45,15 +47,43 @@ export const createListingAction = async (
 
     const { images, longitude, latitude, address, ...listingData } = data;
 
-    const addressId = (
-      await prisma.address.create({
+    // Check for existing addresses with similar formatted addresses
+    const existingAddresses = await prisma.address.findMany({
+      select: {
+        id: true,
+        formattedAddress: true,
+      },
+    });
+
+    let addressId: number;
+
+    // Normalize the new address for comparison
+    const normalizedNewAddress = normalizeAddress(address);
+
+    // Check if any existing address is similar (you can adjust this threshold)
+    const similarAddress = existingAddresses.find((addr) => {
+      const normalizedExistingAddress = normalizeAddress(addr.formattedAddress);
+      const similarity = calculateSimilarity(
+        normalizedNewAddress,
+        normalizedExistingAddress
+      );
+      return similarity >= SIMILARITY_THRESHOLD;
+    });
+
+    if (similarAddress) {
+      // Use existing address (prevents review manipulation)
+      addressId = similarAddress.id;
+    } else {
+      // Create new address
+      const newAddress = await prisma.address.create({
         data: {
           formattedAddress: address,
           longitude,
           latitude,
         },
-      })
-    ).id;
+      });
+      addressId = newAddress.id;
+    }
 
     // Create the listing in the database
     const listing = await prisma.listing.create({

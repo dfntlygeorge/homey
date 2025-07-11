@@ -161,3 +161,5 @@ Room Type: ${roomType}
 Slots Available: ${slotsAvailable}
   `;
 };
+
+export const SIMILARITY_THRESHOLD = 0.85; // 85% similarity

@@ -12,7 +12,7 @@ model Reservation {
     acceptedAt DateTime?
 
     // Relations
-    listing Listing @relation(fields: [listingId], references: [id])
+    listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
     user    User    @relation("RenterReservations", fields: [userId], references: [id])
     owner   User    @relation("OwnerReservations", fields: [ownerId], references: [id])
 }

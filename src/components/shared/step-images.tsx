@@ -84,7 +84,6 @@ export const StepImages = <T extends FieldValues>({
           </FormItem>
         )}
       />
-
       {/* Debug info - only show in development */}
       {process.env.NODE_ENV === "development" &&
         originalValues &&
