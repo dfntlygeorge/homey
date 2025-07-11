@@ -17,7 +17,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { navLinks } from "@/config/constants";
-import { signInAction, signOutAction } from "@/app/_actions/shared/auth";
+import { signOutAction } from "@/app/_actions/shared/auth";
+import { routes } from "@/config/routes";
 
 interface MobileNavigationProps {
   session: Session | null;
@@ -77,11 +78,9 @@ export const MobileNavigation = ({ session }: MobileNavigationProps) => {
             </div>
           ) : (
             <div className="p-6 border-b bg-gray-50 mt-4">
-              <form action={signInAction} className="w-full">
-                <Button type="submit" className="w-full">
-                  Sign In
-                </Button>
-              </form>
+              <Button className="w-full" asChild>
+                <Link href={routes.signIn}>Sign In</Link>
+              </Button>
             </div>
           )}
 

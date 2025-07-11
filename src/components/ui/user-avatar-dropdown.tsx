@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import { signInAction, signOutAction } from "@/app/_actions/shared/auth";
+import { signOutAction } from "@/app/_actions/shared/auth";
 import { User, Heart, Settings, Plus, Shield, LogOut } from "lucide-react";
 import { routes } from "@/config/routes";
 
@@ -160,10 +160,8 @@ export default function UserAvatarDropdown(props: UserAvatarDropdownProps) {
   }
 
   return (
-    <form action={signInAction} className="inline">
-      <button type="submit" className={className}>
-        Sign In
-      </button>
-    </form>
+    <Link href={routes.signIn} className={className}>
+      Sign In
+    </Link>
   );
 }
