@@ -59,7 +59,6 @@ export const ListingMinimap = (props: ListingMinimapProps) => {
   const isMapInteractive = interactive || exploreMode;
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
-      console.warn("Mapbox access token is not configured");
       return;
     }
 
