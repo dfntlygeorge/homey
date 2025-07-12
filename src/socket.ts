@@ -2,6 +2,7 @@
 
 import { io } from "socket.io-client";
 
-export const socket = io("http://13.239.64.114:3001", {
-  transports: ["websocket"],
+// Connect to the same server since Socket.IO is running alongside Next.js
+export const socket = io({
+  transports: ["websocket", "polling"], // Include polling as fallback
 });
