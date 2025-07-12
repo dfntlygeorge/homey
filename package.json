@@ -79,6 +79,6 @@
     "schema": "./prisma/schema"
   },
   "engines": {
-    "node": "v22.17.0"
+    "node": "22.x"
   }
 }
