@@ -4,9 +4,9 @@ import { Server } from "socket.io";
 
 const dev = process.env.NODE_ENV !== "production";
 const port = process.env.PORT || 3000;
-// Optionally set hostname if needed:
-// const hostname = "0.0.0.0";
-const app = next({ dev, port });
+const hostname = "0.0.0.0"; // Important for Railway
+
+const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -16,12 +16,15 @@ app.prepare().then(() => {
     cors: {
       origin: dev
         ? "http://localhost:3000"
-        : "https://homey-production-4d38.up.railway.app/",
+        : "https://homey-production-4d38.up.railway.app",
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 
   io.on("connection", (socket) => {
+    console.log("⚡ New socket connected!");
+
     socket.on("join_conversation", (conversationId) => {
       socket.join(`conversation_${conversationId}`);
     });
@@ -38,15 +41,17 @@ app.prepare().then(() => {
       });
     });
 
-    socket.on("disconnect", () => {});
+    socket.on("disconnect", () => {
+      console.log("❌ Socket disconnected");
+    });
   });
 
   httpServer
     .once("error", (err) => {
-      console.error(err);
+      console.error("Server error:", err);
       process.exit(1);
     })
-    .listen(port, () => {
-      console.log(`> Ready on port ${port}`);
+    .listen(port, hostname, () => {
+      console.log(`🚀 Server ready on ${hostname}:${port}`);
     });
 });
