@@ -16,7 +16,7 @@ app.prepare().then(() => {
     cors: {
       origin: dev
         ? "http://localhost:3000"
-        : "https://your-production-domain.com",
+        : "https://homey-production-4d38.up.railway.app/",
       methods: ["GET", "POST"],
     },
   });
