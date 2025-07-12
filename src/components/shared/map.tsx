@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Maximize2 } from "lucide-react";
 import { MapModal } from "./map-modal";
+import { env } from "@/env";
 
 interface ListingMinimapProps {
   address?: string | null;
@@ -58,11 +59,7 @@ export const ListingMinimap = (props: ListingMinimapProps) => {
   // Determine if map should be interactive (either full interactive or explore mode)
   const isMapInteractive = interactive || exploreMode;
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
-      return;
-    }
-
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    mapboxgl.accessToken = env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
     if (map.current) return;
 
@@ -158,7 +155,7 @@ export const ListingMinimap = (props: ListingMinimapProps) => {
   ]);
 
   // Show loading state if coordinates are being processed
-  if (!process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
+  if (!env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN) {
     return (
       <div className={`relative ${classname}`}>
         <div className="w-full h-64 rounded-lg border border-gray-200 shadow-sm bg-gray-100 flex items-center justify-center">
